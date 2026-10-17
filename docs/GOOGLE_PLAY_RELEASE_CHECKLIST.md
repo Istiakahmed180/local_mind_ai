@@ -1,0 +1,38 @@
+# Google Play Release Checklist
+
+Verified sources (2026-10-17): Android target SDK requirements page (developer.android.com/google/play/requirements/target-sdk) and Play Console help "Understanding Google Play's AI-Generated Content policy" (support.google.com/googleplay/android-developer/answer/14094294). Re-check both before every submission — policies change.
+
+## Build & SDK
+
+- [ ] `targetSdk` ≥ 36 (required for new apps and updates from 2026-08-31; extension possible to 2026-11-01)
+- [ ] `minSdk` 26
+- [ ] Release built as Android App Bundle: `flutter build appbundle --release`
+- [ ] Play App Signing enrolled; upload key stored outside the repo (`android/key.properties` is git-ignored)
+- [x] 16 KB page size compatible native libraries — verified 2026-10-17 with `zipalign -c -P 16` and `llvm-readelf` (all LOAD ≥ 0x4000). Re-check after every llamadart upgrade
+- [x] ABI: arm64-v8a + x86_64 only (`--target-platform android-arm64,android-x64`; `abiFilters` in Gradle)
+- [ ] Version code incremented
+
+## Policy
+
+- [ ] **AI-Generated Content policy**: app is a text chatbot where AI interaction is central → in scope even though inference is offline.
+  - [ ] In-app way to report/flag offensive output without leaving the app. **Implemented:** long-press message → Report, stored locally, viewable in Settings → My reports, copyable for email. **Open question:** with no backend, reports do not reach the developer automatically. Confirm with Play policy support whether this satisfies the requirement, or add an opt-in, user-confirmed send (e.g. compose email via intent) that shows exactly what will be sent
+  - [ ] System prompt includes safety instruction; document testing process (keep a record of red-team prompts run against each catalog model).
+  - [ ] Store listing does not over-claim model quality or language support.
+- [ ] **User Data / Data safety form** — answer from actual behavior:
+  - Data collected: **none** (no analytics, no accounts). Model downloads send standard HTTP requests (IP address) to Hugging Face — disclose that model files are downloaded from a third-party host.
+  - Data shared: none.
+  - Encryption in transit: downloads use HTTPS.
+  - Deletion: Settings → Clear all data; uninstall.
+- [ ] Privacy policy URL hosted publicly, matching `docs/PRIVACY_POLICY.md`
+- [ ] Permissions: only `INTERNET` (+ `RECORD_AUDIO` only if voice ships). No storage, accessibility, package visibility or location permissions.
+- [ ] Content rating questionnaire (AI chatbot generating user-requested text → answer honestly; expect at least Teen)
+- [ ] Target audience: not directed at children
+- [ ] Large downloads: models are fetched at runtime by user action; not bundled in the AAB (keeps base size under limits)
+- [ ] Open-source notices: About → Licenses (Flutter `LicenseRegistry` + llama.cpp MIT notice + model licenses)
+
+## Testing before production
+
+- [ ] Internal testing track with ≥ 3 real devices (low/mid/high RAM)
+- [ ] Pre-launch report clean (no crashes, no accessibility blockers)
+- [ ] Airplane-mode chat verified on real device
+- [ ] Closed testing requirement for new personal developer accounts (12 testers / 14 days, if applicable to the account type — verify in Play Console)
