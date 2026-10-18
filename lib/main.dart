@@ -18,6 +18,7 @@ import 'services/inference/llamadart_runtime.dart';
 import 'services/inference/model_runtime_service.dart';
 import 'services/model_service.dart';
 import 'services/settings_service.dart';
+import 'services/voice/voice_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ Future<void> main() async {
   Get.put(db, permanent: true);
   Get.put(ConversationRepository(db), permanent: true);
   Get.put(MemoryRepository(db), permanent: true);
+  Get.put(VoiceService(settings), permanent: true);
   Get.put(DocumentService(DocumentRepository(db)), permanent: true);
   final models = await Get.putAsync(
     () => ModelService(modelRepo, device).init(),

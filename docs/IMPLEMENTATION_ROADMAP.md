@@ -10,7 +10,7 @@ Status legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 4 | Model manager, verified downloads, device recommendations, switching | 🟡 | Download/resume/cancel/SHA-256/storage check/import/delete/active model/recommendations done. Background downloads via a foreground service verified on the emulator (2026-10-18). Missing: benchmark screen, real-device measurements |
 | 5 | Safe tool-using agent | 🟡 | Orchestrator, 6 tools, approvals, limits, grammar-constrained calls done; calculator/date tasks verified with Qwen2.5 0.5B on the emulator. Approval dialogs and file tools not yet exercised by hand on a device; no document-search tool yet |
 | 6 | Local documents, retrieval, source-grounded answers | 🟡 | TXT/MD/text-PDF import, FTS5 keyword retrieval, grounded answers with document+page sources and an explicit not-enough-evidence path; verified with a real TXT and PDF on the emulator. No semantic/embedding retrieval, no OCR, no SAF picker test by hand (see M6 section) |
-| 7 | Memory, Bengali/English polish, optional voice | 🟡 | User-controlled memory done and verified on the emulator (2026-10-18). Full bn/en UI (needs native-speaker review). Bengali generation tested on 4 models — none reliable. Voice evaluated only (`docs/VOICE_EVALUATION.md`), not built |
+| 7 | Memory, Bengali/English polish, optional voice | 🟡 | User-controlled memory done and verified on the emulator (2026-10-18). Full bn/en UI (needs native-speaker review). Bengali generation tested on 4 models — none reliable. Voice (on-device platform STT/TTS) built 2026-10-18; read-aloud verified on the emulator, speech input not yet tested with real audio (`docs/VOICE_EVALUATION.md`) |
 | 8 | Security review, performance, real-device testing, Play release prep | 🟡 | Release AAB builds, 16 KB alignment verified. No real-device testing yet |
 
 ## Environment (audited 2026-10-17)
@@ -139,7 +139,7 @@ Caveats: one tiny model, five questions, two short English documents, emulator o
 5. ~~Downloads in background~~ — done 2026-10-18 (see below).
 6. **Bengali**: Gemma 3 1B (needs the user to accept the Gemma Terms); find a Bengali-capable model with a compatible licence; native-speaker review of UI strings.
 7. **Play compliance**: report sending now opens the user's email app (see checklist) — confirm with Play policy support that this satisfies in-app reporting; host privacy policy; Data safety form; declare the `dataSync` foreground service in Play Console.
-9. **Voice**: implement the platform-API approach in `docs/VOICE_EVALUATION.md` after real-device checks.
+9. **Voice**: test speech input on real phones (English and Bengali); consider a model-based recognizer only if platform packs are missing on target phones.
 8. **Vulkan GPU path**: re-enable behind a setting once tested on Adreno/Mali devices.
 
 ## Follow-ups — verified 2026-10-18
@@ -151,3 +151,11 @@ Caveats: one tiny model, five questions, two short English documents, emulator o
 | Memory | `memory_entries` table (schema v3, migrated from v2), off by default; add/edit/disable/delete/clear; "Remember this" on user messages; enabled entries added to the system prompt (max 1,500 chars); chat shows "Using N saved memories"; included in Clear all data | Emulator: installed over the existing v2 database (real upgrade), saved "My name is Rahim and I live in Sylhet.", asked "Where do I live?" in a new chat → "You live in Sylhet, a city located in northeastern Bangladesh." Unit tests for repository, prompt budget and migration |
 
 Tests: `flutter test` → 146 passed; `flutter analyze` → no issues.
+
+### Voice and a chat bug fix — 2026-10-18
+
+- Voice input and read-aloud built and checked as described in `docs/VOICE_EVALUATION.md`.
+- **Bug fixed:** chat bubbles used `SelectableText`, so long-press started text selection and the app's message menu (Copy / Remember / Read aloud / **Report** / Delete) never opened. Bubbles now use plain text; a test guards against regressions. Reporting is reachable again (verified on the emulator).
+- **Bug fixed:** Markdown cleanup for read-aloud used `replaceAll` with `$1`, which Dart treats literally; switched to `replaceAllMapped` (caught by a unit test).
+
+Tests: `flutter test` → 159 passed; `flutter analyze` → no issues.

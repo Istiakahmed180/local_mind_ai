@@ -24,7 +24,7 @@ Verified sources (2026-10-17): Android target SDK requirements page (developer.a
   - Encryption in transit: downloads use HTTPS.
   - Deletion: Settings → Clear all data; uninstall.
 - [ ] Privacy policy URL hosted publicly, matching `docs/PRIVACY_POLICY.md`
-- [ ] Permissions: `INTERNET`, `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `POST_NOTIFICATIONS` (+ `RECORD_AUDIO` only if voice ships). No storage, accessibility, package visibility or location permissions.
+- [ ] Permissions: `INTERNET`, `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `POST_NOTIFICATIONS`, `RECORD_AUDIO` (optional voice input, runtime-requested on first mic tap; declare microphone use in the Data safety form as processed on-device and not collected). No storage, accessibility, package visibility or location permissions.
 - [ ] Play Console foreground-service declaration for `dataSync` (user-initiated model downloads), with a short video if requested
 - [ ] Content rating questionnaire (AI chatbot generating user-requested text → answer honestly; expect at least Teen)
 - [ ] Target audience: not directed at children

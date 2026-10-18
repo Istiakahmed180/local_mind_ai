@@ -1,6 +1,6 @@
 # Offline Voice — Evaluation
 
-Researched 2026-10-18. Voice is **not implemented**. This note records the options and a recommendation; nothing below has been tested on a device.
+Researched 2026-10-18. The recommended option (Android platform APIs) **is now implemented** — see "Implementation" below. Other options were not built.
 
 ## Requirements (from the brief)
 
@@ -34,3 +34,22 @@ Researched 2026-10-18. Voice is **not implemented**. This note records the optio
 - Whisper vs Wav2Vec-BERT on Bangla: https://arxiv.org/abs/2507.01931
 - On-device recognizer notes: https://hackernoon.com/testing-androids-on-device-speech-recognition-with-hindi-english-code-switching
 - llamadart 0.14.0 source: `Qwen3AsrAdapter`, `Qwen3TtsAdapter`, `LiteRtLmAsrAdapter`
+
+## Implementation (2026-10-18)
+
+- Native: `android/app/src/main/kotlin/co/tdevs/localmind_ai/VoiceBridge.kt`. Speech input uses **only** `SpeechRecognizer.createOnDeviceSpeechRecognizer` (API 31+); on API 33+ the language is checked with `checkRecognitionSupport`. Read-aloud uses `TextToSpeech` and skips any voice with `isNetworkConnectionRequired()` or `KEY_FEATURE_NOT_INSTALLED`. Long replies are split at sentence ends (including `।`).
+- Dart: `lib/services/voice/voice_service.dart` (status, 30 s cap, stop on app background, Markdown-to-speech cleanup), mic button + listening bar + "Read aloud" in chat, Voice section in Settings with per-language status and a user-confirmed "Download" for Android's own speech pack.
+- Off by default. New permission: `RECORD_AUDIO`, requested only on the first mic tap.
+
+### Verified on the `localmind_test` emulator (API 34, audio input disabled)
+
+| Check | Result |
+|-------|--------|
+| Voice off | No mic button; native side not queried (unit test) |
+| English status | Speech input: "downloadable" (on-device recognizer present, pack not installed). Read aloud: first "no offline voice" — correct, Google TTS only had a *server* voice — then "Ready, works offline" after Google TTS installed `en-us-x-tpf-local` |
+| Bengali status | Speech input: not available for this language; read aloud: no offline Bengali voice. Shown in Bengali |
+| Mic tap with no pack | Shows the reason; microphone not opened |
+| Read aloud | Engine log: `Synthesis request … name en-us-x-tpf-local`, `TTS dispatch: en-us-x-tpf-seanet-embedded` (on-device). "Reading aloud… Stop" bar shown and cleared when done |
+| Speech pack download | Request accepted, but this emulator image queued nothing; **live speech recognition was not tested** |
+
+Real phones (with Google speech packs and a microphone) are needed to test speech input in English and Bengali.

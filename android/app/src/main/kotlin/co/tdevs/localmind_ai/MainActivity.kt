@@ -21,10 +21,12 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var voice: VoiceBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
+        voice = VoiceBridge(this, messenger)
 
         MethodChannel(messenger, "localmind/device").setMethodCallHandler { call, result ->
             when (call.method) {
@@ -97,7 +99,13 @@ class MainActivity : FlutterActivity() {
         )
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        voice?.onPermissionResult(requestCode, grantResults)
+    }
+
     override fun onDestroy() {
+        voice?.dispose()
         unregisterNetworkCallback()
         super.onDestroy()
     }

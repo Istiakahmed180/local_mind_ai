@@ -9,6 +9,7 @@ import '../../data/local/database.dart';
 import '../shell/shell_view.dart';
 import '../memory/memory_view.dart';
 import '../settings/reports_view.dart';
+import '../../services/voice/voice_service.dart';
 import 'chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
@@ -32,6 +33,7 @@ class ChatView extends GetView<ChatController> {
           children: [
             Expanded(child: _MessageList(controller)),
             _MemoryNote(controller),
+            const _VoiceBar(),
             _Banner(controller),
             _Composer(controller),
           ],
@@ -183,6 +185,29 @@ class _MessageList extends StatelessWidget {
                   editMemoryDialog(context, initial: m.content);
                 },
               ),
+            if (m.role == 'assistant' &&
+                m.content.isNotEmpty &&
+                Get.find<VoiceService>().enabled)
+              ListTile(
+                leading: Icon(
+                  Get.find<VoiceService>().speakingId.value == m.id
+                      ? Icons.stop_circle_outlined
+                      : Icons.volume_up_outlined,
+                ),
+                title: Text(
+                  Get.find<VoiceService>().speakingId.value == m.id
+                      ? 'voice_stop_reading'.tr
+                      : 'voice_read_aloud'.tr,
+                ),
+                onTap: () async {
+                  Get.back<void>();
+                  final v = Get.find<VoiceService>();
+                  final ok = await v.toggleSpeak(m.id, m.content);
+                  if (!ok && v.lastError.value != null) {
+                    Get.snackbar('voice'.tr, v.lastError.value!.tr);
+                  }
+                },
+              ),
             if (m.role == 'assistant')
               ListTile(
                 leading: const Icon(Icons.flag_outlined),
@@ -312,7 +337,9 @@ class _Bubble extends StatelessWidget {
                     ],
                   )
                 else
-                  SelectableText(
+                  // Plain Text so long-press opens the message menu (which
+                  // has Copy); SelectableText would swallow the gesture.
+                  Text(
                     text,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: isUser
@@ -433,6 +460,7 @@ class _Composer extends StatelessWidget {
               decoration: InputDecoration(hintText: 'message_hint'.tr),
             ),
           ),
+          const _MicButton(),
           const SizedBox(width: AppSpacing.sm),
           Obx(() {
             switch (c.phase.value) {
@@ -462,5 +490,127 @@ class _Composer extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Microphone button, shown only when voice is switched on in settings.
+class _MicButton extends StatelessWidget {
+  const _MicButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final voice = Get.find<VoiceService>();
+    final c = Get.find<ChatController>();
+    return Obx(() {
+      if (!voice.enabled || c.phase.value != ChatPhase.idle) {
+        return const SizedBox.shrink();
+      }
+      final on = voice.listening.value;
+      return Padding(
+        padding: const EdgeInsets.only(left: AppSpacing.xs),
+        child: IconButton(
+          tooltip: on ? 'voice_stop_listening'.tr : 'voice_speak'.tr,
+          isSelected: on,
+          style: on
+              ? IconButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                )
+              : null,
+          onPressed: () => on ? voice.stopListening() : _listen(voice, c),
+          icon: Icon(on ? Icons.stop : Icons.mic_none),
+        ),
+      );
+    });
+  }
+
+  Future<void> _listen(VoiceService voice, ChatController c) async {
+    if (!canTryListening(voice.stt.value)) {
+      Get.snackbar('voice'.tr, 'voice_stt_${voice.stt.value.name}'.tr);
+      return;
+    }
+    final text = await voice.listen();
+    if (text != null) {
+      final current = c.input.text.trim();
+      c.input.text = current.isEmpty ? text : '$current $text';
+      c.input.selection = TextSelection.collapsed(offset: c.input.text.length);
+    } else if (voice.lastError.value != null) {
+      Get.snackbar('voice'.tr, voice.lastError.value!.tr);
+    }
+  }
+}
+
+/// Visible while the microphone is open or a reply is being read aloud.
+class _VoiceBar extends StatelessWidget {
+  const _VoiceBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final voice = Get.find<VoiceService>();
+    final scheme = Theme.of(context).colorScheme;
+    return Obx(() {
+      if (voice.listening.value) {
+        final heard = voice.partial.value;
+        return Container(
+          width: double.infinity,
+          color: scheme.errorContainer,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.mic, color: scheme.onErrorContainer),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      heard.isEmpty ? 'voice_listening'.tr : heard,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: scheme.onErrorContainer),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    LinearProgressIndicator(
+                      value: voice.level.value,
+                      color: scheme.onErrorContainer,
+                      backgroundColor: scheme.errorContainer,
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: voice.cancelListening,
+                child: Text('cancel'.tr),
+              ),
+            ],
+          ),
+        );
+      }
+      if (voice.speakingId.value != null) {
+        return Container(
+          width: double.infinity,
+          color: scheme.secondaryContainer,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: Row(
+            children: [
+              Icon(Icons.volume_up, color: scheme.onSecondaryContainer),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  'voice_reading'.tr,
+                  style: TextStyle(color: scheme.onSecondaryContainer),
+                ),
+              ),
+              TextButton(onPressed: voice.stopSpeaking, child: Text('stop'.tr)),
+            ],
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    });
   }
 }

@@ -45,6 +45,8 @@ void main() {
       'android.permission.FOREGROUND_SERVICE',
       'android.permission.FOREGROUND_SERVICE_DATA_SYNC',
       'android.permission.POST_NOTIFICATIONS',
+      // Optional voice input (push-to-talk, runtime permission).
+      'android.permission.RECORD_AUDIO',
     });
     expect(manifest, contains('android:allowBackup="false"'));
   });

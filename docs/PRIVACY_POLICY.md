@@ -27,6 +27,7 @@ The app contains no analytics, advertising or crash-reporting SDKs.
 
 - **Internet** — model downloads only.
 - **Network state** — to show whether you are online or offline.
+- **Microphone** — only if you switch on voice input in Settings, asked the first time you tap the mic. Speech is recognised by Android's on-device speech service; this app never stores or sends audio. Read-aloud uses only offline voices on your phone.
 - **Foreground service and notifications** — to keep a model download running in the background and show its progress. Android 13+ asks you before showing notifications.
 
 Files are opened only when you select them with the Android file picker.

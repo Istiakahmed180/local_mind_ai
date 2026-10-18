@@ -8,6 +8,7 @@ import '../../services/documents/document_service.dart';
 import '../../services/inference/model_runtime_service.dart';
 import '../../services/model_service.dart';
 import '../../services/settings_service.dart';
+import '../../services/voice/voice_service.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -134,6 +135,8 @@ class SettingsView extends StatelessWidget {
               trailing: const Icon(Icons.edit_outlined),
               onTap: () => _editPrompt(context, s),
             ),
+            header('voice'),
+            const _VoiceSettings(),
             header('privacy_section'),
             ListTile(
               leading: const Icon(Icons.shield_outlined),
@@ -240,5 +243,96 @@ class SettingsView extends StatelessWidget {
     await Get.find<AppDatabase>().clearAll();
     await Get.find<SettingsService>().clear();
     Get.offAllNamed(Routes.onboarding);
+  }
+}
+
+class _VoiceSettings extends StatelessWidget {
+  const _VoiceSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    final s = Get.find<SettingsService>();
+    final v = Get.find<VoiceService>();
+    final theme = Theme.of(context);
+    return Obx(() {
+      final on = s.voiceEnabled.value;
+      final stt = v.stt.value;
+      final tts = v.ttsAvailable.value;
+      return Column(
+        children: [
+          SwitchListTile(
+            secondary: const Icon(Icons.mic_none),
+            title: Text('voice_enable'.tr),
+            subtitle: Text('voice_enable_hint'.tr),
+            value: on,
+            onChanged: s.setVoiceEnabled,
+          ),
+          if (on) ...[
+            ListTile(
+              dense: true,
+              title: Text('voice_input_status'.tr),
+              subtitle: Text('voice_stt_${stt.name}'.tr),
+              trailing: stt == SttAvailability.downloadable
+                  ? TextButton(
+                      onPressed: () => _download(context, v),
+                      child: Text('download'.tr),
+                    )
+                  : null,
+            ),
+            ListTile(
+              dense: true,
+              title: Text('voice_output_status'.tr),
+              subtitle: Text(
+                tts == null
+                    ? 'voice_stt_checking'.tr
+                    : tts
+                    ? 'voice_tts_ok'.tr
+                    : 'voice_tts_missing'.tr,
+              ),
+              trailing: IconButton(
+                tooltip: 'voice_recheck'.tr,
+                onPressed: v.refresh,
+                icon: const Icon(Icons.refresh),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                0,
+                AppSpacing.md,
+                AppSpacing.sm,
+              ),
+              child: Text(
+                'voice_privacy_note'.tr,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    });
+  }
+
+  Future<void> _download(BuildContext context, VoiceService v) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('voice_download_title'.tr),
+        content: Text('voice_download_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('cancel'.tr),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('download'.tr),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) await v.downloadLanguage();
   }
 }
