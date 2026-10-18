@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../shell/shell_view.dart';
+import '../memory/memory_view.dart';
 import '../settings/reports_view.dart';
 import 'chat_controller.dart';
 
@@ -30,6 +31,7 @@ class ChatView extends GetView<ChatController> {
         child: Column(
           children: [
             Expanded(child: _MessageList(controller)),
+            _MemoryNote(controller),
             _Banner(controller),
             _Composer(controller),
           ],
@@ -172,6 +174,15 @@ class _MessageList extends StatelessWidget {
                 Get.back<void>();
               },
             ),
+            if (m.role == 'user')
+              ListTile(
+                leading: const Icon(Icons.psychology_alt_outlined),
+                title: Text('memory_remember_this'.tr),
+                onTap: () {
+                  Get.back<void>();
+                  editMemoryDialog(context, initial: m.content);
+                },
+              ),
             if (m.role == 'assistant')
               ListTile(
                 leading: const Icon(Icons.flag_outlined),
@@ -324,6 +335,42 @@ class _Bubble extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Tells the user when saved memories were added to the last prompt.
+class _MemoryNote extends StatelessWidget {
+  const _MemoryNote(this.c);
+
+  final ChatController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final n = c.memoriesUsed.value;
+      if (n == 0) return const SizedBox.shrink();
+      return InkWell(
+        onTap: () => Get.toNamed(Routes.memory),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.xs,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.psychology_alt_outlined, size: 16),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                n == 1
+                    ? 'memory_in_use_one'.tr
+                    : 'memory_in_use'.trParams({'n': '$n'}),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }
 

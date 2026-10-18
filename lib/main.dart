@@ -9,6 +9,7 @@ import 'app/theme.dart';
 import 'app/translations.dart';
 import 'data/local/database.dart';
 import 'data/repositories/conversation_repository.dart';
+import 'data/repositories/memory_repository.dart';
 import 'data/repositories/document_repository.dart';
 import 'data/repositories/model_repository.dart';
 import 'services/device/device_info_service.dart';
@@ -29,6 +30,7 @@ Future<void> main() async {
   final modelRepo = Get.put(ModelRepository(db), permanent: true);
   Get.put(db, permanent: true);
   Get.put(ConversationRepository(db), permanent: true);
+  Get.put(MemoryRepository(db), permanent: true);
   Get.put(DocumentService(DocumentRepository(db)), permanent: true);
   final models = await Get.putAsync(
     () => ModelService(modelRepo, device).init(),

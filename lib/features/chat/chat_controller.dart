@@ -5,10 +5,12 @@ import 'package:get/get.dart';
 
 import '../../data/local/database.dart';
 import '../../data/repositories/conversation_repository.dart';
+import '../../data/repositories/memory_repository.dart';
 import '../../data/repositories/model_repository.dart';
 import '../../services/inference/context_budget.dart';
 import '../../services/inference/inference_runtime.dart';
 import '../../services/inference/model_runtime_service.dart';
+import '../../services/memory_prompt.dart';
 import '../../services/model_service.dart';
 import '../../services/settings_service.dart';
 
@@ -20,6 +22,7 @@ class ChatController extends GetxController {
   final String? _initialId;
   final _repo = Get.find<ConversationRepository>();
   final _modelRepo = Get.find<ModelRepository>();
+  final _memory = Get.find<MemoryRepository>();
   final runtime = Get.find<ModelRuntimeService>();
   final models = Get.find<ModelService>();
   final settings = Get.find<SettingsService>();
@@ -30,6 +33,9 @@ class ChatController extends GetxController {
   final streamingText = ''.obs;
   final error = RxnString();
   final droppedTurns = 0.obs;
+
+  /// Memories added to the last prompt; 0 when memory is off or empty.
+  final memoriesUsed = 0.obs;
   final input = TextEditingController();
   final scroll = ScrollController();
 
@@ -102,7 +108,11 @@ class ChatController extends GetxController {
       return;
     }
 
-    final turns = _buildTurns(history, text);
+    final memoryBlock = settings.useMemory.value
+        ? buildMemoryBlock(await _memory.enabled())
+        : null;
+    memoriesUsed.value = memoryBlock?.used ?? 0;
+    final turns = _buildTurns(history, text, memoryBlock?.text);
     final budget = fitToContext(
       turns: turns,
       contextSize: runtime.loadedContextSize,
@@ -167,13 +177,18 @@ class ChatController extends GetxController {
     runtime.cancel();
   }
 
-  List<ChatTurn> _buildTurns(List<Message> history, String userText) {
+  List<ChatTurn> _buildTurns(
+    List<Message> history,
+    String userText,
+    String? memoryBlock,
+  ) {
     final system = StringBuffer(settings.systemPrompt.value);
     if (settings.localeCode.value == 'bn') {
       system.write(
         ' The user may write in Bengali (বাংলা). Reply in the language the user writes in.',
       );
     }
+    if (memoryBlock != null) system.write(memoryBlock);
     return [
       ChatTurn(ChatRole.system, system.toString()),
       for (final m in history)
@@ -192,6 +207,8 @@ class ChatController extends GetxController {
     reason: reason,
     excerpt: m.content,
   );
+
+  Future<void> remember(String text) => _memory.add(text);
 
   Future<void> deleteMessage(Message m) => _repo.deleteMessage(m.id);
 

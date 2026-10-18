@@ -65,7 +65,7 @@ void main() {
     expect(await columns(old), await columns(fresh));
   });
 
-  test('upgrading from v1 keeps data and adds the document tables', () async {
+  test('upgrading from v1 keeps data and adds later tables', () async {
     final db = AppDatabase(
       NativeDatabase.memory(
         setup: (raw) {
@@ -90,7 +90,8 @@ void main() {
     expect((await db.select(db.messages).get()).single.content, 'hello');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.read<int>('user_version'), 2);
+    expect(version.read<int>('user_version'), db.schemaVersion);
+    expect(await db.select(db.memoryEntries).get(), isEmpty);
 
     await db
         .into(db.documents)
@@ -127,7 +128,7 @@ void main() {
     expect(await db.select(db.documentChunks).get(), isEmpty);
   });
 
-  test('a fresh install creates every table at v2', () async {
+  test('a fresh install creates every table', () async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final names =
@@ -148,6 +149,7 @@ void main() {
         'documents',
         'document_chunks',
         'document_chunks_fts',
+        'memory_entries',
       ]),
     );
   });

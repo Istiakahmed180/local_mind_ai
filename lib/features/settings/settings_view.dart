@@ -141,6 +141,14 @@ class SettingsView extends StatelessWidget {
               onTap: () => Get.toNamed(Routes.privacy),
             ),
             ListTile(
+              leading: const Icon(Icons.psychology_alt_outlined),
+              title: Text('memory'.tr),
+              subtitle: Text(
+                s.useMemory.value ? 'memory_on'.tr : 'memory_off'.tr,
+              ),
+              onTap: () => Get.toNamed(Routes.memory),
+            ),
+            ListTile(
               leading: const Icon(Icons.flag_outlined),
               title: Text('my_reports'.tr),
               onTap: () => Get.toNamed(Routes.reports),

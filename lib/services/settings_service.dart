@@ -20,6 +20,7 @@ class SettingsService extends GetxService {
   static const _kSystemPrompt = 'systemPrompt';
   static const _kLowResource = 'lowResource';
   static const _kAgentHistorySearch = 'agentHistorySearch';
+  static const _kUseMemory = 'useMemory';
 
   static const defaultSystemPromptEn =
       'You are a helpful assistant running entirely on the user\'s phone. '
@@ -42,6 +43,9 @@ class SettingsService extends GetxService {
   /// Off by default: the agent may only search chat history after opt-in.
   late final agentHistorySearch =
       (_prefs.getBool(_kAgentHistorySearch) ?? false).obs;
+
+  /// Off by default: saved memories are used in prompts only when enabled.
+  late final useMemory = (_prefs.getBool(_kUseMemory) ?? false).obs;
 
   Locale get locale => localeCode.value == 'bn'
       ? const Locale('bn', 'BD')
@@ -118,10 +122,16 @@ class SettingsService extends GetxService {
     await _prefs.setBool(_kAgentHistorySearch, v);
   }
 
+  Future<void> setUseMemory(bool v) async {
+    useMemory.value = v;
+    await _prefs.setBool(_kUseMemory, v);
+  }
+
   Future<void> clear() async {
     await _prefs.clear();
     onboarded.value = false;
     activeModelId.value = null;
     agentHistorySearch.value = false;
+    useMemory.value = false;
   }
 }

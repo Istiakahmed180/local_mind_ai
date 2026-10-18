@@ -52,6 +52,20 @@ class InstalledModels extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Facts the user explicitly asked the app to remember. Separate from chat
+/// history; only enabled entries are added to prompts, and only when memory
+/// is switched on in settings.
+class MemoryEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get content => text()();
+  BoolColumn get enabled => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class ContentReports extends Table {
   TextColumn get id => text()();
   TextColumn get messageId => text()();
@@ -105,6 +119,7 @@ class DocumentChunks extends Table {
     ContentReports,
     Documents,
     DocumentChunks,
+    MemoryEntries,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -112,7 +127,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'localmind'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   /// Whether the SQLite build has FTS5. Set when the database opens.
   bool hasFts5 = false;
@@ -126,6 +141,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         await m.createTable(documents);
         await m.createTable(documentChunks);
+      }
+      if (from < 3) {
+        await m.createTable(memoryEntries);
       }
     },
     beforeOpen: (details) async {
