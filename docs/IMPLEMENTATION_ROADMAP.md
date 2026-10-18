@@ -159,3 +159,13 @@ Tests: `flutter test` → 146 passed; `flutter analyze` → no issues.
 - **Bug fixed:** Markdown cleanup for read-aloud used `replaceAll` with `$1`, which Dart treats literally; switched to `replaceAllMapped` (caught by a unit test).
 
 Tests: `flutter test` → 159 passed; `flutter analyze` → no issues.
+
+### Chat export / import — 2026-10-18
+
+- **Export:** all chats (Chats → ⇅ → Export all chats) or one chat (chat menu → Export / Export as Markdown). Saved through Android's system "Save as" screen; no storage permission. The dialog warns the file is unencrypted. JSON (`format: localmind-chats`, `version: 1`) holds chats, messages and timing stats only — no models, documents, memories or settings. Markdown is for reading and cannot be imported.
+- **Import:** pick a JSON export; the app validates format/version, limits size (50 MB, 5,000 chats, 20,000 messages per chat, 200,000 characters per message), accepts only `user`/`assistant` roles (a `system` role in the file is dropped), drops malformed entries, shows a preview count, and imports in one transaction. Chats whose id already exists are skipped, so importing the same file twice is safe.
+- **Bug fixed:** messages were sorted only by a one-second timestamp, so two messages from the same second could appear in either order. Insertion order now breaks ties (chat view, history, export).
+- Code: `lib/services/chat_transfer.dart`, `lib/features/history/chat_transfer_actions.dart`. Tests: `test/data/chat_transfer_test.dart` (round trip, duplicates, single chat, no extra data, bad files, malformed entries, Markdown, same-second order).
+- Verified on the `localmind_test` emulator: exported a chat to Downloads (JSON content checked with `adb`), deleted the chat, imported the file → "Imported: 1 · already present: 0 · skipped as damaged: 0", chat restored with messages in the right order and stats intact.
+
+Tests: `flutter test` → 170 passed; `flutter analyze` → no issues. Not committed (the user commits manually).

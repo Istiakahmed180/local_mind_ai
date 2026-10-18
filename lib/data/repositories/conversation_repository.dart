@@ -62,13 +62,21 @@ class ConversationRepository {
   Stream<List<Message>> watchMessages(String conversationId) =>
       (_db.select(_db.messages)
             ..where((m) => m.conversationId.equals(conversationId))
-            ..orderBy([(m) => OrderingTerm.asc(m.createdAt)]))
+            ..orderBy([
+              (m) => OrderingTerm.asc(m.createdAt),
+              // Timestamps have one-second precision; insertion order breaks ties.
+              (m) => OrderingTerm.asc(const CustomExpression<int>('rowid')),
+            ]))
           .watch();
 
   Future<List<Message>> messages(String conversationId) =>
       (_db.select(_db.messages)
             ..where((m) => m.conversationId.equals(conversationId))
-            ..orderBy([(m) => OrderingTerm.asc(m.createdAt)]))
+            ..orderBy([
+              (m) => OrderingTerm.asc(m.createdAt),
+              // Timestamps have one-second precision; insertion order breaks ties.
+              (m) => OrderingTerm.asc(const CustomExpression<int>('rowid')),
+            ]))
           .get();
 
   Future<Message> addMessage({

@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories/conversation_repository.dart';
+import 'chat_transfer_actions.dart';
 
 class HistoryController extends GetxController {
   final repo = Get.find<ConversationRepository>();
@@ -47,7 +48,21 @@ class HistoryView extends StatelessWidget {
     final c = Get.put(HistoryController());
     final dateFmt = DateFormat.yMMMd(Get.locale?.toLanguageTag());
     return Scaffold(
-      appBar: AppBar(title: Text('nav_chats'.tr)),
+      appBar: AppBar(
+        title: Text('nav_chats'.tr),
+        actions: [
+          PopupMenuButton<String>(
+            tooltip: 'chat_transfer_menu'.tr,
+            icon: const Icon(Icons.import_export),
+            onSelected: (a) =>
+                a == 'export' ? exportChats(context) : importChats(context),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'export', child: Text('chat_export_all'.tr)),
+              PopupMenuItem(value: 'import', child: Text('chat_import'.tr)),
+            ],
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Get.toNamed(Routes.chat),
         icon: const Icon(Icons.add),
@@ -94,13 +109,28 @@ class HistoryView extends StatelessWidget {
                     subtitle: Text(dateFmt.format(conv.updatedAt)),
                     onTap: () => Get.toNamed(Routes.chat, arguments: conv.id),
                     trailing: PopupMenuButton<String>(
-                      onSelected: (action) => action == 'rename'
-                          ? _rename(context, c, conv)
-                          : _delete(context, c, conv),
+                      onSelected: (action) => switch (action) {
+                        'rename' => _rename(context, c, conv),
+                        'json' => exportChats(context, conversationId: conv.id),
+                        'md' => exportChats(
+                          context,
+                          conversationId: conv.id,
+                          markdown: true,
+                        ),
+                        _ => _delete(context, c, conv),
+                      },
                       itemBuilder: (_) => [
                         PopupMenuItem(
                           value: 'rename',
                           child: Text('rename'.tr),
+                        ),
+                        PopupMenuItem(
+                          value: 'json',
+                          child: Text('chat_export_json'.tr),
+                        ),
+                        PopupMenuItem(
+                          value: 'md',
+                          child: Text('chat_export_md'.tr),
                         ),
                         PopupMenuItem(
                           value: 'delete',

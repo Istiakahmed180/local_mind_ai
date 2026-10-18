@@ -17,6 +17,10 @@ LocalMind AI runs AI models on your device. We do not operate servers for the ap
 
 This data is kept in the app's private storage, is excluded from Android cloud backup and device-to-device transfer, and is deleted when you use **Settings → Clear all data** or uninstall the app.
 
+## Exporting chats
+
+You can export chats to a file you choose (Chats → Export). The file is not encrypted; anyone with the file can read those chats. Exported files are outside the app, so **Clear all data** and uninstalling do not delete them. Importing reads only the file you pick.
+
 ## Network use
 
 The app connects to the internet only when you choose to download a model. The file is requested from the host shown before the download (currently Hugging Face, huggingface.co). Like any web server, that host receives your IP address and standard HTTP request information, and its own privacy policy applies. The app itself never sends prompts, conversations, files or reports; the only exception is a report email that you choose to send from your own email app (see below).
