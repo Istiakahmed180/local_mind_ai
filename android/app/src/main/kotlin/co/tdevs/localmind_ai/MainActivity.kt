@@ -1,6 +1,8 @@
 package co.tdevs.localmind_ai
 
+import android.Manifest
 import android.app.ActivityManager
+import android.content.pm.PackageManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -35,6 +37,32 @@ class MainActivity : FlutterActivity() {
                         call.argument<String>("body") ?: "",
                     )
                 )
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(messenger, "localmind/downloads").setMethodCallHandler { call, result ->
+            val title = call.argument<String>("title") ?: ""
+            val text = call.argument<String>("text") ?: ""
+            val progress = call.argument<Int>("progress") ?: -1
+            when (call.method) {
+                "start" -> {
+                    requestNotificationPermission()
+                    val intent = Intent(this, DownloadService::class.java)
+                        .putExtra(DownloadService.EXTRA_TITLE, title)
+                        .putExtra(DownloadService.EXTRA_TEXT, text)
+                        .putExtra(DownloadService.EXTRA_PROGRESS, progress)
+                        .putExtra(DownloadService.EXTRA_CHANNEL_NAME, call.argument<String>("channelName"))
+                    result.success(runCatching { startForegroundService(intent) }.isSuccess)
+                }
+                "update" -> {
+                    DownloadService.update(this, title, text, progress)
+                    result.success(true)
+                }
+                "stop" -> {
+                    stopService(Intent(this, DownloadService::class.java))
+                    result.success(true)
+                }
                 else -> result.notImplemented()
             }
         }
@@ -79,6 +107,14 @@ class MainActivity : FlutterActivity() {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         runCatching { cm.unregisterNetworkCallback(callback) }
         networkCallback = null
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4202)
+        }
     }
 
     /** Opens the user's email app with a prefilled draft; nothing is sent automatically. */

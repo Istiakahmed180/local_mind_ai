@@ -31,7 +31,7 @@ void main() {
     expect(src, isNot(contains('hf://')));
   });
 
-  test('manifest requests only internet and network-state permissions', () {
+  test('manifest requests only the reviewed permissions', () {
     final manifest = File('android/app/src/main/AndroidManifest.xml')
         .readAsStringSync();
     final perms = RegExp(r'uses-permission android:name="([^"]+)"')
@@ -41,6 +41,10 @@ void main() {
     expect(perms, {
       'android.permission.INTERNET',
       'android.permission.ACCESS_NETWORK_STATE',
+      // Background model downloads (foreground service + its notification).
+      'android.permission.FOREGROUND_SERVICE',
+      'android.permission.FOREGROUND_SERVICE_DATA_SYNC',
+      'android.permission.POST_NOTIFICATIONS',
     });
     expect(manifest, contains('android:allowBackup="false"'));
   });

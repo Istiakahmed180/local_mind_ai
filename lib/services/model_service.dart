@@ -14,6 +14,7 @@ import '../data/local/database.dart';
 import '../data/repositories/model_repository.dart';
 import '../domain/model_definition.dart';
 import 'device/device_info_service.dart';
+import 'downloads/download_keep_alive.dart';
 import 'downloads/model_downloader.dart';
 
 enum DownloadStatus { idle, downloading, paused, verifying, failed }
@@ -41,12 +42,18 @@ enum LoadBlock { none, fileMissing, sizeMismatch, notGguf, notVerified }
 
 /// Catalog, downloads, imports and deletion of model files.
 class ModelService extends GetxService {
-  ModelService(this._repo, this._device, {ModelDownloader? downloader})
-    : _downloaderOverride = downloader;
+  ModelService(
+    this._repo,
+    this._device, {
+    ModelDownloader? downloader,
+    DownloadKeepAlive? keepAlive,
+  }) : _downloaderOverride = downloader,
+       _keepAlive = keepAlive ?? DownloadKeepAlive();
 
   final ModelRepository _repo;
   final DeviceInfoService _device;
   final ModelDownloader? _downloaderOverride;
+  final DownloadKeepAlive _keepAlive;
   late final ModelDownloader _downloader =
       _downloaderOverride ??
       ModelDownloader(freeBytes: _device.freeStorageBytes);
@@ -67,6 +74,7 @@ class ModelService extends GetxService {
       jsonDecode(raw) as Map<String, dynamic>,
     );
     _sub = _repo.watchInstalled().listen(installed.assignAll);
+    ever(downloads, (_) => _syncKeepAlive());
     for (final m in catalog.value.models) {
       final partial = await _downloader.partialBytes(_targetPath(m));
       if (partial > 0) {
@@ -79,6 +87,22 @@ class ModelService extends GetxService {
     }
     return this;
   }
+
+  /// Keeps the process in the foreground while any download is running.
+  Future<void> _syncKeepAlive() => _keepAlive.sync(
+    [
+      for (final e in downloads.entries)
+        if (e.value.status == DownloadStatus.downloading ||
+            e.value.status == DownloadStatus.verifying)
+          ActiveDownload(
+            displayName(e.key),
+            e.value.receivedBytes,
+            e.value.totalBytes,
+          ),
+    ],
+    title: 'notif_downloading_title'.tr,
+    channelName: 'notif_channel_downloads'.tr,
+  );
 
   String _targetPath(ModelDefinition m) => p.join(modelsDir.path, m.fileName);
 
