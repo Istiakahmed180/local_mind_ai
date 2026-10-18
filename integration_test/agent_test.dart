@@ -60,48 +60,56 @@ void main() {
     );
     final watch = Stopwatch()..start();
     await o.run(task);
-    log('[agent] "$task" -> ${o.state.name} in ${watch.elapsedMilliseconds} ms, '
-        'replies=${o.modelReplies}, grammar=${o.useGrammar}');
+    log(
+      '[agent] "$task" -> ${o.state.name} in ${watch.elapsedMilliseconds} ms, '
+      'replies=${o.modelReplies}, grammar=${o.useGrammar}',
+    );
     for (final s in o.steps) {
-      log('  ${s.kind.name} ${s.tool ?? ''} ${s.args ?? ''} ${s.text}'.trimRight());
+      log(
+        '  ${s.kind.name} ${s.tool ?? ''} ${s.args ?? ''} ${s.text}'
+            .trimRight(),
+      );
     }
-    if (o.failure != null) log('  failure=${o.failure} ${o.failureDetail ?? ''}');
+    if (o.failure != null)
+      log('  failure=${o.failure} ${o.failureDetail ?? ''}');
     return o;
   }
 
-  testWidgets('Qwen2.5 0.5B completes a calculator task', semanticsEnabled: false, (
-    tester,
-  ) async {
-    final path = await ensureModel('qwen2.5-0.5b-instruct-q4_k_m');
-    await runtime.load(path, const RuntimeLoadConfig(contextSize: 2048));
+  testWidgets(
+    'Qwen2.5 0.5B completes a calculator task',
+    semanticsEnabled: false,
+    (tester) async {
+      final path = await ensureModel('qwen2.5-0.5b-instruct-q4_k_m');
+      await runtime.load(path, const RuntimeLoadConfig(contextSize: 2048));
 
-    final o = await runTask('What is 23 * 47 + 12?');
-    expect(o.state, AgentState.completed);
-    final results = o.steps.where(
-      (s) => s.kind == AgentStepKind.toolResult && s.tool == 'calculator',
-    );
-    expect(results.map((s) => s.text), contains('1093'));
-    expect(o.answer, contains('1093'));
+      final o = await runTask('What is 23 * 47 + 12?');
+      expect(o.state, AgentState.completed);
+      final results = o.steps.where(
+        (s) => s.kind == AgentStepKind.toolResult && s.tool == 'calculator',
+      );
+      expect(results.map((s) => s.text), contains('1093'));
+      expect(o.answer, contains('1093'));
 
-    // Logged for the record; not asserted, small models vary on these.
-    await runTask('What is the square root of 144 multiplied by 3?');
-    await runTask('What day of the week is it today?');
+      // Logged for the record; not asserted, small models vary on these.
+      await runTask('What is the square root of 144 multiplied by 3?');
+      await runTask('What day of the week is it today?');
 
-    // Cancellation against the real engine.
-    final c = AgentOrchestrator(
-      registry: ToolRegistry([CalculatorTool()]),
-      generate: runtime.generate,
-      cancelGeneration: runtime.cancel,
-      approve: (_, _) async => false,
-    );
-    final run = c.run('Compute 1+1, then 2+2, then 3+3, then 4+4.');
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    c.cancel();
-    await run;
-    log('[cancel] state=${c.state.name} replies=${c.modelReplies}');
-    expect(c.state, AgentState.cancelled);
-    await runtime.unload();
-  });
+      // Cancellation against the real engine.
+      final c = AgentOrchestrator(
+        registry: ToolRegistry([CalculatorTool()]),
+        generate: runtime.generate,
+        cancelGeneration: runtime.cancel,
+        approve: (_, _) async => false,
+      );
+      final run = c.run('Compute 1+1, then 2+2, then 3+3, then 4+4.');
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      c.cancel();
+      await run;
+      log('[cancel] state=${c.state.name} replies=${c.modelReplies}');
+      expect(c.state, AgentState.cancelled);
+      await runtime.unload();
+    },
+  );
 }
 
 // ignore: avoid_print
