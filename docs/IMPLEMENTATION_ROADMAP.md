@@ -7,10 +7,10 @@ Status legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 1 | Repo audit, research, requirements, runtime decision, license review, plan | ✅ | All six docs written |
 | 2 | Flutter foundation, design system, navigation, persistence, functional UI | ✅ | Onboarding, home, chat, history, model library/details, settings, privacy, reports, about. Agent/Documents screens state plainly that they are not built yet |
 | 3 | One working local model + streaming chat | ✅ | Verified on an arm64 emulator, offline (airplane mode) |
-| 4 | Model manager, verified downloads, device recommendations, switching | 🟡 | Download/resume/cancel/SHA-256/storage check/import/delete/active model/recommendations done. Missing: background download (foreground service), benchmark screen, real-device measurements |
+| 4 | Model manager, verified downloads, device recommendations, switching | 🟡 | Download/resume/cancel/SHA-256/storage check/import/delete/active model/recommendations done. Background downloads via a foreground service verified on the emulator (2026-10-18). Missing: benchmark screen, real-device measurements |
 | 5 | Safe tool-using agent | 🟡 | Orchestrator, 6 tools, approvals, limits, grammar-constrained calls done; calculator/date tasks verified with Qwen2.5 0.5B on the emulator. Approval dialogs and file tools not yet exercised by hand on a device; no document-search tool yet |
 | 6 | Local documents, retrieval, source-grounded answers | 🟡 | TXT/MD/text-PDF import, FTS5 keyword retrieval, grounded answers with document+page sources and an explicit not-enough-evidence path; verified with a real TXT and PDF on the emulator. No semantic/embedding retrieval, no OCR, no SAF picker test by hand (see M6 section) |
-| 7 | Memory, Bengali/English polish, optional voice | 🟡 | Full bn/en UI done (needs native-speaker review). Memory and voice not started |
+| 7 | Memory, Bengali/English polish, optional voice | 🟡 | User-controlled memory done and verified on the emulator (2026-10-18). Full bn/en UI (needs native-speaker review). Bengali generation tested on 4 models — none reliable. Voice evaluated only (`docs/VOICE_EVALUATION.md`), not built |
 | 8 | Security review, performance, real-device testing, Play release prep | 🟡 | Release AAB builds, 16 KB alignment verified. No real-device testing yet |
 
 ## Environment (audited 2026-10-17)
@@ -55,7 +55,18 @@ Prompt: "বাংলাদেশের রাজধানীর নাম ক�
 | Qwen2.5 0.5B Q4_K_M | Bengali text that restates the question, no answer | No |
 | Qwen3 0.6B Q8_0 | Grammatical Bengali, names a wrong city | No |
 
-Conclusion: no catalog model is marked "Bengali: tested". Larger models (Gemma 3 1B, Qwen3 1.7B) have not been tested yet.
+#### Larger models, 4-question check (2026-10-18)
+
+`flutter test integration_test/bengali_eval_test.dart -d emulator-5556 --dart-define=BN_MODELS=<id>` — temperature 0, context 1024. Questions: capital of Bangladesh (ঢাকা), 7 + 5 in Bengali digits (১২), direction of sunrise (পূর্ব), translate "I like to eat rice." (ভাত).
+
+| Model | Score | Notes | Load | Speed (emulator) |
+|-------|-------|-------|------|------------------|
+| Qwen3 1.7B Q8_0 | 1/4 | Named a non-existent capital; mistranslated "rice"; the arithmetic pass was garbled ("1₂ … ১২") | 7.8 s | 13–29 tok/s |
+| Qwen2.5 1.5B Q4_K_M | 1/4 | Wrote "Dhaka" only in English inside a wrong sentence (counted as fail); translation was nonsense | 2.9 s | 20–50 tok/s |
+
+Gemma 3 1B was **not** tested: its download requires accepting the Gemma Terms of Use, which the user has not done.
+
+Conclusion: no catalog model is marked "Bengali: tested", and none of the four tested models (0.5B–1.7B) answers simple Bengali questions reliably. The UI and catalog notes say so. A good Bengali experience likely needs a larger or Bengali-specialised model; that has to be researched and licence-checked separately.
 
 ## Agent (M5) — verified 2026-10-18
 
@@ -123,9 +134,20 @@ Caveats: one tiny model, five questions, two short English documents, emulator o
 
 1. **Agent (M5) follow-ups**: hand-test approval dialogs and file read/write on a device; add a document-search tool on top of M6 `DocumentService.search`; measure tool-call success rate across catalog models.
 2. **Documents (M6) follow-ups**: hand-test picker/remove/rebuild on a device; test with real scanned and long PDFs and Bengali documents; try a larger model (Qwen2.5 1.5B, Gemma 3 1B) for answer and citation quality; optional semantic retrieval with a small embedding GGUF only if it can run without holding two large models; collect PDFium third-party notices for release.
-3. **Memory (M7)**: opt-in memory entries table, review/edit/delete, injection into the system prompt.
+3. ~~Memory (M7)~~ — done 2026-10-18 (see below).
 4. **Real-device matrix**: at least one low (≤4 GB), mid (6–8 GB) and high (≥12 GB) phone; record load time, TTFT, tok/s, thermal behaviour.
-5. **Downloads in background**: foreground service with notification so large downloads survive leaving the app.
-6. **Bengali**: test Gemma 3 1B and Qwen3 1.7B; native-speaker review of UI strings.
-7. **Play compliance**: decide how reports reach the developer (see checklist); host privacy policy; Data safety form.
+5. ~~Downloads in background~~ — done 2026-10-18 (see below).
+6. **Bengali**: Gemma 3 1B (needs the user to accept the Gemma Terms); find a Bengali-capable model with a compatible licence; native-speaker review of UI strings.
+7. **Play compliance**: report sending now opens the user's email app (see checklist) — confirm with Play policy support that this satisfies in-app reporting; host privacy policy; Data safety form; declare the `dataSync` foreground service in Play Console.
+9. **Voice**: implement the platform-API approach in `docs/VOICE_EVALUATION.md` after real-device checks.
 8. **Vulkan GPU path**: re-enable behind a setting once tested on Adreno/Mali devices.
+
+## Follow-ups — verified 2026-10-18
+
+| Item | What was built | How it was verified |
+|------|----------------|---------------------|
+| Report sending | Long-press → Report now offers "Send to developer"; a preview shows the exact email text, then the user's own email app opens (`ACTION_SENDTO`). Nothing is sent automatically. No new dependency | Unit test on the email body (only reason, model, version, time and the reported reply). Email app opening not hand-tested |
+| Background downloads | `DownloadService` (foreground service, type `dataSync`) with a progress notification; started/updated/stopped from `ModelService` via `DownloadKeepAlive` (throttled to 1 update/s). New permissions: `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `POST_NOTIFICATIONS` | Emulator: started a 491 MB download, pressed Home; file grew 155 → 262 MB with the launcher in front, `dumpsys` showed the service in the foreground; download completed and passed SHA-256; service and notification removed themselves. Unit tests for start/throttle/stop |
+| Memory | `memory_entries` table (schema v3, migrated from v2), off by default; add/edit/disable/delete/clear; "Remember this" on user messages; enabled entries added to the system prompt (max 1,500 chars); chat shows "Using N saved memories"; included in Clear all data | Emulator: installed over the existing v2 database (real upgrade), saved "My name is Rahim and I live in Sylhet.", asked "Where do I live?" in a new chat → "You live in Sylhet, a city located in northeastern Bangladesh." Unit tests for repository, prompt budget and migration |
+
+Tests: `flutter test` → 146 passed; `flutter analyze` → no issues.

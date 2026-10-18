@@ -140,7 +140,7 @@
       ],
       "bengali": "not_listed",
       "starter": false,
-      "notes": "Noticeably better answers than 0.5B; needs a mid-range phone."
+      "notes": "Noticeably better answers than 0.5B in English; needs a mid-range phone. Scored 1 of 4 on our simple Bengali emulator test."
     },
     {
       "id": "qwen3-1.7b-q8_0",
@@ -168,7 +168,7 @@
       ],
       "bengali": "vendor_claimed",
       "starter": false,
-      "notes": "Best quality in the catalog; for phones with 6 GB RAM or more."
+      "notes": "Best quality in the catalog for English; for phones with 6 GB RAM or more. Publisher lists Bengali, but it scored 1 of 4 on our simple Bengali emulator test."
     }
   ]
 }

@@ -15,7 +15,7 @@ Verified sources (2026-10-17): Android target SDK requirements page (developer.a
 ## Policy
 
 - [ ] **AI-Generated Content policy**: app is a text chatbot where AI interaction is central → in scope even though inference is offline.
-  - [ ] In-app way to report/flag offensive output without leaving the app. **Implemented:** long-press message → Report, stored locally, viewable in Settings → My reports, copyable for email. **Open question:** with no backend, reports do not reach the developer automatically. Confirm with Play policy support whether this satisfies the requirement, or add an opt-in, user-confirmed send (e.g. compose email via intent) that shows exactly what will be sent
+  - [ ] In-app way to report/flag offensive output without leaving the app. **Implemented:** long-press message → Report → optional "Send to developer", which previews the exact text and opens the user's email app to support@tdevs.co. **Still to confirm:** that an email-based flow satisfies the policy (it briefly leaves the app to the email client)
   - [ ] System prompt includes safety instruction; document testing process (keep a record of red-team prompts run against each catalog model).
   - [ ] Store listing does not over-claim model quality or language support.
 - [ ] **User Data / Data safety form** — answer from actual behavior:
@@ -24,7 +24,8 @@ Verified sources (2026-10-17): Android target SDK requirements page (developer.a
   - Encryption in transit: downloads use HTTPS.
   - Deletion: Settings → Clear all data; uninstall.
 - [ ] Privacy policy URL hosted publicly, matching `docs/PRIVACY_POLICY.md`
-- [ ] Permissions: only `INTERNET` (+ `RECORD_AUDIO` only if voice ships). No storage, accessibility, package visibility or location permissions.
+- [ ] Permissions: `INTERNET`, `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `POST_NOTIFICATIONS` (+ `RECORD_AUDIO` only if voice ships). No storage, accessibility, package visibility or location permissions.
+- [ ] Play Console foreground-service declaration for `dataSync` (user-initiated model downloads), with a short video if requested
 - [ ] Content rating questionnaire (AI chatbot generating user-requested text → answer honestly; expect at least Teen)
 - [ ] Target audience: not directed at children
 - [ ] Large downloads: models are fetched at runtime by user action; not bundled in the AAB (keeps base size under limits)
