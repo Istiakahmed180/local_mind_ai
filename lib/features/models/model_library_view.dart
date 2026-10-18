@@ -25,6 +25,11 @@ class ModelLibraryView extends StatelessWidget {
         title: Text('model_library'.tr),
         actions: [
           IconButton(
+            tooltip: 'benchmark_title'.tr,
+            icon: const Icon(Icons.speed),
+            onPressed: () => Get.toNamed(Routes.benchmark),
+          ),
+          IconButton(
             tooltip: 'import_model'.tr,
             icon: const Icon(Icons.file_open_outlined),
             onPressed: () => _import(models),

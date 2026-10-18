@@ -86,6 +86,33 @@ class MemoryEntries extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// One benchmark of one model on this device (median of the measured runs).
+@DataClassName('BenchmarkRecord')
+class BenchmarkResults extends Table {
+  TextColumn get id => text()();
+  TextColumn get modelId => text()();
+  TextColumn get modelName => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  IntColumn get contextSize => integer()();
+  IntColumn get runs => integer()();
+  IntColumn get loadMs => integer()();
+  IntColumn get timeToFirstTokenMs => integer().nullable()();
+  IntColumn get promptTokens => integer()();
+  IntColumn get completionTokens => integer()();
+  RealColumn get promptTokensPerSecond => real().nullable()();
+  RealColumn get generationTokensPerSecond => real().nullable()();
+  RealColumn get generationMin => real().nullable()();
+  RealColumn get generationMax => real().nullable()();
+  IntColumn get rssAfterLoadBytes => integer().nullable()();
+  IntColumn get rssPeakBytes => integer().nullable()();
+
+  /// e.g. "Google Pixel 7 · Android 14 · 8 cores · 8.0 GB".
+  TextColumn get device => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class ContentReports extends Table {
   TextColumn get id => text()();
   TextColumn get messageId => text()();
@@ -144,6 +171,7 @@ class DocumentChunks extends Table {
     DocumentChunks,
     MemoryEntries,
     ChunkEmbeddings,
+    BenchmarkResults,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -151,7 +179,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'localmind'));
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   /// Whether the SQLite build has FTS5. Set when the database opens.
   bool hasFts5 = false;
@@ -180,6 +208,9 @@ class AppDatabase extends _$AppDatabase {
       // already made it with every current column.
       if (from >= 2 && from < 6) {
         await m.addColumn(documents, documents.ocrPages);
+      }
+      if (from < 7) {
+        await m.createTable(benchmarkResults);
       }
     },
     beforeOpen: (details) async {

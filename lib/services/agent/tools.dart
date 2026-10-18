@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 
 import '../documents/grounding.dart';
 import '../documents/retrieval.dart';
+import 'agent_orchestrator.dart';
 import 'agent_protocol.dart';
 import 'agent_tool.dart';
 import 'expression.dart';
@@ -367,11 +368,26 @@ class SearchDocumentsTool extends AgentTool {
       queryTerms(query),
       minSimilarity: minSimilarity(),
     )) {
-      return 'No passage in the documents matches "$query" well enough. '
+      return '$noDocumentEvidence matches "$query" well enough. '
           'Say the documents do not answer this; do not guess.';
     }
     return fitDocumentResult(found, maxBytes);
   }
+}
+
+const noDocumentEvidence = 'No passage in the documents';
+
+/// True when the run searched documents and every search came back empty,
+/// so a final answer cannot be from the user's documents (small models
+/// sometimes answer anyway).
+bool answerLacksDocumentEvidence(Iterable<AgentStep> steps) {
+  final results = [
+    for (final s in steps)
+      if (s.kind == AgentStepKind.toolResult && s.tool == 'search_documents')
+        s.text,
+  ];
+  return results.isNotEmpty &&
+      results.every((t) => t.startsWith(noDocumentEvidence));
 }
 
 /// Shrinks passage text evenly until the wrapped result fits [maxBytes].

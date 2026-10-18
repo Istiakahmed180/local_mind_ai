@@ -151,7 +151,13 @@ void main() {
     );
     await runtime.unload();
 
+    log(
+      '[agent-docs] flagged-without-evidence: '
+      'missing=${answerLacksDocumentEvidence(missing.steps)}',
+    );
+    expect(answerLacksDocumentEvidence(answerable.steps), isFalse);
     if (strict) {
+      expect(answerLacksDocumentEvidence(missing.steps), isTrue);
       expect(answerable.state, AgentState.completed);
       expect(searched(answerable), isTrue);
       expect(
@@ -176,16 +182,16 @@ void main() {
   }
 
   testWidgets(
-    'Qwen2.5 0.5B searches documents',
+    'Qwen2.5 1.5B searches documents',
     semanticsEnabled: false,
-    (_) => evaluate('qwen2.5-0.5b-instruct-q4_k_m', strict: true),
+    (_) => evaluate('qwen2.5-1.5b-instruct-q4_k_m', strict: true),
     timeout: const Timeout(Duration(minutes: 20)),
   );
 
   testWidgets(
-    'Qwen2.5 1.5B searches documents (logged)',
+    'Qwen2.5 0.5B searches documents (logged)',
     semanticsEnabled: false,
-    (_) => evaluate('qwen2.5-1.5b-instruct-q4_k_m', strict: false),
+    (_) => evaluate('qwen2.5-0.5b-instruct-q4_k_m', strict: false),
     timeout: const Timeout(Duration(minutes: 30)),
   );
 }

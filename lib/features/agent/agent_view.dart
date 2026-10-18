@@ -10,6 +10,7 @@ import '../../app/theme.dart';
 import '../../core/format.dart';
 import '../../core/widgets/state_views.dart';
 import '../../services/agent/agent_orchestrator.dart';
+import '../../services/agent/tools.dart';
 import 'agent_controller.dart';
 
 class AgentView extends GetView<AgentController> {
@@ -329,6 +330,28 @@ class _Outcome extends StatelessWidget {
                 ],
               ),
               SelectableText(answer),
+              if (answerLacksDocumentEvidence(c.steps)) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 18,
+                      color: theme.colorScheme.error,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Expanded(
+                      child: Text(
+                        'agent_answer_no_doc_evidence'.tr,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               Text('agent_answer_caveat'.tr, style: theme.textTheme.bodySmall),
             ],

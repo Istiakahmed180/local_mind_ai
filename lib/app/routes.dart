@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../features/about/about_view.dart';
 import '../features/agent/agent_controller.dart';
 import '../features/agent/agent_view.dart';
+import '../features/benchmark/benchmark_controller.dart';
+import '../features/benchmark/benchmark_view.dart';
 import '../features/chat/chat_controller.dart';
 import '../features/chat/chat_view.dart';
 import '../features/documents/documents_controller.dart';
@@ -25,6 +27,7 @@ abstract final class Routes {
   static const documents = '/documents';
   static const reports = '/reports';
   static const memory = '/memory';
+  static const benchmark = '/benchmark';
 }
 
 final appPages = [
@@ -56,4 +59,11 @@ final appPages = [
   ),
   GetPage(name: Routes.reports, page: () => const ReportsView()),
   GetPage(name: Routes.memory, page: () => const MemoryView()),
+  GetPage(
+    name: Routes.benchmark,
+    page: () => const BenchmarkView(),
+    binding: BindingsBuilder(() {
+      Get.put(BenchmarkController());
+    }),
+  ),
 ];

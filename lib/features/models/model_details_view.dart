@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../app/routes.dart';
 import '../../app/theme.dart';
 import '../../core/format.dart';
 import '../../core/widgets/state_views.dart';
@@ -42,6 +43,16 @@ class ModelDetailsView extends StatelessWidget {
             if (def == null && inst != null) _ImportedInfo(inst),
             const SizedBox(height: AppSpacing.md),
             if (inst != null) _Measured(inst, loaded: loaded, runtime: runtime),
+            if (inst != null && def?.isEmbedding != true)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  onPressed: () =>
+                      Get.toNamed(Routes.benchmark, arguments: inst.id),
+                  icon: const Icon(Icons.speed),
+                  label: Text('benchmark_open'.tr),
+                ),
+              ),
             const SizedBox(height: AppSpacing.md),
             if (inst == null && def != null)
               _DownloadControls(def: def, state: dl, models: models)

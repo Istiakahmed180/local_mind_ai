@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:localmind_ai/services/agent/agent_orchestrator.dart';
 import 'package:localmind_ai/services/agent/agent_tool.dart';
 import 'package:localmind_ai/services/agent/tools.dart';
 import 'package:localmind_ai/services/documents/retrieval.dart';
@@ -274,6 +275,22 @@ void main() {
         passage('Money back within a month.', similarity: 0.7),
       ], minSimilarity: 0.6).run({'query': 'refund window'}, ctx);
       expect(out, contains('Money back'));
+    });
+
+    test('flags an answer given after only empty searches', () {
+      const empty = AgentStep(
+        AgentStepKind.toolResult,
+        tool: 'search_documents',
+        text: '$noDocumentEvidence matches "x" well enough.',
+      );
+      const hit = AgentStep(
+        AgentStepKind.toolResult,
+        tool: 'search_documents',
+        text: '<document_excerpts>…',
+      );
+      expect(answerLacksDocumentEvidence(const [empty]), isTrue);
+      expect(answerLacksDocumentEvidence(const [empty, hit]), isFalse);
+      expect(answerLacksDocumentEvidence(const []), isFalse);
     });
 
     test('long Bengali passages are cut to fit, keeping every source', () {

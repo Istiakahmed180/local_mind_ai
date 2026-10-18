@@ -4158,6 +4158,1034 @@ class ChunkEmbeddingsCompanion extends UpdateCompanion<ChunkEmbedding> {
   }
 }
 
+class $BenchmarkResultsTable extends BenchmarkResults
+    with TableInfo<$BenchmarkResultsTable, BenchmarkRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BenchmarkResultsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelIdMeta = const VerificationMeta(
+    'modelId',
+  );
+  @override
+  late final GeneratedColumn<String> modelId = GeneratedColumn<String>(
+    'model_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelNameMeta = const VerificationMeta(
+    'modelName',
+  );
+  @override
+  late final GeneratedColumn<String> modelName = GeneratedColumn<String>(
+    'model_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextSizeMeta = const VerificationMeta(
+    'contextSize',
+  );
+  @override
+  late final GeneratedColumn<int> contextSize = GeneratedColumn<int>(
+    'context_size',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _runsMeta = const VerificationMeta('runs');
+  @override
+  late final GeneratedColumn<int> runs = GeneratedColumn<int>(
+    'runs',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _loadMsMeta = const VerificationMeta('loadMs');
+  @override
+  late final GeneratedColumn<int> loadMs = GeneratedColumn<int>(
+    'load_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timeToFirstTokenMsMeta =
+      const VerificationMeta('timeToFirstTokenMs');
+  @override
+  late final GeneratedColumn<int> timeToFirstTokenMs = GeneratedColumn<int>(
+    'time_to_first_token_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _promptTokensMeta = const VerificationMeta(
+    'promptTokens',
+  );
+  @override
+  late final GeneratedColumn<int> promptTokens = GeneratedColumn<int>(
+    'prompt_tokens',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _completionTokensMeta = const VerificationMeta(
+    'completionTokens',
+  );
+  @override
+  late final GeneratedColumn<int> completionTokens = GeneratedColumn<int>(
+    'completion_tokens',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _promptTokensPerSecondMeta =
+      const VerificationMeta('promptTokensPerSecond');
+  @override
+  late final GeneratedColumn<double> promptTokensPerSecond =
+      GeneratedColumn<double>(
+        'prompt_tokens_per_second',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _generationTokensPerSecondMeta =
+      const VerificationMeta('generationTokensPerSecond');
+  @override
+  late final GeneratedColumn<double> generationTokensPerSecond =
+      GeneratedColumn<double>(
+        'generation_tokens_per_second',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _generationMinMeta = const VerificationMeta(
+    'generationMin',
+  );
+  @override
+  late final GeneratedColumn<double> generationMin = GeneratedColumn<double>(
+    'generation_min',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _generationMaxMeta = const VerificationMeta(
+    'generationMax',
+  );
+  @override
+  late final GeneratedColumn<double> generationMax = GeneratedColumn<double>(
+    'generation_max',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rssAfterLoadBytesMeta = const VerificationMeta(
+    'rssAfterLoadBytes',
+  );
+  @override
+  late final GeneratedColumn<int> rssAfterLoadBytes = GeneratedColumn<int>(
+    'rss_after_load_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rssPeakBytesMeta = const VerificationMeta(
+    'rssPeakBytes',
+  );
+  @override
+  late final GeneratedColumn<int> rssPeakBytes = GeneratedColumn<int>(
+    'rss_peak_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deviceMeta = const VerificationMeta('device');
+  @override
+  late final GeneratedColumn<String> device = GeneratedColumn<String>(
+    'device',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    modelId,
+    modelName,
+    createdAt,
+    contextSize,
+    runs,
+    loadMs,
+    timeToFirstTokenMs,
+    promptTokens,
+    completionTokens,
+    promptTokensPerSecond,
+    generationTokensPerSecond,
+    generationMin,
+    generationMax,
+    rssAfterLoadBytes,
+    rssPeakBytes,
+    device,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'benchmark_results';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BenchmarkRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('model_id')) {
+      context.handle(
+        _modelIdMeta,
+        modelId.isAcceptableOrUnknown(data['model_id']!, _modelIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelIdMeta);
+    }
+    if (data.containsKey('model_name')) {
+      context.handle(
+        _modelNameMeta,
+        modelName.isAcceptableOrUnknown(data['model_name']!, _modelNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelNameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('context_size')) {
+      context.handle(
+        _contextSizeMeta,
+        contextSize.isAcceptableOrUnknown(
+          data['context_size']!,
+          _contextSizeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextSizeMeta);
+    }
+    if (data.containsKey('runs')) {
+      context.handle(
+        _runsMeta,
+        runs.isAcceptableOrUnknown(data['runs']!, _runsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_runsMeta);
+    }
+    if (data.containsKey('load_ms')) {
+      context.handle(
+        _loadMsMeta,
+        loadMs.isAcceptableOrUnknown(data['load_ms']!, _loadMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_loadMsMeta);
+    }
+    if (data.containsKey('time_to_first_token_ms')) {
+      context.handle(
+        _timeToFirstTokenMsMeta,
+        timeToFirstTokenMs.isAcceptableOrUnknown(
+          data['time_to_first_token_ms']!,
+          _timeToFirstTokenMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('prompt_tokens')) {
+      context.handle(
+        _promptTokensMeta,
+        promptTokens.isAcceptableOrUnknown(
+          data['prompt_tokens']!,
+          _promptTokensMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_promptTokensMeta);
+    }
+    if (data.containsKey('completion_tokens')) {
+      context.handle(
+        _completionTokensMeta,
+        completionTokens.isAcceptableOrUnknown(
+          data['completion_tokens']!,
+          _completionTokensMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_completionTokensMeta);
+    }
+    if (data.containsKey('prompt_tokens_per_second')) {
+      context.handle(
+        _promptTokensPerSecondMeta,
+        promptTokensPerSecond.isAcceptableOrUnknown(
+          data['prompt_tokens_per_second']!,
+          _promptTokensPerSecondMeta,
+        ),
+      );
+    }
+    if (data.containsKey('generation_tokens_per_second')) {
+      context.handle(
+        _generationTokensPerSecondMeta,
+        generationTokensPerSecond.isAcceptableOrUnknown(
+          data['generation_tokens_per_second']!,
+          _generationTokensPerSecondMeta,
+        ),
+      );
+    }
+    if (data.containsKey('generation_min')) {
+      context.handle(
+        _generationMinMeta,
+        generationMin.isAcceptableOrUnknown(
+          data['generation_min']!,
+          _generationMinMeta,
+        ),
+      );
+    }
+    if (data.containsKey('generation_max')) {
+      context.handle(
+        _generationMaxMeta,
+        generationMax.isAcceptableOrUnknown(
+          data['generation_max']!,
+          _generationMaxMeta,
+        ),
+      );
+    }
+    if (data.containsKey('rss_after_load_bytes')) {
+      context.handle(
+        _rssAfterLoadBytesMeta,
+        rssAfterLoadBytes.isAcceptableOrUnknown(
+          data['rss_after_load_bytes']!,
+          _rssAfterLoadBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('rss_peak_bytes')) {
+      context.handle(
+        _rssPeakBytesMeta,
+        rssPeakBytes.isAcceptableOrUnknown(
+          data['rss_peak_bytes']!,
+          _rssPeakBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('device')) {
+      context.handle(
+        _deviceMeta,
+        device.isAcceptableOrUnknown(data['device']!, _deviceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BenchmarkRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BenchmarkRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      modelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_id'],
+      )!,
+      modelName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      contextSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}context_size'],
+      )!,
+      runs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}runs'],
+      )!,
+      loadMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}load_ms'],
+      )!,
+      timeToFirstTokenMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}time_to_first_token_ms'],
+      ),
+      promptTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prompt_tokens'],
+      )!,
+      completionTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}completion_tokens'],
+      )!,
+      promptTokensPerSecond: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}prompt_tokens_per_second'],
+      ),
+      generationTokensPerSecond: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}generation_tokens_per_second'],
+      ),
+      generationMin: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}generation_min'],
+      ),
+      generationMax: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}generation_max'],
+      ),
+      rssAfterLoadBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rss_after_load_bytes'],
+      ),
+      rssPeakBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rss_peak_bytes'],
+      ),
+      device: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device'],
+      )!,
+    );
+  }
+
+  @override
+  $BenchmarkResultsTable createAlias(String alias) {
+    return $BenchmarkResultsTable(attachedDatabase, alias);
+  }
+}
+
+class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
+  final String id;
+  final String modelId;
+  final String modelName;
+  final DateTime createdAt;
+  final int contextSize;
+  final int runs;
+  final int loadMs;
+  final int? timeToFirstTokenMs;
+  final int promptTokens;
+  final int completionTokens;
+  final double? promptTokensPerSecond;
+  final double? generationTokensPerSecond;
+  final double? generationMin;
+  final double? generationMax;
+  final int? rssAfterLoadBytes;
+  final int? rssPeakBytes;
+
+  /// e.g. "Google Pixel 7 · Android 14 · 8 cores · 8.0 GB".
+  final String device;
+  const BenchmarkRecord({
+    required this.id,
+    required this.modelId,
+    required this.modelName,
+    required this.createdAt,
+    required this.contextSize,
+    required this.runs,
+    required this.loadMs,
+    this.timeToFirstTokenMs,
+    required this.promptTokens,
+    required this.completionTokens,
+    this.promptTokensPerSecond,
+    this.generationTokensPerSecond,
+    this.generationMin,
+    this.generationMax,
+    this.rssAfterLoadBytes,
+    this.rssPeakBytes,
+    required this.device,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['model_id'] = Variable<String>(modelId);
+    map['model_name'] = Variable<String>(modelName);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['context_size'] = Variable<int>(contextSize);
+    map['runs'] = Variable<int>(runs);
+    map['load_ms'] = Variable<int>(loadMs);
+    if (!nullToAbsent || timeToFirstTokenMs != null) {
+      map['time_to_first_token_ms'] = Variable<int>(timeToFirstTokenMs);
+    }
+    map['prompt_tokens'] = Variable<int>(promptTokens);
+    map['completion_tokens'] = Variable<int>(completionTokens);
+    if (!nullToAbsent || promptTokensPerSecond != null) {
+      map['prompt_tokens_per_second'] = Variable<double>(promptTokensPerSecond);
+    }
+    if (!nullToAbsent || generationTokensPerSecond != null) {
+      map['generation_tokens_per_second'] = Variable<double>(
+        generationTokensPerSecond,
+      );
+    }
+    if (!nullToAbsent || generationMin != null) {
+      map['generation_min'] = Variable<double>(generationMin);
+    }
+    if (!nullToAbsent || generationMax != null) {
+      map['generation_max'] = Variable<double>(generationMax);
+    }
+    if (!nullToAbsent || rssAfterLoadBytes != null) {
+      map['rss_after_load_bytes'] = Variable<int>(rssAfterLoadBytes);
+    }
+    if (!nullToAbsent || rssPeakBytes != null) {
+      map['rss_peak_bytes'] = Variable<int>(rssPeakBytes);
+    }
+    map['device'] = Variable<String>(device);
+    return map;
+  }
+
+  BenchmarkResultsCompanion toCompanion(bool nullToAbsent) {
+    return BenchmarkResultsCompanion(
+      id: Value(id),
+      modelId: Value(modelId),
+      modelName: Value(modelName),
+      createdAt: Value(createdAt),
+      contextSize: Value(contextSize),
+      runs: Value(runs),
+      loadMs: Value(loadMs),
+      timeToFirstTokenMs: timeToFirstTokenMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timeToFirstTokenMs),
+      promptTokens: Value(promptTokens),
+      completionTokens: Value(completionTokens),
+      promptTokensPerSecond: promptTokensPerSecond == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promptTokensPerSecond),
+      generationTokensPerSecond:
+          generationTokensPerSecond == null && nullToAbsent
+          ? const Value.absent()
+          : Value(generationTokensPerSecond),
+      generationMin: generationMin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(generationMin),
+      generationMax: generationMax == null && nullToAbsent
+          ? const Value.absent()
+          : Value(generationMax),
+      rssAfterLoadBytes: rssAfterLoadBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rssAfterLoadBytes),
+      rssPeakBytes: rssPeakBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rssPeakBytes),
+      device: Value(device),
+    );
+  }
+
+  factory BenchmarkRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BenchmarkRecord(
+      id: serializer.fromJson<String>(json['id']),
+      modelId: serializer.fromJson<String>(json['modelId']),
+      modelName: serializer.fromJson<String>(json['modelName']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      contextSize: serializer.fromJson<int>(json['contextSize']),
+      runs: serializer.fromJson<int>(json['runs']),
+      loadMs: serializer.fromJson<int>(json['loadMs']),
+      timeToFirstTokenMs: serializer.fromJson<int?>(json['timeToFirstTokenMs']),
+      promptTokens: serializer.fromJson<int>(json['promptTokens']),
+      completionTokens: serializer.fromJson<int>(json['completionTokens']),
+      promptTokensPerSecond: serializer.fromJson<double?>(
+        json['promptTokensPerSecond'],
+      ),
+      generationTokensPerSecond: serializer.fromJson<double?>(
+        json['generationTokensPerSecond'],
+      ),
+      generationMin: serializer.fromJson<double?>(json['generationMin']),
+      generationMax: serializer.fromJson<double?>(json['generationMax']),
+      rssAfterLoadBytes: serializer.fromJson<int?>(json['rssAfterLoadBytes']),
+      rssPeakBytes: serializer.fromJson<int?>(json['rssPeakBytes']),
+      device: serializer.fromJson<String>(json['device']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'modelId': serializer.toJson<String>(modelId),
+      'modelName': serializer.toJson<String>(modelName),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'contextSize': serializer.toJson<int>(contextSize),
+      'runs': serializer.toJson<int>(runs),
+      'loadMs': serializer.toJson<int>(loadMs),
+      'timeToFirstTokenMs': serializer.toJson<int?>(timeToFirstTokenMs),
+      'promptTokens': serializer.toJson<int>(promptTokens),
+      'completionTokens': serializer.toJson<int>(completionTokens),
+      'promptTokensPerSecond': serializer.toJson<double?>(
+        promptTokensPerSecond,
+      ),
+      'generationTokensPerSecond': serializer.toJson<double?>(
+        generationTokensPerSecond,
+      ),
+      'generationMin': serializer.toJson<double?>(generationMin),
+      'generationMax': serializer.toJson<double?>(generationMax),
+      'rssAfterLoadBytes': serializer.toJson<int?>(rssAfterLoadBytes),
+      'rssPeakBytes': serializer.toJson<int?>(rssPeakBytes),
+      'device': serializer.toJson<String>(device),
+    };
+  }
+
+  BenchmarkRecord copyWith({
+    String? id,
+    String? modelId,
+    String? modelName,
+    DateTime? createdAt,
+    int? contextSize,
+    int? runs,
+    int? loadMs,
+    Value<int?> timeToFirstTokenMs = const Value.absent(),
+    int? promptTokens,
+    int? completionTokens,
+    Value<double?> promptTokensPerSecond = const Value.absent(),
+    Value<double?> generationTokensPerSecond = const Value.absent(),
+    Value<double?> generationMin = const Value.absent(),
+    Value<double?> generationMax = const Value.absent(),
+    Value<int?> rssAfterLoadBytes = const Value.absent(),
+    Value<int?> rssPeakBytes = const Value.absent(),
+    String? device,
+  }) => BenchmarkRecord(
+    id: id ?? this.id,
+    modelId: modelId ?? this.modelId,
+    modelName: modelName ?? this.modelName,
+    createdAt: createdAt ?? this.createdAt,
+    contextSize: contextSize ?? this.contextSize,
+    runs: runs ?? this.runs,
+    loadMs: loadMs ?? this.loadMs,
+    timeToFirstTokenMs: timeToFirstTokenMs.present
+        ? timeToFirstTokenMs.value
+        : this.timeToFirstTokenMs,
+    promptTokens: promptTokens ?? this.promptTokens,
+    completionTokens: completionTokens ?? this.completionTokens,
+    promptTokensPerSecond: promptTokensPerSecond.present
+        ? promptTokensPerSecond.value
+        : this.promptTokensPerSecond,
+    generationTokensPerSecond: generationTokensPerSecond.present
+        ? generationTokensPerSecond.value
+        : this.generationTokensPerSecond,
+    generationMin: generationMin.present
+        ? generationMin.value
+        : this.generationMin,
+    generationMax: generationMax.present
+        ? generationMax.value
+        : this.generationMax,
+    rssAfterLoadBytes: rssAfterLoadBytes.present
+        ? rssAfterLoadBytes.value
+        : this.rssAfterLoadBytes,
+    rssPeakBytes: rssPeakBytes.present ? rssPeakBytes.value : this.rssPeakBytes,
+    device: device ?? this.device,
+  );
+  BenchmarkRecord copyWithCompanion(BenchmarkResultsCompanion data) {
+    return BenchmarkRecord(
+      id: data.id.present ? data.id.value : this.id,
+      modelId: data.modelId.present ? data.modelId.value : this.modelId,
+      modelName: data.modelName.present ? data.modelName.value : this.modelName,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      contextSize: data.contextSize.present
+          ? data.contextSize.value
+          : this.contextSize,
+      runs: data.runs.present ? data.runs.value : this.runs,
+      loadMs: data.loadMs.present ? data.loadMs.value : this.loadMs,
+      timeToFirstTokenMs: data.timeToFirstTokenMs.present
+          ? data.timeToFirstTokenMs.value
+          : this.timeToFirstTokenMs,
+      promptTokens: data.promptTokens.present
+          ? data.promptTokens.value
+          : this.promptTokens,
+      completionTokens: data.completionTokens.present
+          ? data.completionTokens.value
+          : this.completionTokens,
+      promptTokensPerSecond: data.promptTokensPerSecond.present
+          ? data.promptTokensPerSecond.value
+          : this.promptTokensPerSecond,
+      generationTokensPerSecond: data.generationTokensPerSecond.present
+          ? data.generationTokensPerSecond.value
+          : this.generationTokensPerSecond,
+      generationMin: data.generationMin.present
+          ? data.generationMin.value
+          : this.generationMin,
+      generationMax: data.generationMax.present
+          ? data.generationMax.value
+          : this.generationMax,
+      rssAfterLoadBytes: data.rssAfterLoadBytes.present
+          ? data.rssAfterLoadBytes.value
+          : this.rssAfterLoadBytes,
+      rssPeakBytes: data.rssPeakBytes.present
+          ? data.rssPeakBytes.value
+          : this.rssPeakBytes,
+      device: data.device.present ? data.device.value : this.device,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BenchmarkRecord(')
+          ..write('id: $id, ')
+          ..write('modelId: $modelId, ')
+          ..write('modelName: $modelName, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('contextSize: $contextSize, ')
+          ..write('runs: $runs, ')
+          ..write('loadMs: $loadMs, ')
+          ..write('timeToFirstTokenMs: $timeToFirstTokenMs, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('promptTokensPerSecond: $promptTokensPerSecond, ')
+          ..write('generationTokensPerSecond: $generationTokensPerSecond, ')
+          ..write('generationMin: $generationMin, ')
+          ..write('generationMax: $generationMax, ')
+          ..write('rssAfterLoadBytes: $rssAfterLoadBytes, ')
+          ..write('rssPeakBytes: $rssPeakBytes, ')
+          ..write('device: $device')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    modelId,
+    modelName,
+    createdAt,
+    contextSize,
+    runs,
+    loadMs,
+    timeToFirstTokenMs,
+    promptTokens,
+    completionTokens,
+    promptTokensPerSecond,
+    generationTokensPerSecond,
+    generationMin,
+    generationMax,
+    rssAfterLoadBytes,
+    rssPeakBytes,
+    device,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BenchmarkRecord &&
+          other.id == this.id &&
+          other.modelId == this.modelId &&
+          other.modelName == this.modelName &&
+          other.createdAt == this.createdAt &&
+          other.contextSize == this.contextSize &&
+          other.runs == this.runs &&
+          other.loadMs == this.loadMs &&
+          other.timeToFirstTokenMs == this.timeToFirstTokenMs &&
+          other.promptTokens == this.promptTokens &&
+          other.completionTokens == this.completionTokens &&
+          other.promptTokensPerSecond == this.promptTokensPerSecond &&
+          other.generationTokensPerSecond == this.generationTokensPerSecond &&
+          other.generationMin == this.generationMin &&
+          other.generationMax == this.generationMax &&
+          other.rssAfterLoadBytes == this.rssAfterLoadBytes &&
+          other.rssPeakBytes == this.rssPeakBytes &&
+          other.device == this.device);
+}
+
+class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
+  final Value<String> id;
+  final Value<String> modelId;
+  final Value<String> modelName;
+  final Value<DateTime> createdAt;
+  final Value<int> contextSize;
+  final Value<int> runs;
+  final Value<int> loadMs;
+  final Value<int?> timeToFirstTokenMs;
+  final Value<int> promptTokens;
+  final Value<int> completionTokens;
+  final Value<double?> promptTokensPerSecond;
+  final Value<double?> generationTokensPerSecond;
+  final Value<double?> generationMin;
+  final Value<double?> generationMax;
+  final Value<int?> rssAfterLoadBytes;
+  final Value<int?> rssPeakBytes;
+  final Value<String> device;
+  final Value<int> rowid;
+  const BenchmarkResultsCompanion({
+    this.id = const Value.absent(),
+    this.modelId = const Value.absent(),
+    this.modelName = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.contextSize = const Value.absent(),
+    this.runs = const Value.absent(),
+    this.loadMs = const Value.absent(),
+    this.timeToFirstTokenMs = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.promptTokensPerSecond = const Value.absent(),
+    this.generationTokensPerSecond = const Value.absent(),
+    this.generationMin = const Value.absent(),
+    this.generationMax = const Value.absent(),
+    this.rssAfterLoadBytes = const Value.absent(),
+    this.rssPeakBytes = const Value.absent(),
+    this.device = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BenchmarkResultsCompanion.insert({
+    required String id,
+    required String modelId,
+    required String modelName,
+    required DateTime createdAt,
+    required int contextSize,
+    required int runs,
+    required int loadMs,
+    this.timeToFirstTokenMs = const Value.absent(),
+    required int promptTokens,
+    required int completionTokens,
+    this.promptTokensPerSecond = const Value.absent(),
+    this.generationTokensPerSecond = const Value.absent(),
+    this.generationMin = const Value.absent(),
+    this.generationMax = const Value.absent(),
+    this.rssAfterLoadBytes = const Value.absent(),
+    this.rssPeakBytes = const Value.absent(),
+    required String device,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       modelId = Value(modelId),
+       modelName = Value(modelName),
+       createdAt = Value(createdAt),
+       contextSize = Value(contextSize),
+       runs = Value(runs),
+       loadMs = Value(loadMs),
+       promptTokens = Value(promptTokens),
+       completionTokens = Value(completionTokens),
+       device = Value(device);
+  static Insertable<BenchmarkRecord> custom({
+    Expression<String>? id,
+    Expression<String>? modelId,
+    Expression<String>? modelName,
+    Expression<DateTime>? createdAt,
+    Expression<int>? contextSize,
+    Expression<int>? runs,
+    Expression<int>? loadMs,
+    Expression<int>? timeToFirstTokenMs,
+    Expression<int>? promptTokens,
+    Expression<int>? completionTokens,
+    Expression<double>? promptTokensPerSecond,
+    Expression<double>? generationTokensPerSecond,
+    Expression<double>? generationMin,
+    Expression<double>? generationMax,
+    Expression<int>? rssAfterLoadBytes,
+    Expression<int>? rssPeakBytes,
+    Expression<String>? device,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (modelId != null) 'model_id': modelId,
+      if (modelName != null) 'model_name': modelName,
+      if (createdAt != null) 'created_at': createdAt,
+      if (contextSize != null) 'context_size': contextSize,
+      if (runs != null) 'runs': runs,
+      if (loadMs != null) 'load_ms': loadMs,
+      if (timeToFirstTokenMs != null)
+        'time_to_first_token_ms': timeToFirstTokenMs,
+      if (promptTokens != null) 'prompt_tokens': promptTokens,
+      if (completionTokens != null) 'completion_tokens': completionTokens,
+      if (promptTokensPerSecond != null)
+        'prompt_tokens_per_second': promptTokensPerSecond,
+      if (generationTokensPerSecond != null)
+        'generation_tokens_per_second': generationTokensPerSecond,
+      if (generationMin != null) 'generation_min': generationMin,
+      if (generationMax != null) 'generation_max': generationMax,
+      if (rssAfterLoadBytes != null) 'rss_after_load_bytes': rssAfterLoadBytes,
+      if (rssPeakBytes != null) 'rss_peak_bytes': rssPeakBytes,
+      if (device != null) 'device': device,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BenchmarkResultsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? modelId,
+    Value<String>? modelName,
+    Value<DateTime>? createdAt,
+    Value<int>? contextSize,
+    Value<int>? runs,
+    Value<int>? loadMs,
+    Value<int?>? timeToFirstTokenMs,
+    Value<int>? promptTokens,
+    Value<int>? completionTokens,
+    Value<double?>? promptTokensPerSecond,
+    Value<double?>? generationTokensPerSecond,
+    Value<double?>? generationMin,
+    Value<double?>? generationMax,
+    Value<int?>? rssAfterLoadBytes,
+    Value<int?>? rssPeakBytes,
+    Value<String>? device,
+    Value<int>? rowid,
+  }) {
+    return BenchmarkResultsCompanion(
+      id: id ?? this.id,
+      modelId: modelId ?? this.modelId,
+      modelName: modelName ?? this.modelName,
+      createdAt: createdAt ?? this.createdAt,
+      contextSize: contextSize ?? this.contextSize,
+      runs: runs ?? this.runs,
+      loadMs: loadMs ?? this.loadMs,
+      timeToFirstTokenMs: timeToFirstTokenMs ?? this.timeToFirstTokenMs,
+      promptTokens: promptTokens ?? this.promptTokens,
+      completionTokens: completionTokens ?? this.completionTokens,
+      promptTokensPerSecond:
+          promptTokensPerSecond ?? this.promptTokensPerSecond,
+      generationTokensPerSecond:
+          generationTokensPerSecond ?? this.generationTokensPerSecond,
+      generationMin: generationMin ?? this.generationMin,
+      generationMax: generationMax ?? this.generationMax,
+      rssAfterLoadBytes: rssAfterLoadBytes ?? this.rssAfterLoadBytes,
+      rssPeakBytes: rssPeakBytes ?? this.rssPeakBytes,
+      device: device ?? this.device,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (modelId.present) {
+      map['model_id'] = Variable<String>(modelId.value);
+    }
+    if (modelName.present) {
+      map['model_name'] = Variable<String>(modelName.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (contextSize.present) {
+      map['context_size'] = Variable<int>(contextSize.value);
+    }
+    if (runs.present) {
+      map['runs'] = Variable<int>(runs.value);
+    }
+    if (loadMs.present) {
+      map['load_ms'] = Variable<int>(loadMs.value);
+    }
+    if (timeToFirstTokenMs.present) {
+      map['time_to_first_token_ms'] = Variable<int>(timeToFirstTokenMs.value);
+    }
+    if (promptTokens.present) {
+      map['prompt_tokens'] = Variable<int>(promptTokens.value);
+    }
+    if (completionTokens.present) {
+      map['completion_tokens'] = Variable<int>(completionTokens.value);
+    }
+    if (promptTokensPerSecond.present) {
+      map['prompt_tokens_per_second'] = Variable<double>(
+        promptTokensPerSecond.value,
+      );
+    }
+    if (generationTokensPerSecond.present) {
+      map['generation_tokens_per_second'] = Variable<double>(
+        generationTokensPerSecond.value,
+      );
+    }
+    if (generationMin.present) {
+      map['generation_min'] = Variable<double>(generationMin.value);
+    }
+    if (generationMax.present) {
+      map['generation_max'] = Variable<double>(generationMax.value);
+    }
+    if (rssAfterLoadBytes.present) {
+      map['rss_after_load_bytes'] = Variable<int>(rssAfterLoadBytes.value);
+    }
+    if (rssPeakBytes.present) {
+      map['rss_peak_bytes'] = Variable<int>(rssPeakBytes.value);
+    }
+    if (device.present) {
+      map['device'] = Variable<String>(device.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BenchmarkResultsCompanion(')
+          ..write('id: $id, ')
+          ..write('modelId: $modelId, ')
+          ..write('modelName: $modelName, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('contextSize: $contextSize, ')
+          ..write('runs: $runs, ')
+          ..write('loadMs: $loadMs, ')
+          ..write('timeToFirstTokenMs: $timeToFirstTokenMs, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('promptTokensPerSecond: $promptTokensPerSecond, ')
+          ..write('generationTokensPerSecond: $generationTokensPerSecond, ')
+          ..write('generationMin: $generationMin, ')
+          ..write('generationMax: $generationMax, ')
+          ..write('rssAfterLoadBytes: $rssAfterLoadBytes, ')
+          ..write('rssPeakBytes: $rssPeakBytes, ')
+          ..write('device: $device, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4173,6 +5201,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChunkEmbeddingsTable chunkEmbeddings = $ChunkEmbeddingsTable(
     this,
   );
+  late final $BenchmarkResultsTable benchmarkResults = $BenchmarkResultsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4186,6 +5217,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     documentChunks,
     memoryEntries,
     chunkEmbeddings,
+    benchmarkResults,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -6984,6 +8016,469 @@ typedef $$ChunkEmbeddingsTableProcessedTableManager =
       ChunkEmbedding,
       PrefetchHooks Function({bool chunkId})
     >;
+typedef $$BenchmarkResultsTableCreateCompanionBuilder =
+    BenchmarkResultsCompanion Function({
+      required String id,
+      required String modelId,
+      required String modelName,
+      required DateTime createdAt,
+      required int contextSize,
+      required int runs,
+      required int loadMs,
+      Value<int?> timeToFirstTokenMs,
+      required int promptTokens,
+      required int completionTokens,
+      Value<double?> promptTokensPerSecond,
+      Value<double?> generationTokensPerSecond,
+      Value<double?> generationMin,
+      Value<double?> generationMax,
+      Value<int?> rssAfterLoadBytes,
+      Value<int?> rssPeakBytes,
+      required String device,
+      Value<int> rowid,
+    });
+typedef $$BenchmarkResultsTableUpdateCompanionBuilder =
+    BenchmarkResultsCompanion Function({
+      Value<String> id,
+      Value<String> modelId,
+      Value<String> modelName,
+      Value<DateTime> createdAt,
+      Value<int> contextSize,
+      Value<int> runs,
+      Value<int> loadMs,
+      Value<int?> timeToFirstTokenMs,
+      Value<int> promptTokens,
+      Value<int> completionTokens,
+      Value<double?> promptTokensPerSecond,
+      Value<double?> generationTokensPerSecond,
+      Value<double?> generationMin,
+      Value<double?> generationMax,
+      Value<int?> rssAfterLoadBytes,
+      Value<int?> rssPeakBytes,
+      Value<String> device,
+      Value<int> rowid,
+    });
+
+class $$BenchmarkResultsTableFilterComposer
+    extends Composer<_$AppDatabase, $BenchmarkResultsTable> {
+  $$BenchmarkResultsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelName => $composableBuilder(
+    column: $table.modelName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get contextSize => $composableBuilder(
+    column: $table.contextSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get runs => $composableBuilder(
+    column: $table.runs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get loadMs => $composableBuilder(
+    column: $table.loadMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timeToFirstTokenMs => $composableBuilder(
+    column: $table.timeToFirstTokenMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get promptTokens => $composableBuilder(
+    column: $table.promptTokens,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get completionTokens => $composableBuilder(
+    column: $table.completionTokens,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get promptTokensPerSecond => $composableBuilder(
+    column: $table.promptTokensPerSecond,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get generationTokensPerSecond => $composableBuilder(
+    column: $table.generationTokensPerSecond,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get generationMin => $composableBuilder(
+    column: $table.generationMin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get generationMax => $composableBuilder(
+    column: $table.generationMax,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rssAfterLoadBytes => $composableBuilder(
+    column: $table.rssAfterLoadBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rssPeakBytes => $composableBuilder(
+    column: $table.rssPeakBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get device => $composableBuilder(
+    column: $table.device,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BenchmarkResultsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BenchmarkResultsTable> {
+  $$BenchmarkResultsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelName => $composableBuilder(
+    column: $table.modelName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get contextSize => $composableBuilder(
+    column: $table.contextSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get runs => $composableBuilder(
+    column: $table.runs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get loadMs => $composableBuilder(
+    column: $table.loadMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timeToFirstTokenMs => $composableBuilder(
+    column: $table.timeToFirstTokenMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get promptTokens => $composableBuilder(
+    column: $table.promptTokens,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get completionTokens => $composableBuilder(
+    column: $table.completionTokens,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get promptTokensPerSecond => $composableBuilder(
+    column: $table.promptTokensPerSecond,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get generationTokensPerSecond => $composableBuilder(
+    column: $table.generationTokensPerSecond,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get generationMin => $composableBuilder(
+    column: $table.generationMin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get generationMax => $composableBuilder(
+    column: $table.generationMax,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rssAfterLoadBytes => $composableBuilder(
+    column: $table.rssAfterLoadBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rssPeakBytes => $composableBuilder(
+    column: $table.rssPeakBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get device => $composableBuilder(
+    column: $table.device,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BenchmarkResultsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BenchmarkResultsTable> {
+  $$BenchmarkResultsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get modelId =>
+      $composableBuilder(column: $table.modelId, builder: (column) => column);
+
+  GeneratedColumn<String> get modelName =>
+      $composableBuilder(column: $table.modelName, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get contextSize => $composableBuilder(
+    column: $table.contextSize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get runs =>
+      $composableBuilder(column: $table.runs, builder: (column) => column);
+
+  GeneratedColumn<int> get loadMs =>
+      $composableBuilder(column: $table.loadMs, builder: (column) => column);
+
+  GeneratedColumn<int> get timeToFirstTokenMs => $composableBuilder(
+    column: $table.timeToFirstTokenMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get promptTokens => $composableBuilder(
+    column: $table.promptTokens,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get completionTokens => $composableBuilder(
+    column: $table.completionTokens,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get promptTokensPerSecond => $composableBuilder(
+    column: $table.promptTokensPerSecond,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get generationTokensPerSecond => $composableBuilder(
+    column: $table.generationTokensPerSecond,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get generationMin => $composableBuilder(
+    column: $table.generationMin,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get generationMax => $composableBuilder(
+    column: $table.generationMax,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get rssAfterLoadBytes => $composableBuilder(
+    column: $table.rssAfterLoadBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get rssPeakBytes => $composableBuilder(
+    column: $table.rssPeakBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get device =>
+      $composableBuilder(column: $table.device, builder: (column) => column);
+}
+
+class $$BenchmarkResultsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BenchmarkResultsTable,
+          BenchmarkRecord,
+          $$BenchmarkResultsTableFilterComposer,
+          $$BenchmarkResultsTableOrderingComposer,
+          $$BenchmarkResultsTableAnnotationComposer,
+          $$BenchmarkResultsTableCreateCompanionBuilder,
+          $$BenchmarkResultsTableUpdateCompanionBuilder,
+          (
+            BenchmarkRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $BenchmarkResultsTable,
+              BenchmarkRecord
+            >,
+          ),
+          BenchmarkRecord,
+          PrefetchHooks Function()
+        > {
+  $$BenchmarkResultsTableTableManager(
+    _$AppDatabase db,
+    $BenchmarkResultsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BenchmarkResultsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BenchmarkResultsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BenchmarkResultsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> modelId = const Value.absent(),
+                Value<String> modelName = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> contextSize = const Value.absent(),
+                Value<int> runs = const Value.absent(),
+                Value<int> loadMs = const Value.absent(),
+                Value<int?> timeToFirstTokenMs = const Value.absent(),
+                Value<int> promptTokens = const Value.absent(),
+                Value<int> completionTokens = const Value.absent(),
+                Value<double?> promptTokensPerSecond = const Value.absent(),
+                Value<double?> generationTokensPerSecond = const Value.absent(),
+                Value<double?> generationMin = const Value.absent(),
+                Value<double?> generationMax = const Value.absent(),
+                Value<int?> rssAfterLoadBytes = const Value.absent(),
+                Value<int?> rssPeakBytes = const Value.absent(),
+                Value<String> device = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BenchmarkResultsCompanion(
+                id: id,
+                modelId: modelId,
+                modelName: modelName,
+                createdAt: createdAt,
+                contextSize: contextSize,
+                runs: runs,
+                loadMs: loadMs,
+                timeToFirstTokenMs: timeToFirstTokenMs,
+                promptTokens: promptTokens,
+                completionTokens: completionTokens,
+                promptTokensPerSecond: promptTokensPerSecond,
+                generationTokensPerSecond: generationTokensPerSecond,
+                generationMin: generationMin,
+                generationMax: generationMax,
+                rssAfterLoadBytes: rssAfterLoadBytes,
+                rssPeakBytes: rssPeakBytes,
+                device: device,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String modelId,
+                required String modelName,
+                required DateTime createdAt,
+                required int contextSize,
+                required int runs,
+                required int loadMs,
+                Value<int?> timeToFirstTokenMs = const Value.absent(),
+                required int promptTokens,
+                required int completionTokens,
+                Value<double?> promptTokensPerSecond = const Value.absent(),
+                Value<double?> generationTokensPerSecond = const Value.absent(),
+                Value<double?> generationMin = const Value.absent(),
+                Value<double?> generationMax = const Value.absent(),
+                Value<int?> rssAfterLoadBytes = const Value.absent(),
+                Value<int?> rssPeakBytes = const Value.absent(),
+                required String device,
+                Value<int> rowid = const Value.absent(),
+              }) => BenchmarkResultsCompanion.insert(
+                id: id,
+                modelId: modelId,
+                modelName: modelName,
+                createdAt: createdAt,
+                contextSize: contextSize,
+                runs: runs,
+                loadMs: loadMs,
+                timeToFirstTokenMs: timeToFirstTokenMs,
+                promptTokens: promptTokens,
+                completionTokens: completionTokens,
+                promptTokensPerSecond: promptTokensPerSecond,
+                generationTokensPerSecond: generationTokensPerSecond,
+                generationMin: generationMin,
+                generationMax: generationMax,
+                rssAfterLoadBytes: rssAfterLoadBytes,
+                rssPeakBytes: rssPeakBytes,
+                device: device,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$BenchmarkResultsTable, BenchmarkRecord>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $BenchmarkResultsTable,
+                    BenchmarkRecord
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BenchmarkResultsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BenchmarkResultsTable,
+      BenchmarkRecord,
+      $$BenchmarkResultsTableFilterComposer,
+      $$BenchmarkResultsTableOrderingComposer,
+      $$BenchmarkResultsTableAnnotationComposer,
+      $$BenchmarkResultsTableCreateCompanionBuilder,
+      $$BenchmarkResultsTableUpdateCompanionBuilder,
+      (
+        BenchmarkRecord,
+        BaseReferences<_$AppDatabase, $BenchmarkResultsTable, BenchmarkRecord>,
+      ),
+      BenchmarkRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7004,4 +8499,6 @@ class $AppDatabaseManager {
       $$MemoryEntriesTableTableManager(_db, _db.memoryEntries);
   $$ChunkEmbeddingsTableTableManager get chunkEmbeddings =>
       $$ChunkEmbeddingsTableTableManager(_db, _db.chunkEmbeddings);
+  $$BenchmarkResultsTableTableManager get benchmarkResults =>
+      $$BenchmarkResultsTableTableManager(_db, _db.benchmarkResults);
 }

@@ -8,6 +8,7 @@ import 'app/routes.dart';
 import 'app/theme.dart';
 import 'app/translations.dart';
 import 'data/local/database.dart';
+import 'data/repositories/benchmark_repository.dart';
 import 'data/repositories/conversation_repository.dart';
 import 'data/repositories/memory_repository.dart';
 import 'data/repositories/document_repository.dart';
@@ -36,6 +37,7 @@ Future<void> main() async {
   Get.put(db, permanent: true);
   Get.put(ConversationRepository(db), permanent: true);
   Get.put(MemoryRepository(db), permanent: true);
+  Get.put(BenchmarkRepository(db), permanent: true);
   Get.put(ChatTransferService(db), permanent: true);
   Get.put(VoiceService(settings), permanent: true);
   final docRepo = DocumentRepository(db);

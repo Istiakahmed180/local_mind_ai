@@ -94,6 +94,7 @@ void main() {
     expect(version.read<int>('user_version'), db.schemaVersion);
     expect(await db.select(db.memoryEntries).get(), isEmpty);
     expect(await db.select(db.chunkEmbeddings).get(), isEmpty);
+    expect(await db.select(db.benchmarkResults).get(), isEmpty);
     // v4 columns exist on the upgraded conversations table.
     await ConversationRepository(db).setSummary('c1', 'old summary', 'm1');
     expect(
@@ -159,6 +160,7 @@ void main() {
         'document_chunks_fts',
         'memory_entries',
         'chunk_embeddings',
+        'benchmark_results',
       ]),
     );
   });
