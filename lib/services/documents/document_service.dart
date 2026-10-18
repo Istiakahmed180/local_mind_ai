@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -10,8 +11,10 @@ import 'package:uuid/uuid.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories/document_repository.dart';
 import 'chunker.dart';
+import 'embedding_service.dart';
 import 'retrieval.dart';
 import 'text_extraction.dart';
+import 'vectors.dart';
 
 /// Imports, indexes and searches the user's documents. Files are copied into
 /// app-private storage and never leave the device.
@@ -36,6 +39,10 @@ class DocumentService extends GetxService {
   final Uuid _uuid;
 
   final busy = false.obs;
+
+  /// Meaning search, set once the embedding service exists. Null or not
+  /// ready means keyword search only.
+  EmbeddingService? semantic;
 
   Stream<List<Document>> watchAll() => _repo.watchAll();
 
@@ -80,6 +87,7 @@ class DocumentService extends GetxService {
         ),
       );
       await _repo.replaceChunks(id, indexed.chunks);
+      _indexMeaningInBackground();
       return (await _repo.byId(id))!;
     } catch (_) {
       await _deleteFile(target);
@@ -150,14 +158,46 @@ class DocumentService extends GetxService {
       }
     }
     await _repo.rebuildKeywordIndex();
+    _indexMeaningInBackground();
     return failed;
   }
 
+  void _indexMeaningInBackground() {
+    final s = semantic;
+    if (s != null && s.ready) unawaited(s.indexMissing());
+  }
+
+  /// Keyword search, fused with meaning search when a search model is set
+  /// up. If meaning search fails, keyword results are returned alone.
   Future<List<RetrievedPassage>> search(
     String query, {
     int limit = 5,
     Set<String>? documentIds,
-  }) => _repo.search(query, limit: limit, documentIds: documentIds);
+  }) async {
+    final s = semantic;
+    if (s == null || !s.ready) {
+      return _repo.search(query, limit: limit, documentIds: documentIds);
+    }
+    final keyword = await _repo.search(
+      query,
+      limit: limit * 3,
+      documentIds: documentIds,
+    );
+    try {
+      final meaning = await s.search(
+        query,
+        k: limit * 3,
+        documentIds: documentIds,
+      );
+      return fuseRankings(keyword, meaning, limit: limit);
+    } on Object {
+      return keyword.take(limit).toList();
+    }
+  }
+
+  /// Similarity threshold for evidence, when meaning search is active.
+  double? get minSimilarity =>
+      semantic != null && semantic!.ready ? semantic!.minSimilarity : null;
 
   Future<void> _deleteFile(String path) async {
     final f = File(path);

@@ -6,7 +6,9 @@ import '../../core/format.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../../services/documents/retrieval.dart';
+import '../../services/settings_service.dart';
 import 'documents_controller.dart';
+import 'meaning_search_card.dart';
 
 class DocumentsView extends GetView<DocumentsController> {
   const DocumentsView({super.key});
@@ -66,6 +68,8 @@ class DocumentsView extends GetView<DocumentsController> {
                   children: [
                     _AnswerCard(controller),
                     _StorageCard(controller),
+                    const SizedBox(height: AppSpacing.sm),
+                    const MeaningSearchCard(),
                     const SizedBox(height: AppSpacing.sm),
                     for (final d in controller.documents)
                       _DocumentTile(d, onRemove: () => _remove(context, d)),
@@ -138,10 +142,17 @@ class _StorageCard extends StatelessWidget {
           InfoRow('doc_count'.tr, '${c.documents.length}'),
           InfoRow('doc_files_size'.tr, formatBytes(c.totalBytes)),
           InfoRow('doc_indexed_chars'.tr, '${c.totalChars}'),
-          InfoRow(
-            'doc_search_mode'.tr,
-            c.service.usesFts5 ? 'doc_search_fts5'.tr : 'doc_search_like'.tr,
-          ),
+          Obx(() {
+            Get.find<SettingsService>().embeddingModelId.value;
+            final keyword = c.service.usesFts5
+                ? 'doc_search_fts5'.tr
+                : 'doc_search_like'.tr;
+            final meaning = c.service.semantic?.ready ?? false;
+            return InfoRow(
+              'doc_search_mode'.tr,
+              meaning ? '$keyword ${'doc_search_plus_meaning'.tr}' : keyword,
+            );
+          }),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'doc_privacy_note'.tr,

@@ -60,6 +60,18 @@ class InstalledModels extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Meaning vector for one document passage, from one embedding model.
+/// Stored as little-endian float32, L2-normalized.
+class ChunkEmbeddings extends Table {
+  IntColumn get chunkId =>
+      integer().references(DocumentChunks, #id, onDelete: KeyAction.cascade)();
+  TextColumn get modelId => text()();
+  BlobColumn get vector => blob()();
+
+  @override
+  Set<Column> get primaryKey => {chunkId, modelId};
+}
+
 /// Facts the user explicitly asked the app to remember. Separate from chat
 /// history; only enabled entries are added to prompts, and only when memory
 /// is switched on in settings.
@@ -128,6 +140,7 @@ class DocumentChunks extends Table {
     Documents,
     DocumentChunks,
     MemoryEntries,
+    ChunkEmbeddings,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -135,7 +148,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'localmind'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   /// Whether the SQLite build has FTS5. Set when the database opens.
   bool hasFts5 = false;
@@ -156,6 +169,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         await m.addColumn(conversations, conversations.summary);
         await m.addColumn(conversations, conversations.summaryThroughMessageId);
+      }
+      if (from < 5) {
+        await m.createTable(chunkEmbeddings);
       }
     },
     beforeOpen: (details) async {

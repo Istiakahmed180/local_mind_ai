@@ -14,6 +14,8 @@ import 'data/repositories/document_repository.dart';
 import 'data/repositories/model_repository.dart';
 import 'services/device/device_info_service.dart';
 import 'services/documents/document_service.dart';
+import 'services/documents/embedding_service.dart';
+import 'services/inference/embedding_runtime.dart';
 import 'services/inference/llamadart_runtime.dart';
 import 'services/inference/model_runtime_service.dart';
 import 'services/model_service.dart';
@@ -35,13 +37,26 @@ Future<void> main() async {
   Get.put(MemoryRepository(db), permanent: true);
   Get.put(ChatTransferService(db), permanent: true);
   Get.put(VoiceService(settings), permanent: true);
-  Get.put(DocumentService(DocumentRepository(db)), permanent: true);
+  final docRepo = DocumentRepository(db);
+  final documents = Get.put(DocumentService(docRepo), permanent: true);
   final models = await Get.putAsync(
     () => ModelService(modelRepo, device).init(),
     permanent: true,
   );
-  Get.put(
+  final chatRuntime = Get.put(
     ModelRuntimeService(LlamadartRuntime(), models, modelRepo, settings),
+    permanent: true,
+  );
+  // Explicit type: inferring from the nullable field would register the
+  // service as `EmbeddingService?`, which Get.find<EmbeddingService>() misses.
+  documents.semantic = Get.put<EmbeddingService>(
+    EmbeddingService(
+      docRepo,
+      models,
+      settings,
+      chatRuntime,
+      LlamadartEmbeddingRuntime(),
+    ),
     permanent: true,
   );
 

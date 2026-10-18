@@ -169,6 +169,67 @@
       "bengali": "vendor_claimed",
       "starter": false,
       "notes": "Best quality in the catalog for English; for phones with 6 GB RAM or more. Publisher lists Bengali, but it scored 1 of 4 on our simple Bengali emulator test."
+    },
+    {
+      "id": "nomic-embed-text-v1.5-q8_0",
+      "kind": "embedding",
+      "name": "Nomic Embed Text v1.5",
+      "publisher": "Nomic AI",
+      "parameters": "137M",
+      "quantization": "Q8_0",
+      "format": "gguf",
+      "runtime": "llama.cpp",
+      "host": "huggingface",
+      "repo": "nomic-ai/nomic-embed-text-v1.5-GGUF",
+      "file": "nomic-embed-text-v1.5.Q8_0.gguf",
+      "sizeBytes": 146146432,
+      "sha256": "3e24342164b3d94991ba9692fdc0dd08e3fd7362e0aacc396a9a5c54a544c3b7",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://huggingface.co/nomic-ai/nomic-embed-text-v1.5",
+      "requiresLicenseAcceptance": false,
+      "maxContext": 8192,
+      "defaultContext": 2048,
+      "minRamGb": 2,
+      "languages": [
+        "en"
+      ],
+      "bengali": "not_supported",
+      "starter": false,
+      "queryPrefix": "search_query: ",
+      "documentPrefix": "search_document: ",
+      "minSimilarity": 0.6,
+      "notes": "Small, fast search model for meaning-based document search. English only (it did not match a Bengali question in our test); small enough to run next to a chat model."
+    },
+    {
+      "id": "qwen3-embedding-0.6b-q8_0",
+      "kind": "embedding",
+      "name": "Qwen3 Embedding 0.6B",
+      "publisher": "Qwen (Alibaba Cloud)",
+      "parameters": "0.6B",
+      "quantization": "Q8_0",
+      "format": "gguf",
+      "runtime": "llama.cpp",
+      "host": "huggingface",
+      "repo": "Qwen/Qwen3-Embedding-0.6B-GGUF",
+      "file": "Qwen3-Embedding-0.6B-Q8_0.gguf",
+      "sizeBytes": 639150592,
+      "sha256": "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B",
+      "requiresLicenseAcceptance": false,
+      "maxContext": 32768,
+      "defaultContext": 2048,
+      "minRamGb": 4,
+      "languages": [
+        "en",
+        "multilingual"
+      ],
+      "bengali": "not_listed",
+      "starter": false,
+      "queryPrefix": "Instruct: Given a question, retrieve passages that answer it\nQuery:",
+      "documentPrefix": "",
+      "minSimilarity": 0.45,
+      "notes": "Larger multilingual search model (publisher: 100+ languages; Bengali not named). In our small emulator test it matched a Bengali question to the right English passage. The chat model is unloaded while it runs, so each search takes a second or two."
     }
   ]
 }

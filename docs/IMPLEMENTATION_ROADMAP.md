@@ -185,3 +185,21 @@ Tests: `flutter test` → 170 passed; `flutter analyze` → no issues. Not commi
   The summary kept the name and colour but only described the first filler topic, so detail is lost; summaries from a 0.5B model are short and imperfect. Summarizing costs extra seconds on each reply that triggers it.
 
 Tests: `flutter test` → 181 passed; `flutter analyze` → no issues. Not committed (the user commits manually).
+
+### Meaning-based (semantic) document search — 2026-10-18
+
+- **What it does:** an optional local embedding model turns each passage into a vector (schema v5: `chunk_embeddings`, float32, L2-normalized, per model; deleted with its chunk). Questions are embedded with the model's query prefix and compared by cosine similarity; results are fused with the existing keyword (BM25) results by Reciprocal Rank Fusion. A passage whose similarity reaches the model's calibrated `minSimilarity` also counts as evidence, so questions worded differently from the document can be answered. Keyword search stays the fallback (no model, or the embedding call fails).
+- **Models** (catalog `kind: embedding`, never shown as chat models): Nomic Embed Text v1.5 Q8_0 (146 MB, Apache-2.0, English) and Qwen3-Embedding 0.6B Q8_0 (639 MB, Apache-2.0, multilingual). Models over 300 MB unload the chat model before running and are released right after; small ones stay loaded 2 minutes.
+- **UI:** Documents → "Meaning search" card (status, passages ready, Index now / Pause, Set up / Change / Turn off) and a sheet to download (SHA-256 verified, background-capable) and choose a model. Indexing runs automatically after import, rebuild or choosing a model.
+- **Bugs found and fixed:** (1) `documents.semantic = Get.put(EmbeddingService(...))` inferred the nullable type `EmbeddingService?` as the GetX key, so the Documents screen crashed with "EmbeddingService not found" on the device although unit tests passed — fixed with an explicit type argument plus a guard test; (2) a second `indexMissing()` call returned before the running indexing finished — it now returns the running job.
+- **Real models on the `localmind_test` emulator** (`integration_test/semantic_search_test.dart`; 4 one-paragraph documents, 7 questions):
+
+| Model | English (4) | Bengali question | Unrelated (top score) | Matching (top score) | Query time |
+|-------|-------------|------------------|-----------------------|----------------------|------------|
+| Nomic v1.5 | 4/4 right passage; 2 of them keyword search missed | wrong passage | 0.47, 0.54 | 0.68–0.83 | ~20 ms |
+| Qwen3-Embedding 0.6B | 4/4 | right passage (0.50) | 0.34, 0.18 | 0.58–0.74 | ~1.6 s (reload) |
+
+  Thresholds set from this: Nomic 0.6, Qwen3 0.45. **Provisional** — 7 questions is a small sample; recalibrate with real user documents.
+- In-app check: downloaded Nomic from the sheet (SHA-256 verified), chose it, the existing document was indexed ("1 of 1"), the storage card shows "Keyword (SQLite FTS5) + meaning", and the choice survived an app restart. Asking a question end-to-end with a chat model was covered by unit tests, not by hand.
+
+Tests: `flutter test` → 193 passed; `flutter analyze` → no issues. Not committed (the user commits manually).

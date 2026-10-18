@@ -93,6 +93,7 @@ void main() {
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.read<int>('user_version'), db.schemaVersion);
     expect(await db.select(db.memoryEntries).get(), isEmpty);
+    expect(await db.select(db.chunkEmbeddings).get(), isEmpty);
     // v4 columns exist on the upgraded conversations table.
     await ConversationRepository(db).setSummary('c1', 'old summary', 'm1');
     expect(
@@ -157,6 +158,7 @@ void main() {
         'document_chunks',
         'document_chunks_fts',
         'memory_entries',
+        'chunk_embeddings',
       ]),
     );
   });

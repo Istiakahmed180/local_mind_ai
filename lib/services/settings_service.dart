@@ -23,6 +23,7 @@ class SettingsService extends GetxService {
   static const _kUseMemory = 'useMemory';
   static const _kVoice = 'voiceEnabled';
   static const _kSummarize = 'summarizeLongChats';
+  static const _kEmbeddingModel = 'embeddingModelId';
 
   static const defaultSystemPromptEn =
       'You are a helpful assistant running entirely on the user\'s phone. '
@@ -55,6 +56,9 @@ class SettingsService extends GetxService {
   /// On by default: long chats are summarized instead of silently dropping
   /// the oldest messages.
   late final summarizeLongChats = (_prefs.getBool(_kSummarize) ?? true).obs;
+
+  /// Model used for meaning-based document search; null means keyword only.
+  late final embeddingModelId = RxnString(_prefs.getString(_kEmbeddingModel));
 
   Locale get locale => localeCode.value == 'bn'
       ? const Locale('bn', 'BD')
@@ -146,6 +150,13 @@ class SettingsService extends GetxService {
     await _prefs.setBool(_kSummarize, v);
   }
 
+  Future<void> setEmbeddingModelId(String? id) async {
+    embeddingModelId.value = id;
+    id == null
+        ? await _prefs.remove(_kEmbeddingModel)
+        : await _prefs.setString(_kEmbeddingModel, id);
+  }
+
   Future<void> clear() async {
     await _prefs.clear();
     onboarded.value = false;
@@ -154,5 +165,6 @@ class SettingsService extends GetxService {
     useMemory.value = false;
     voiceEnabled.value = false;
     summarizeLongChats.value = true;
+    embeddingModelId.value = null;
   }
 }

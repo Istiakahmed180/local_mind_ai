@@ -144,6 +144,99 @@ class DocumentRepository {
     return rows.map(_toPassage).toList();
   }
 
+  // ---- Embeddings ----
+
+  /// Chunks that have no vector from [modelId] yet, oldest first.
+  Future<List<(int id, String body)>> chunksMissingEmbedding(
+    String modelId, {
+    int limit = 32,
+  }) async {
+    final rows = await _db
+        .customSelect(
+          'SELECT c.id, c.body FROM document_chunks c '
+          'LEFT JOIN chunk_embeddings e ON e.chunk_id = c.id AND e.model_id = ? '
+          'WHERE e.chunk_id IS NULL ORDER BY c.id LIMIT ?',
+          variables: [Variable.withString(modelId), Variable.withInt(limit)],
+          readsFrom: {_db.documentChunks, _db.chunkEmbeddings},
+        )
+        .get();
+    return [for (final r in rows) (r.read<int>('id'), r.read<String>('body'))];
+  }
+
+  Future<void> saveEmbeddings(
+    String modelId,
+    List<(int chunkId, Uint8List vector)> vectors,
+  ) => _db.batch((b) {
+    for (final (id, v) in vectors) {
+      b.insert(
+        _db.chunkEmbeddings,
+        ChunkEmbeddingsCompanion.insert(
+          chunkId: id,
+          modelId: modelId,
+          vector: v,
+        ),
+        mode: InsertMode.insertOrReplace,
+      );
+    }
+  });
+
+  Future<int> embeddedCount(String modelId) async {
+    final row = await _db
+        .customSelect(
+          'SELECT COUNT(*) AS n FROM chunk_embeddings WHERE model_id = ?',
+          variables: [Variable.withString(modelId)],
+          readsFrom: {_db.chunkEmbeddings},
+        )
+        .getSingle();
+    return row.read<int>('n');
+  }
+
+  /// Vectors from [modelId], optionally only for [documentIds].
+  Future<List<(int chunkId, Uint8List vector)>> embeddings(
+    String modelId, {
+    Set<String>? documentIds,
+  }) async {
+    final vars = <Variable>[Variable.withString(modelId)];
+    final filter = _docFilter(documentIds, vars);
+    final rows = await _db
+        .customSelect(
+          'SELECT e.chunk_id, e.vector FROM chunk_embeddings e '
+          'JOIN document_chunks c ON c.id = e.chunk_id '
+          'WHERE e.model_id = ?$filter',
+          variables: vars,
+          readsFrom: {_db.chunkEmbeddings, _db.documentChunks},
+        )
+        .get();
+    return [
+      for (final r in rows)
+        (r.read<int>('chunk_id'), r.read<Uint8List>('vector')),
+    ];
+  }
+
+  /// Removes vectors made by other models, e.g. after switching models.
+  Future<void> deleteEmbeddingsExcept(String? modelId) =>
+      (_db.delete(_db.chunkEmbeddings)..where(
+            (e) => modelId == null
+                ? const Constant(true)
+                : e.modelId.equals(modelId).not(),
+          ))
+          .go();
+
+  Future<List<RetrievedPassage>> passagesByIds(List<int> ids) async {
+    if (ids.isEmpty) return const [];
+    final rows = await _db
+        .customSelect(
+          'SELECT $_columns FROM document_chunks c '
+          'JOIN documents d ON d.id = c.document_id '
+          'WHERE c.id IN (${List.filled(ids.length, '?').join(',')})',
+          variables: ids.map(Variable.withInt).toList(),
+          readsFrom: {_db.documentChunks, _db.documents},
+        )
+        .get();
+    final byId = {for (final r in rows) r.read<int>('id'): _toPassage(r)};
+    return [for (final id in ids) ?byId[id]];
+  }
+
   static RetrievedPassage _toPassage(QueryRow r) => RetrievedPassage(
     chunkId: r.read<int>('id'),
     documentId: r.read<String>('document_id'),

@@ -27,6 +27,15 @@ LiteRT-LM and stable-diffusion runtimes are **excluded** (`llamadart_native_runt
 | Gemma 3 1B IT Q4_K_M (ggml-org) | `gemma-3-1b-it-Q4_K_M.gguf` | 806,058,240 | Gemma Terms of Use | Vendor claims 140+ languages | Catalog; user must accept Gemma Terms in-app before download |
 | Qwen3 1.7B Q8_0 | `Qwen3-1.7B-Q8_0.gguf` | 1,834,426,016 | Apache-2.0 | Vendor claims Bengali | Catalog; high-memory devices |
 
+### Embedding (search) models
+
+| Model | File | Size (bytes) | License | Languages | Status |
+|-------|------|--------------|---------|-----------|--------|
+| Nomic Embed Text v1.5 Q8_0 (nomic-ai, official) | `nomic-embed-text-v1.5.Q8_0.gguf` | 146,146,432 | Apache-2.0 | English only (model card) | Emulator: 4/4 English questions; Bengali question missed |
+| Qwen3-Embedding 0.6B Q8_0 (Qwen, official) | `Qwen3-Embedding-0.6B-Q8_0.gguf` | 639,150,592 | Apache-2.0 | "100+ languages" (Bengali not named) | Emulator: 4/4 English + 1/1 Bengali question |
+
+Prefixes follow the model cards: Nomic `search_query: ` / `search_document: `; Qwen3 `Instruct: …\nQuery:` for queries, none for documents. Rejected for now: EmbeddingGemma (Gemma Terms acceptance), bge-m3 (635 MB, similar size to Qwen3 without an official GGUF from the publisher), multilingual-e5-small (no GGUF from the publisher; only community conversions).
+
 ### License notes
 
 - **Apache-2.0 models**: downloading from the publisher's repo is permitted; we display the license and link. We do not modify or re-host weights.

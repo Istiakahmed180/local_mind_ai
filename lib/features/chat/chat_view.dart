@@ -69,7 +69,7 @@ class _ModelChip extends StatelessWidget {
   }
 
   void _pickModel(BuildContext context) {
-    final installed = c.models.installed;
+    final installed = c.models.installedChat;
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,

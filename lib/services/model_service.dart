@@ -106,6 +106,11 @@ class ModelService extends GetxService {
 
   String _targetPath(ModelDefinition m) => p.join(modelsDir.path, m.fileName);
 
+  /// Installed models usable for chat (imports are always chat models).
+  List<InstalledModel> get installedChat => installed
+      .where((m) => catalog.value.byId(m.id)?.isEmbedding != true)
+      .toList();
+
   InstalledModel? installedById(String id) =>
       installed.firstWhereOrNull((m) => m.id == id);
 

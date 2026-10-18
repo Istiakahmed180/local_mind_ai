@@ -3839,6 +3839,274 @@ class MemoryEntriesCompanion extends UpdateCompanion<MemoryEntry> {
   }
 }
 
+class $ChunkEmbeddingsTable extends ChunkEmbeddings
+    with TableInfo<$ChunkEmbeddingsTable, ChunkEmbedding> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChunkEmbeddingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _chunkIdMeta = const VerificationMeta(
+    'chunkId',
+  );
+  @override
+  late final GeneratedColumn<int> chunkId = GeneratedColumn<int>(
+    'chunk_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES document_chunks (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _modelIdMeta = const VerificationMeta(
+    'modelId',
+  );
+  @override
+  late final GeneratedColumn<String> modelId = GeneratedColumn<String>(
+    'model_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _vectorMeta = const VerificationMeta('vector');
+  @override
+  late final GeneratedColumn<Uint8List> vector = GeneratedColumn<Uint8List>(
+    'vector',
+    aliasedName,
+    false,
+    type: DriftSqlType.blob,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [chunkId, modelId, vector];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chunk_embeddings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChunkEmbedding> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('chunk_id')) {
+      context.handle(
+        _chunkIdMeta,
+        chunkId.isAcceptableOrUnknown(data['chunk_id']!, _chunkIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chunkIdMeta);
+    }
+    if (data.containsKey('model_id')) {
+      context.handle(
+        _modelIdMeta,
+        modelId.isAcceptableOrUnknown(data['model_id']!, _modelIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelIdMeta);
+    }
+    if (data.containsKey('vector')) {
+      context.handle(
+        _vectorMeta,
+        vector.isAcceptableOrUnknown(data['vector']!, _vectorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vectorMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {chunkId, modelId};
+  @override
+  ChunkEmbedding map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChunkEmbedding(
+      chunkId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}chunk_id'],
+      )!,
+      modelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_id'],
+      )!,
+      vector: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}vector'],
+      )!,
+    );
+  }
+
+  @override
+  $ChunkEmbeddingsTable createAlias(String alias) {
+    return $ChunkEmbeddingsTable(attachedDatabase, alias);
+  }
+}
+
+class ChunkEmbedding extends DataClass implements Insertable<ChunkEmbedding> {
+  final int chunkId;
+  final String modelId;
+  final Uint8List vector;
+  const ChunkEmbedding({
+    required this.chunkId,
+    required this.modelId,
+    required this.vector,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['chunk_id'] = Variable<int>(chunkId);
+    map['model_id'] = Variable<String>(modelId);
+    map['vector'] = Variable<Uint8List>(vector);
+    return map;
+  }
+
+  ChunkEmbeddingsCompanion toCompanion(bool nullToAbsent) {
+    return ChunkEmbeddingsCompanion(
+      chunkId: Value(chunkId),
+      modelId: Value(modelId),
+      vector: Value(vector),
+    );
+  }
+
+  factory ChunkEmbedding.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChunkEmbedding(
+      chunkId: serializer.fromJson<int>(json['chunkId']),
+      modelId: serializer.fromJson<String>(json['modelId']),
+      vector: serializer.fromJson<Uint8List>(json['vector']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'chunkId': serializer.toJson<int>(chunkId),
+      'modelId': serializer.toJson<String>(modelId),
+      'vector': serializer.toJson<Uint8List>(vector),
+    };
+  }
+
+  ChunkEmbedding copyWith({int? chunkId, String? modelId, Uint8List? vector}) =>
+      ChunkEmbedding(
+        chunkId: chunkId ?? this.chunkId,
+        modelId: modelId ?? this.modelId,
+        vector: vector ?? this.vector,
+      );
+  ChunkEmbedding copyWithCompanion(ChunkEmbeddingsCompanion data) {
+    return ChunkEmbedding(
+      chunkId: data.chunkId.present ? data.chunkId.value : this.chunkId,
+      modelId: data.modelId.present ? data.modelId.value : this.modelId,
+      vector: data.vector.present ? data.vector.value : this.vector,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChunkEmbedding(')
+          ..write('chunkId: $chunkId, ')
+          ..write('modelId: $modelId, ')
+          ..write('vector: $vector')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(chunkId, modelId, $driftBlobEquality.hash(vector));
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChunkEmbedding &&
+          other.chunkId == this.chunkId &&
+          other.modelId == this.modelId &&
+          $driftBlobEquality.equals(other.vector, this.vector));
+}
+
+class ChunkEmbeddingsCompanion extends UpdateCompanion<ChunkEmbedding> {
+  final Value<int> chunkId;
+  final Value<String> modelId;
+  final Value<Uint8List> vector;
+  final Value<int> rowid;
+  const ChunkEmbeddingsCompanion({
+    this.chunkId = const Value.absent(),
+    this.modelId = const Value.absent(),
+    this.vector = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChunkEmbeddingsCompanion.insert({
+    required int chunkId,
+    required String modelId,
+    required Uint8List vector,
+    this.rowid = const Value.absent(),
+  }) : chunkId = Value(chunkId),
+       modelId = Value(modelId),
+       vector = Value(vector);
+  static Insertable<ChunkEmbedding> custom({
+    Expression<int>? chunkId,
+    Expression<String>? modelId,
+    Expression<Uint8List>? vector,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (chunkId != null) 'chunk_id': chunkId,
+      if (modelId != null) 'model_id': modelId,
+      if (vector != null) 'vector': vector,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChunkEmbeddingsCompanion copyWith({
+    Value<int>? chunkId,
+    Value<String>? modelId,
+    Value<Uint8List>? vector,
+    Value<int>? rowid,
+  }) {
+    return ChunkEmbeddingsCompanion(
+      chunkId: chunkId ?? this.chunkId,
+      modelId: modelId ?? this.modelId,
+      vector: vector ?? this.vector,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (chunkId.present) {
+      map['chunk_id'] = Variable<int>(chunkId.value);
+    }
+    if (modelId.present) {
+      map['model_id'] = Variable<String>(modelId.value);
+    }
+    if (vector.present) {
+      map['vector'] = Variable<Uint8List>(vector.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChunkEmbeddingsCompanion(')
+          ..write('chunkId: $chunkId, ')
+          ..write('modelId: $modelId, ')
+          ..write('vector: $vector, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3851,6 +4119,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DocumentsTable documents = $DocumentsTable(this);
   late final $DocumentChunksTable documentChunks = $DocumentChunksTable(this);
   late final $MemoryEntriesTable memoryEntries = $MemoryEntriesTable(this);
+  late final $ChunkEmbeddingsTable chunkEmbeddings = $ChunkEmbeddingsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3863,6 +4134,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     documents,
     documentChunks,
     memoryEntries,
+    chunkEmbeddings,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3879,6 +4151,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('document_chunks', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'document_chunks',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('chunk_embeddings', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -5738,6 +6017,26 @@ final class $$DocumentChunksTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static MultiTypedResultKey<$ChunkEmbeddingsTable, List<ChunkEmbedding>>
+  _chunkEmbeddingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.chunkEmbeddings,
+    aliasName: 'document_chunks__id__chunk_embeddings__chunk_id',
+  );
+
+  $$ChunkEmbeddingsTableProcessedTableManager get chunkEmbeddingsRefs {
+    final manager = $$ChunkEmbeddingsTableTableManager(
+      $_db,
+      $_db.chunkEmbeddings,
+    ).filter((f) => f.chunkId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _chunkEmbeddingsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$DocumentChunksTableFilterComposer
@@ -5800,6 +6099,31 @@ class $$DocumentChunksTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> chunkEmbeddingsRefs(
+    Expression<bool> Function($$ChunkEmbeddingsTableFilterComposer f) f,
+  ) {
+    final $$ChunkEmbeddingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chunkEmbeddings,
+      getReferencedColumn: (t) => t.chunkId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChunkEmbeddingsTableFilterComposer(
+            $db: $db,
+            $table: $db.chunkEmbeddings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 }
 
@@ -5915,6 +6239,31 @@ class $$DocumentChunksTableAnnotationComposer
     );
     return composer;
   }
+
+  Expression<T> chunkEmbeddingsRefs<T extends Object>(
+    Expression<T> Function($$ChunkEmbeddingsTableAnnotationComposer a) f,
+  ) {
+    final $$ChunkEmbeddingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chunkEmbeddings,
+      getReferencedColumn: (t) => t.chunkId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChunkEmbeddingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chunkEmbeddings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$DocumentChunksTableTableManager
@@ -5930,7 +6279,7 @@ class $$DocumentChunksTableTableManager
           $$DocumentChunksTableUpdateCompanionBuilder,
           (DocumentChunk, $$DocumentChunksTableReferences),
           DocumentChunk,
-          PrefetchHooks Function({bool documentId})
+          PrefetchHooks Function({bool documentId, bool chunkEmbeddingsRefs})
         > {
   $$DocumentChunksTableTableManager(
     _$AppDatabase db,
@@ -5989,45 +6338,70 @@ class $$DocumentChunksTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({documentId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (documentId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.documentId,
-                        referencedTable: $$DocumentChunksTableReferences
-                            ._documentIdTable(db),
-                        referencedColumn: $$DocumentChunksTableReferences
-                            ._documentIdTable(db)
-                            .id,
-                      ) as T;
-                    }
+          prefetchHooksCallback:
+              ({documentId = false, chunkEmbeddingsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (chunkEmbeddingsRefs) db.chunkEmbeddings,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (documentId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.documentId,
+                            referencedTable: $$DocumentChunksTableReferences
+                                ._documentIdTable(db),
+                            referencedColumn: $$DocumentChunksTableReferences
+                                ._documentIdTable(db)
+                                .id,
+                          ) as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (chunkEmbeddingsRefs)
+                        await $_getPrefetchedData<
+                          DocumentChunk,
+                          $DocumentChunksTable,
+                          ChunkEmbedding
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DocumentChunksTableReferences
+                              ._chunkEmbeddingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DocumentChunksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).chunkEmbeddingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.chunkId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -6044,7 +6418,7 @@ typedef $$DocumentChunksTableProcessedTableManager =
       $$DocumentChunksTableUpdateCompanionBuilder,
       (DocumentChunk, $$DocumentChunksTableReferences),
       DocumentChunk,
-      PrefetchHooks Function({bool documentId})
+      PrefetchHooks Function({bool documentId, bool chunkEmbeddingsRefs})
     >;
 typedef $$MemoryEntriesTableCreateCompanionBuilder =
     MemoryEntriesCompanion Function({
@@ -6255,6 +6629,291 @@ typedef $$MemoryEntriesTableProcessedTableManager =
       MemoryEntry,
       PrefetchHooks Function()
     >;
+typedef $$ChunkEmbeddingsTableCreateCompanionBuilder =
+    ChunkEmbeddingsCompanion Function({
+      required int chunkId,
+      required String modelId,
+      required Uint8List vector,
+      Value<int> rowid,
+    });
+typedef $$ChunkEmbeddingsTableUpdateCompanionBuilder =
+    ChunkEmbeddingsCompanion Function({
+      Value<int> chunkId,
+      Value<String> modelId,
+      Value<Uint8List> vector,
+      Value<int> rowid,
+    });
+
+final class $$ChunkEmbeddingsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $ChunkEmbeddingsTable, ChunkEmbedding> {
+  $$ChunkEmbeddingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $DocumentChunksTable _chunkIdTable(_$AppDatabase db) => db
+      .documentChunks
+      .createAlias('chunk_embeddings__chunk_id__document_chunks__id');
+
+  $$DocumentChunksTableProcessedTableManager get chunkId {
+    final $_column = $_itemColumn<int>('chunk_id')!;
+
+    final manager = $$DocumentChunksTableTableManager(
+      $_db,
+      $_db.documentChunks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_chunkIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ChunkEmbeddingsTableFilterComposer
+    extends Composer<_$AppDatabase, $ChunkEmbeddingsTable> {
+  $$ChunkEmbeddingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<Uint8List> get vector => $composableBuilder(
+    column: $table.vector,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DocumentChunksTableFilterComposer get chunkId {
+    final $$DocumentChunksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chunkId,
+      referencedTable: $db.documentChunks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentChunksTableFilterComposer(
+            $db: $db,
+            $table: $db.documentChunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ChunkEmbeddingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChunkEmbeddingsTable> {
+  $$ChunkEmbeddingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<Uint8List> get vector => $composableBuilder(
+    column: $table.vector,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DocumentChunksTableOrderingComposer get chunkId {
+    final $$DocumentChunksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chunkId,
+      referencedTable: $db.documentChunks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentChunksTableOrderingComposer(
+            $db: $db,
+            $table: $db.documentChunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ChunkEmbeddingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChunkEmbeddingsTable> {
+  $$ChunkEmbeddingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get modelId =>
+      $composableBuilder(column: $table.modelId, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get vector =>
+      $composableBuilder(column: $table.vector, builder: (column) => column);
+
+  $$DocumentChunksTableAnnotationComposer get chunkId {
+    final $$DocumentChunksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chunkId,
+      referencedTable: $db.documentChunks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentChunksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documentChunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ChunkEmbeddingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ChunkEmbeddingsTable,
+          ChunkEmbedding,
+          $$ChunkEmbeddingsTableFilterComposer,
+          $$ChunkEmbeddingsTableOrderingComposer,
+          $$ChunkEmbeddingsTableAnnotationComposer,
+          $$ChunkEmbeddingsTableCreateCompanionBuilder,
+          $$ChunkEmbeddingsTableUpdateCompanionBuilder,
+          (ChunkEmbedding, $$ChunkEmbeddingsTableReferences),
+          ChunkEmbedding,
+          PrefetchHooks Function({bool chunkId})
+        > {
+  $$ChunkEmbeddingsTableTableManager(
+    _$AppDatabase db,
+    $ChunkEmbeddingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChunkEmbeddingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChunkEmbeddingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChunkEmbeddingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> chunkId = const Value.absent(),
+                Value<String> modelId = const Value.absent(),
+                Value<Uint8List> vector = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ChunkEmbeddingsCompanion(
+                chunkId: chunkId,
+                modelId: modelId,
+                vector: vector,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int chunkId,
+                required String modelId,
+                required Uint8List vector,
+                Value<int> rowid = const Value.absent(),
+              }) => ChunkEmbeddingsCompanion.insert(
+                chunkId: chunkId,
+                modelId: modelId,
+                vector: vector,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ChunkEmbeddingsTable, ChunkEmbedding>(table),
+                  $$ChunkEmbeddingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({chunkId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (chunkId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.chunkId,
+                        referencedTable: $$ChunkEmbeddingsTableReferences
+                            ._chunkIdTable(db),
+                        referencedColumn: $$ChunkEmbeddingsTableReferences
+                            ._chunkIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ChunkEmbeddingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ChunkEmbeddingsTable,
+      ChunkEmbedding,
+      $$ChunkEmbeddingsTableFilterComposer,
+      $$ChunkEmbeddingsTableOrderingComposer,
+      $$ChunkEmbeddingsTableAnnotationComposer,
+      $$ChunkEmbeddingsTableCreateCompanionBuilder,
+      $$ChunkEmbeddingsTableUpdateCompanionBuilder,
+      (ChunkEmbedding, $$ChunkEmbeddingsTableReferences),
+      ChunkEmbedding,
+      PrefetchHooks Function({bool chunkId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6273,4 +6932,6 @@ class $AppDatabaseManager {
       $$DocumentChunksTableTableManager(_db, _db.documentChunks);
   $$MemoryEntriesTableTableManager get memoryEntries =>
       $$MemoryEntriesTableTableManager(_db, _db.memoryEntries);
+  $$ChunkEmbeddingsTableTableManager get chunkEmbeddings =>
+      $$ChunkEmbeddingsTableTableManager(_db, _db.chunkEmbeddings);
 }

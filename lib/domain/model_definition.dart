@@ -21,6 +21,8 @@ enum BengaliSupport {
   };
 }
 
+enum ModelKind { chat, embedding }
+
 /// One downloadable model from `assets/models/catalog.json`.
 class ModelDefinition {
   const ModelDefinition({
@@ -46,6 +48,10 @@ class ModelDefinition {
     required this.bengali,
     required this.starter,
     required this.notes,
+    this.kind = ModelKind.chat,
+    this.queryPrefix = '',
+    this.documentPrefix = '',
+    this.minSimilarity,
   });
 
   final String id;
@@ -70,6 +76,19 @@ class ModelDefinition {
   final BengaliSupport bengali;
   final bool starter;
   final String notes;
+
+  final ModelKind kind;
+
+  /// Embedding models: text put before a search query / a document passage,
+  /// as the model's card requires.
+  final String queryPrefix;
+  final String documentPrefix;
+
+  /// Embedding models: cosine similarity at or above which a passage counts
+  /// as evidence for the question. Calibrated per model.
+  final double? minSimilarity;
+
+  bool get isEmbedding => kind == ModelKind.embedding;
 
   /// Very rough peak-RAM range: weights + KV cache + runtime overhead.
   /// Shown to users only as an estimate.
@@ -156,14 +175,30 @@ class ModelDefinition {
       bengali: BengaliSupport.parse(str('bengali')),
       starter: json['starter'] == true,
       notes: str('notes'),
+      kind: _kind(json['kind'], id),
+      queryPrefix: json['queryPrefix'] as String? ?? '',
+      documentPrefix: json['documentPrefix'] as String? ?? '',
+      minSimilarity: (json['minSimilarity'] as num?)?.toDouble(),
     );
   }
 }
+
+ModelKind _kind(Object? value, String id) => switch (value) {
+  null || 'chat' => ModelKind.chat,
+  'embedding' => ModelKind.embedding,
+  _ => throw FormatException('Model $id has unknown kind $value'),
+};
 
 class ModelCatalog {
   const ModelCatalog(this.models);
 
   final List<ModelDefinition> models;
+
+  List<ModelDefinition> get chatModels =>
+      models.where((m) => m.kind == ModelKind.chat).toList();
+
+  List<ModelDefinition> get embeddingModels =>
+      models.where((m) => m.kind == ModelKind.embedding).toList();
 
   ModelDefinition? byId(String id) {
     for (final m in models) {

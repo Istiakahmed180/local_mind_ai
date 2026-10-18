@@ -49,7 +49,10 @@ class DocumentsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _sub = service.watchAll().listen(documents.assignAll);
+    _sub = service.watchAll().listen((docs) {
+      documents.assignAll(docs);
+      service.semantic?.refreshCounts();
+    });
   }
 
   /// Returns a translation key describing the outcome, or null if cancelled.
@@ -109,7 +112,11 @@ class DocumentsController extends GetxController {
 
     final terms = queryTerms(q);
     final found = await service.search(q, limit: 4);
-    if (!hasEnoughEvidence(found, terms)) {
+    if (!hasEnoughEvidence(
+      found,
+      terms,
+      minSimilarity: service.minSimilarity,
+    )) {
       passages.assignAll(found);
       answer.value = const GroundedAnswer(
         text: '',

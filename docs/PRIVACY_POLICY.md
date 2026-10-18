@@ -13,7 +13,7 @@ LocalMind AI runs AI models on your device. We do not operate servers for the ap
 - App settings (language, theme, generation settings, system prompt)
 - Content reports you create
 - Memories you save (only if you add them; used in chats only when you switch memory on)
-- Documents you import and their search index
+- Documents you import and their search index (including meaning-search vectors if you turn that on)
 
 This data is kept in the app's private storage, is excluded from Android cloud backup and device-to-device transfer, and is deleted when you use **Settings → Clear all data** or uninstall the app.
 

@@ -34,7 +34,7 @@ class ModelLibraryView extends StatelessWidget {
       body: Obx(() {
         final info = device.info.value;
         final fits = recommendModels(
-          catalog: models.catalog.value.models,
+          catalog: models.catalog.value.chatModels,
           totalRamBytes: info?.totalRamBytes,
           freeStorageBytes: info?.freeStorageBytes,
           preferBengali: settings.localeCode.value == 'bn',

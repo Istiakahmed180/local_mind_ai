@@ -12,6 +12,7 @@ class RetrievedPassage {
     this.lineEnd,
     this.score = 0,
     this.matchedTerms = const {},
+    this.similarity,
   });
 
   final int chunkId;
@@ -24,6 +25,22 @@ class RetrievedPassage {
   final double score;
   final Set<String> matchedTerms;
 
+  /// Cosine similarity to the question when found by meaning search.
+  final double? similarity;
+
+  RetrievedPassage withSimilarity(double? similarity) => RetrievedPassage(
+    chunkId: chunkId,
+    documentId: documentId,
+    documentName: documentName,
+    text: text,
+    page: page,
+    lineStart: lineStart,
+    lineEnd: lineEnd,
+    score: score,
+    matchedTerms: matchedTerms,
+    similarity: similarity,
+  );
+
   RetrievedPassage withScore(double score, Set<String> matched) =>
       RetrievedPassage(
         chunkId: chunkId,
@@ -35,6 +52,7 @@ class RetrievedPassage {
         lineEnd: lineEnd,
         score: score,
         matchedTerms: matched,
+        similarity: similarity,
       );
 }
 
@@ -152,8 +170,21 @@ List<RetrievedPassage> rankPassages(
 /// True when the passages together contain at least half of the query terms
 /// (and at least one). Below that the app answers "not enough evidence"
 /// without asking the model.
-bool hasEnoughEvidence(List<RetrievedPassage> passages, List<String> terms) {
-  if (terms.isEmpty || passages.isEmpty) return false;
+///
+/// With [minSimilarity], a passage whose meaning-search similarity reaches it
+/// also counts as evidence, so questions phrased with different words than
+/// the document can still be answered.
+bool hasEnoughEvidence(
+  List<RetrievedPassage> passages,
+  List<String> terms, {
+  double? minSimilarity,
+}) {
+  if (passages.isEmpty) return false;
+  if (minSimilarity != null &&
+      passages.any((p) => (p.similarity ?? -1) >= minSimilarity)) {
+    return true;
+  }
+  if (terms.isEmpty) return false;
   final covered = passages.expand((p) => p.matchedTerms).toSet();
   return covered.length >= math.max(1, (terms.length / 2).ceil());
 }

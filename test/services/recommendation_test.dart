@@ -10,7 +10,7 @@ void main() {
   final catalog = ModelCatalog.fromJson(
     jsonDecode(File('assets/models/catalog.json').readAsStringSync())
         as Map<String, dynamic>,
-  ).models;
+  ).chatModels;
 
   test('smallest suitable model comes first', () {
     final r = recommendModels(
