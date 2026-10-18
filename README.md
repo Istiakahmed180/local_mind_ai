@@ -8,9 +8,9 @@ Privacy-first, offline AI workspace for Android. Chat with language models that 
 
 See [docs/IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md) for exactly what is done, what was verified and how.
 
-Working today: streaming offline chat, stop generation, conversation history (search/rename/delete), model catalog with verified downloads (resume, SHA-256, storage check), GGUF import, device-aware recommendations, load/speed measurements, Bengali + English UI, light/dark theme, local content reports, clear-all-data.
+Working today: streaming offline chat, stop generation, conversation history (search/rename/delete, export/import, long-chat summaries), model catalog with verified downloads (resume, SHA-256, storage check, background downloads), GGUF import, device-aware recommendations, load/speed measurements, an experimental tool-using agent (calculator, date/time, file read/write with approval, summarize, history search, document search), local document Q&A with citations (keyword + optional meaning-based search, OCR for scanned PDFs), memory, offline voice input/output, Bengali + English UI, light/dark theme, local content reports, clear-all-data.
 
-Not built yet: tool-using agent, document Q&A, memory, voice.
+Not built yet: separate benchmark screen, GPU (Vulkan) inference, final app icon and splash screen.
 
 ## Requirements
 

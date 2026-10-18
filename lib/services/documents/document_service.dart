@@ -58,6 +58,8 @@ class DocumentService extends GetxService {
 
   Stream<List<Document>> watchAll() => _repo.watchAll();
 
+  Future<int> documentCount() async => (await _repo.all()).length;
+
   bool get usesFts5 => _repo.usesFts5;
 
   Future<Directory> _docsDir() async {
@@ -206,9 +208,12 @@ class DocumentService extends GetxService {
     String query, {
     int limit = 5,
     Set<String>? documentIds,
+    bool keepChatModel = false,
   }) async {
     final s = semantic;
-    if (s == null || !s.ready) {
+    // A large embedding model would unload the chat model mid-run (agent),
+    // so callers that still need it fall back to keyword search.
+    if (s == null || !s.ready || (keepChatModel && s.unloadsChatModel)) {
       return _repo.search(query, limit: limit, documentIds: documentIds);
     }
     final keyword = await _repo.search(

@@ -289,6 +289,7 @@ class _StepTile extends StatelessWidget {
     'write_file' => 'tool_write_file'.tr,
     'summarize' => 'tool_summarize'.tr,
     'search_history' => 'tool_history_search'.tr,
+    'search_documents' => 'tool_doc_search'.tr,
     _ => name,
   };
 }

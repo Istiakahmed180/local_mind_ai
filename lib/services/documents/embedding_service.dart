@@ -66,6 +66,12 @@ class EmbeddingService extends GetxService {
   bool _isLarge(ModelDefinition def) =>
       def.sizeBytes > largeEmbeddingModelBytes;
 
+  /// Whether a query would unload the chat model (large embedding model).
+  bool get unloadsChatModel {
+    final def = activeModel;
+    return def != null && _isLarge(def);
+  }
+
   Future<T> _serial<T>(Future<T> Function() action) {
     final next = _lock.then((_) => action());
     _lock = next.then((_) {}, onError: (_) {});

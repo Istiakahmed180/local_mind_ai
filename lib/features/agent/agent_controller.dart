@@ -10,6 +10,7 @@ import '../../data/repositories/conversation_repository.dart';
 import '../../services/agent/agent_orchestrator.dart';
 import '../../services/agent/agent_tool.dart';
 import '../../services/agent/tools.dart';
+import '../../services/documents/document_service.dart';
 import '../../services/inference/inference_runtime.dart';
 import '../../services/inference/model_runtime_service.dart';
 import '../../services/model_service.dart';
@@ -21,6 +22,7 @@ class AgentController extends GetxController {
   final models = Get.find<ModelService>();
   final settings = Get.find<SettingsService>();
   final _conversations = Get.find<ConversationRepository>();
+  final _documents = Get.find<DocumentService>();
 
   final input = TextEditingController();
   final state = AgentState.idle.obs;
@@ -57,6 +59,11 @@ class AgentController extends GetxController {
     ReadFileTool(_pickFile),
     WriteFileTool(workspaceDir),
     SummarizeTool(_summarize),
+    SearchDocumentsTool(
+      (q, n) => _documents.search(q, limit: n, keepChatModel: true),
+      documentCount: _documents.documentCount,
+      minSimilarity: () => _documents.minSimilarity,
+    ),
     if (settings.agentHistorySearch.value)
       HistorySearchTool(
         _searchHistory,

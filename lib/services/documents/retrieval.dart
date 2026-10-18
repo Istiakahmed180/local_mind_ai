@@ -41,6 +41,19 @@ class RetrievedPassage {
     similarity: similarity,
   );
 
+  RetrievedPassage withText(String text) => RetrievedPassage(
+    chunkId: chunkId,
+    documentId: documentId,
+    documentName: documentName,
+    text: text,
+    page: page,
+    lineStart: lineStart,
+    lineEnd: lineEnd,
+    score: score,
+    matchedTerms: matchedTerms,
+    similarity: similarity,
+  );
+
   RetrievedPassage withScore(double score, Set<String> matched) =>
       RetrievedPassage(
         chunkId: chunkId,

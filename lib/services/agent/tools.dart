@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import '../documents/grounding.dart';
+import '../documents/retrieval.dart';
+import 'agent_protocol.dart';
 import 'agent_tool.dart';
 import 'expression.dart';
 
@@ -298,4 +301,110 @@ class HistorySearchTool extends AgentTool {
       for (final (i, h) in hits.indexed) '${i + 1}. [${h.title}] ${h.snippet}',
     ].join('\n');
   }
+}
+
+typedef DocumentSearch = Future<List<RetrievedPassage>> Function(
+  String query,
+  int limit,
+);
+
+/// Searches documents the user already imported into the app (read-only, all
+/// on device). Passages go back to the model wrapped as untrusted data with a
+/// citation label; weak matches are reported as "no evidence" instead.
+class SearchDocumentsTool extends AgentTool {
+  SearchDocumentsTool(
+    this._search, {
+    required this.documentCount,
+    required this.minSimilarity,
+    this.limit = 3,
+    this.maxBytes = 1900,
+  });
+
+  final DocumentSearch _search;
+  final Future<int> Function() documentCount;
+  final double? Function() minSimilarity;
+  final int limit;
+
+  /// Kept under the orchestrator's tool-output cap so the closing tag and
+  /// every citation label survive.
+  final int maxBytes;
+
+  @override
+  String get name => 'search_documents';
+  @override
+  String get description =>
+      "Search the user's imported documents for passages about a topic. "
+      'Returns excerpts with their source; cite the source in the answer.';
+  @override
+  String get labelKey => 'tool_doc_search';
+  @override
+  Map<String, Object?> get parameters => const {
+    'type': 'object',
+    'properties': {
+      'query': {'type': 'string', 'minLength': 2, 'maxLength': 300},
+    },
+    'required': ['query'],
+    'additionalProperties': false,
+  };
+  @override
+  bool get requiresApproval => false;
+  // Meaning search may need to load the embedding model first.
+  @override
+  Duration get timeout => const Duration(seconds: 30);
+
+  @override
+  Future<String> run(Map<String, Object?> args, ToolContext context) async {
+    if (await documentCount() == 0) {
+      throw const ToolException(
+        'The user has not imported any documents. Tell them to add one in '
+        'Documents.',
+      );
+    }
+    final query = args['query']! as String;
+    final found = await _search(query, limit);
+    if (!hasEnoughEvidence(
+      found,
+      queryTerms(query),
+      minSimilarity: minSimilarity(),
+    )) {
+      return 'No passage in the documents matches "$query" well enough. '
+          'Say the documents do not answer this; do not guess.';
+    }
+    return fitDocumentResult(found, maxBytes);
+  }
+}
+
+/// Shrinks passage text evenly until the wrapped result fits [maxBytes].
+String fitDocumentResult(List<RetrievedPassage> passages, int maxBytes) {
+  String build(int? perPassage) {
+    final trimmed = [
+      for (final p in passages)
+        perPassage == null ? p : p.withText(_cutUtf8(p.text, perPassage)),
+    ];
+    return '${wrapUntrusted(trimmed)}\n'
+        'Cite as [source]. Answer only from these excerpts.';
+  }
+
+  final full = build(null);
+  if (utf8.encode(full).length <= maxBytes) return full;
+  final overhead = utf8.encode(build(0)).length;
+  var per = ((maxBytes - overhead) / passages.length).floor();
+  // Neutralizing '<' and '>' can add bytes, so shrink until it really fits.
+  while (per >= 40) {
+    final out = build(per);
+    if (utf8.encode(out).length <= maxBytes) return out;
+    per -= 20;
+  }
+  return truncateUtf8(build(40), maxBytes);
+}
+
+String _cutUtf8(String text, int maxBytes) {
+  final bytes = utf8.encode(text);
+  if (bytes.length <= maxBytes) return text;
+  var end = maxBytes;
+  // Step back to a character boundary (continuation bytes are 10xxxxxx).
+  while (end > 0 && (bytes[end] & 0xC0) == 0x80) {
+    end--;
+  }
+  return '${utf8.decode(bytes.sublist(0, end)).trimRight()}…';
 }

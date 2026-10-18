@@ -8,7 +8,7 @@ Status legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 2 | Flutter foundation, design system, navigation, persistence, functional UI | ✅ | Onboarding, home, chat, history, model library/details, settings, privacy, reports, about. Agent/Documents screens state plainly that they are not built yet |
 | 3 | One working local model + streaming chat | ✅ | Verified on an arm64 emulator, offline (airplane mode) |
 | 4 | Model manager, verified downloads, device recommendations, switching | 🟡 | Download/resume/cancel/SHA-256/storage check/import/delete/active model/recommendations done. Background downloads via a foreground service verified on the emulator (2026-10-18). Missing: benchmark screen, real-device measurements |
-| 5 | Safe tool-using agent | 🟡 | Orchestrator, 6 tools, approvals, limits, grammar-constrained calls done; calculator/date tasks verified with Qwen2.5 0.5B on the emulator. Approval dialogs and file tools not yet exercised by hand on a device; no document-search tool yet |
+| 5 | Safe tool-using agent | 🟡 | Orchestrator, 6 tools, approvals, limits, grammar-constrained calls done; calculator/date tasks verified with Qwen2.5 0.5B on the emulator. Approval dialogs and file tools not yet exercised by hand on a device; document-search tool added 2026-10-18 (see below) |
 | 6 | Local documents, retrieval, source-grounded answers | 🟡 | TXT/MD/text-PDF import, FTS5 keyword retrieval, grounded answers with document+page sources and an explicit not-enough-evidence path; verified with a real TXT and PDF on the emulator. No semantic/embedding retrieval, no OCR, no SAF picker test by hand (see M6 section) |
 | 7 | Memory, Bengali/English polish, optional voice | 🟡 | User-controlled memory done and verified on the emulator (2026-10-18). Full bn/en UI (needs native-speaker review). Bengali generation tested on 4 models — none reliable. Voice (on-device platform STT/TTS) built 2026-10-18; read-aloud verified on the emulator, speech input not yet tested with real audio (`docs/VOICE_EVALUATION.md`) |
 | 8 | Security review, performance, real-device testing, Play release prep | 🟡 | Release AAB builds, 16 KB alignment verified. No real-device testing yet |
@@ -132,7 +132,7 @@ Caveats: one tiny model, five questions, two short English documents, emulator o
 
 ## Remaining work (next sessions)
 
-1. **Agent (M5) follow-ups**: hand-test approval dialogs and file read/write on a device; add a document-search tool on top of M6 `DocumentService.search`; measure tool-call success rate across catalog models.
+1. **Agent (M5) follow-ups**: hand-test approval dialogs and file read/write on a device; document-search tool done (2026-10-18); measure tool-call success rate across catalog models.
 2. **Documents (M6) follow-ups**: hand-test picker/remove/rebuild on a device; test with real scanned and long PDFs and Bengali documents; try a larger model (Qwen2.5 1.5B, Gemma 3 1B) for answer and citation quality; optional semantic retrieval with a small embedding GGUF only if it can run without holding two large models; collect PDFium third-party notices for release.
 3. ~~Memory (M7)~~ — done 2026-10-18 (see below).
 4. **Real-device matrix**: at least one low (≤4 GB), mid (6–8 GB) and high (≥12 GB) phone; record load time, TTFT, tok/s, thermal behaviour.

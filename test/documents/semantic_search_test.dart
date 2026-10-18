@@ -312,6 +312,12 @@ void main() {
       expect(chat.isLoaded, isFalse);
       await Future<void>.delayed(Duration.zero);
       expect(embedder.isLoaded, isFalse, reason: 'released after use');
+
+      // The agent keeps its chat model: keyword search only.
+      await chatService.ensureLoaded('chat');
+      final found = await docs.search('money', keepChatModel: true);
+      expect(chat.isLoaded, isTrue);
+      expect(found.single.similarity, isNull);
       await dir.delete(recursive: true);
     });
 
