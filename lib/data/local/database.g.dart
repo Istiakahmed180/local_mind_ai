@@ -2201,6 +2201,1154 @@ class ContentReportsCompanion extends UpdateCompanion<ContentReport> {
   }
 }
 
+class $DocumentsTable extends Documents
+    with TableInfo<$DocumentsTable, Document> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DocumentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _filePathMeta = const VerificationMeta(
+    'filePath',
+  );
+  @override
+  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
+    'file_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pageCountMeta = const VerificationMeta(
+    'pageCount',
+  );
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+    'page_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _chunkCountMeta = const VerificationMeta(
+    'chunkCount',
+  );
+  @override
+  late final GeneratedColumn<int> chunkCount = GeneratedColumn<int>(
+    'chunk_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _charCountMeta = const VerificationMeta(
+    'charCount',
+  );
+  @override
+  late final GeneratedColumn<int> charCount = GeneratedColumn<int>(
+    'char_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _errorMeta = const VerificationMeta('error');
+  @override
+  late final GeneratedColumn<String> error = GeneratedColumn<String>(
+    'error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importedAtMeta = const VerificationMeta(
+    'importedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> importedAt = GeneratedColumn<DateTime>(
+    'imported_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _indexedAtMeta = const VerificationMeta(
+    'indexedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> indexedAt = GeneratedColumn<DateTime>(
+    'indexed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    kind,
+    filePath,
+    sizeBytes,
+    pageCount,
+    chunkCount,
+    charCount,
+    status,
+    error,
+    importedAt,
+    indexedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'documents';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Document> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('file_path')) {
+      context.handle(
+        _filePathMeta,
+        filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_filePathMeta);
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sizeBytesMeta);
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(
+        _pageCountMeta,
+        pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta),
+      );
+    }
+    if (data.containsKey('chunk_count')) {
+      context.handle(
+        _chunkCountMeta,
+        chunkCount.isAcceptableOrUnknown(data['chunk_count']!, _chunkCountMeta),
+      );
+    }
+    if (data.containsKey('char_count')) {
+      context.handle(
+        _charCountMeta,
+        charCount.isAcceptableOrUnknown(data['char_count']!, _charCountMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('error')) {
+      context.handle(
+        _errorMeta,
+        error.isAcceptableOrUnknown(data['error']!, _errorMeta),
+      );
+    }
+    if (data.containsKey('imported_at')) {
+      context.handle(
+        _importedAtMeta,
+        importedAt.isAcceptableOrUnknown(data['imported_at']!, _importedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_importedAtMeta);
+    }
+    if (data.containsKey('indexed_at')) {
+      context.handle(
+        _indexedAtMeta,
+        indexedAt.isAcceptableOrUnknown(data['indexed_at']!, _indexedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Document map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Document(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      filePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_path'],
+      )!,
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      pageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}page_count'],
+      ),
+      chunkCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}chunk_count'],
+      )!,
+      charCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}char_count'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      error: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error'],
+      ),
+      importedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}imported_at'],
+      )!,
+      indexedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}indexed_at'],
+      ),
+    );
+  }
+
+  @override
+  $DocumentsTable createAlias(String alias) {
+    return $DocumentsTable(attachedDatabase, alias);
+  }
+}
+
+class Document extends DataClass implements Insertable<Document> {
+  final String id;
+  final String name;
+  final String kind;
+  final String filePath;
+  final int sizeBytes;
+  final int? pageCount;
+  final int chunkCount;
+  final int charCount;
+  final String status;
+  final String? error;
+  final DateTime importedAt;
+  final DateTime? indexedAt;
+  const Document({
+    required this.id,
+    required this.name,
+    required this.kind,
+    required this.filePath,
+    required this.sizeBytes,
+    this.pageCount,
+    required this.chunkCount,
+    required this.charCount,
+    required this.status,
+    this.error,
+    required this.importedAt,
+    this.indexedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['kind'] = Variable<String>(kind);
+    map['file_path'] = Variable<String>(filePath);
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    if (!nullToAbsent || pageCount != null) {
+      map['page_count'] = Variable<int>(pageCount);
+    }
+    map['chunk_count'] = Variable<int>(chunkCount);
+    map['char_count'] = Variable<int>(charCount);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || error != null) {
+      map['error'] = Variable<String>(error);
+    }
+    map['imported_at'] = Variable<DateTime>(importedAt);
+    if (!nullToAbsent || indexedAt != null) {
+      map['indexed_at'] = Variable<DateTime>(indexedAt);
+    }
+    return map;
+  }
+
+  DocumentsCompanion toCompanion(bool nullToAbsent) {
+    return DocumentsCompanion(
+      id: Value(id),
+      name: Value(name),
+      kind: Value(kind),
+      filePath: Value(filePath),
+      sizeBytes: Value(sizeBytes),
+      pageCount: pageCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageCount),
+      chunkCount: Value(chunkCount),
+      charCount: Value(charCount),
+      status: Value(status),
+      error: error == null && nullToAbsent
+          ? const Value.absent()
+          : Value(error),
+      importedAt: Value(importedAt),
+      indexedAt: indexedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexedAt),
+    );
+  }
+
+  factory Document.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Document(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      kind: serializer.fromJson<String>(json['kind']),
+      filePath: serializer.fromJson<String>(json['filePath']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+      pageCount: serializer.fromJson<int?>(json['pageCount']),
+      chunkCount: serializer.fromJson<int>(json['chunkCount']),
+      charCount: serializer.fromJson<int>(json['charCount']),
+      status: serializer.fromJson<String>(json['status']),
+      error: serializer.fromJson<String?>(json['error']),
+      importedAt: serializer.fromJson<DateTime>(json['importedAt']),
+      indexedAt: serializer.fromJson<DateTime?>(json['indexedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'kind': serializer.toJson<String>(kind),
+      'filePath': serializer.toJson<String>(filePath),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+      'pageCount': serializer.toJson<int?>(pageCount),
+      'chunkCount': serializer.toJson<int>(chunkCount),
+      'charCount': serializer.toJson<int>(charCount),
+      'status': serializer.toJson<String>(status),
+      'error': serializer.toJson<String?>(error),
+      'importedAt': serializer.toJson<DateTime>(importedAt),
+      'indexedAt': serializer.toJson<DateTime?>(indexedAt),
+    };
+  }
+
+  Document copyWith({
+    String? id,
+    String? name,
+    String? kind,
+    String? filePath,
+    int? sizeBytes,
+    Value<int?> pageCount = const Value.absent(),
+    int? chunkCount,
+    int? charCount,
+    String? status,
+    Value<String?> error = const Value.absent(),
+    DateTime? importedAt,
+    Value<DateTime?> indexedAt = const Value.absent(),
+  }) => Document(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    kind: kind ?? this.kind,
+    filePath: filePath ?? this.filePath,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    pageCount: pageCount.present ? pageCount.value : this.pageCount,
+    chunkCount: chunkCount ?? this.chunkCount,
+    charCount: charCount ?? this.charCount,
+    status: status ?? this.status,
+    error: error.present ? error.value : this.error,
+    importedAt: importedAt ?? this.importedAt,
+    indexedAt: indexedAt.present ? indexedAt.value : this.indexedAt,
+  );
+  Document copyWithCompanion(DocumentsCompanion data) {
+    return Document(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      chunkCount: data.chunkCount.present
+          ? data.chunkCount.value
+          : this.chunkCount,
+      charCount: data.charCount.present ? data.charCount.value : this.charCount,
+      status: data.status.present ? data.status.value : this.status,
+      error: data.error.present ? data.error.value : this.error,
+      importedAt: data.importedAt.present
+          ? data.importedAt.value
+          : this.importedAt,
+      indexedAt: data.indexedAt.present ? data.indexedAt.value : this.indexedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Document(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('filePath: $filePath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('chunkCount: $chunkCount, ')
+          ..write('charCount: $charCount, ')
+          ..write('status: $status, ')
+          ..write('error: $error, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('indexedAt: $indexedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    kind,
+    filePath,
+    sizeBytes,
+    pageCount,
+    chunkCount,
+    charCount,
+    status,
+    error,
+    importedAt,
+    indexedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Document &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.kind == this.kind &&
+          other.filePath == this.filePath &&
+          other.sizeBytes == this.sizeBytes &&
+          other.pageCount == this.pageCount &&
+          other.chunkCount == this.chunkCount &&
+          other.charCount == this.charCount &&
+          other.status == this.status &&
+          other.error == this.error &&
+          other.importedAt == this.importedAt &&
+          other.indexedAt == this.indexedAt);
+}
+
+class DocumentsCompanion extends UpdateCompanion<Document> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> kind;
+  final Value<String> filePath;
+  final Value<int> sizeBytes;
+  final Value<int?> pageCount;
+  final Value<int> chunkCount;
+  final Value<int> charCount;
+  final Value<String> status;
+  final Value<String?> error;
+  final Value<DateTime> importedAt;
+  final Value<DateTime?> indexedAt;
+  final Value<int> rowid;
+  const DocumentsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.filePath = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.chunkCount = const Value.absent(),
+    this.charCount = const Value.absent(),
+    this.status = const Value.absent(),
+    this.error = const Value.absent(),
+    this.importedAt = const Value.absent(),
+    this.indexedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DocumentsCompanion.insert({
+    required String id,
+    required String name,
+    required String kind,
+    required String filePath,
+    required int sizeBytes,
+    this.pageCount = const Value.absent(),
+    this.chunkCount = const Value.absent(),
+    this.charCount = const Value.absent(),
+    required String status,
+    this.error = const Value.absent(),
+    required DateTime importedAt,
+    this.indexedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       kind = Value(kind),
+       filePath = Value(filePath),
+       sizeBytes = Value(sizeBytes),
+       status = Value(status),
+       importedAt = Value(importedAt);
+  static Insertable<Document> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? kind,
+    Expression<String>? filePath,
+    Expression<int>? sizeBytes,
+    Expression<int>? pageCount,
+    Expression<int>? chunkCount,
+    Expression<int>? charCount,
+    Expression<String>? status,
+    Expression<String>? error,
+    Expression<DateTime>? importedAt,
+    Expression<DateTime>? indexedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (kind != null) 'kind': kind,
+      if (filePath != null) 'file_path': filePath,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (pageCount != null) 'page_count': pageCount,
+      if (chunkCount != null) 'chunk_count': chunkCount,
+      if (charCount != null) 'char_count': charCount,
+      if (status != null) 'status': status,
+      if (error != null) 'error': error,
+      if (importedAt != null) 'imported_at': importedAt,
+      if (indexedAt != null) 'indexed_at': indexedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DocumentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? kind,
+    Value<String>? filePath,
+    Value<int>? sizeBytes,
+    Value<int?>? pageCount,
+    Value<int>? chunkCount,
+    Value<int>? charCount,
+    Value<String>? status,
+    Value<String?>? error,
+    Value<DateTime>? importedAt,
+    Value<DateTime?>? indexedAt,
+    Value<int>? rowid,
+  }) {
+    return DocumentsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      kind: kind ?? this.kind,
+      filePath: filePath ?? this.filePath,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      pageCount: pageCount ?? this.pageCount,
+      chunkCount: chunkCount ?? this.chunkCount,
+      charCount: charCount ?? this.charCount,
+      status: status ?? this.status,
+      error: error ?? this.error,
+      importedAt: importedAt ?? this.importedAt,
+      indexedAt: indexedAt ?? this.indexedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (filePath.present) {
+      map['file_path'] = Variable<String>(filePath.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (chunkCount.present) {
+      map['chunk_count'] = Variable<int>(chunkCount.value);
+    }
+    if (charCount.present) {
+      map['char_count'] = Variable<int>(charCount.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (error.present) {
+      map['error'] = Variable<String>(error.value);
+    }
+    if (importedAt.present) {
+      map['imported_at'] = Variable<DateTime>(importedAt.value);
+    }
+    if (indexedAt.present) {
+      map['indexed_at'] = Variable<DateTime>(indexedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('filePath: $filePath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('chunkCount: $chunkCount, ')
+          ..write('charCount: $charCount, ')
+          ..write('status: $status, ')
+          ..write('error: $error, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('indexedAt: $indexedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DocumentChunksTable extends DocumentChunks
+    with TableInfo<$DocumentChunksTable, DocumentChunk> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DocumentChunksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<String> documentId = GeneratedColumn<String>(
+    'document_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES documents (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _ordinalMeta = const VerificationMeta(
+    'ordinal',
+  );
+  @override
+  late final GeneratedColumn<int> ordinal = GeneratedColumn<int>(
+    'ordinal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pageMeta = const VerificationMeta('page');
+  @override
+  late final GeneratedColumn<int> page = GeneratedColumn<int>(
+    'page',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lineStartMeta = const VerificationMeta(
+    'lineStart',
+  );
+  @override
+  late final GeneratedColumn<int> lineStart = GeneratedColumn<int>(
+    'line_start',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lineEndMeta = const VerificationMeta(
+    'lineEnd',
+  );
+  @override
+  late final GeneratedColumn<int> lineEnd = GeneratedColumn<int>(
+    'line_end',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    documentId,
+    ordinal,
+    page,
+    lineStart,
+    lineEnd,
+    body,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'document_chunks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DocumentChunk> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_documentIdMeta);
+    }
+    if (data.containsKey('ordinal')) {
+      context.handle(
+        _ordinalMeta,
+        ordinal.isAcceptableOrUnknown(data['ordinal']!, _ordinalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ordinalMeta);
+    }
+    if (data.containsKey('page')) {
+      context.handle(
+        _pageMeta,
+        page.isAcceptableOrUnknown(data['page']!, _pageMeta),
+      );
+    }
+    if (data.containsKey('line_start')) {
+      context.handle(
+        _lineStartMeta,
+        lineStart.isAcceptableOrUnknown(data['line_start']!, _lineStartMeta),
+      );
+    }
+    if (data.containsKey('line_end')) {
+      context.handle(
+        _lineEndMeta,
+        lineEnd.isAcceptableOrUnknown(data['line_end']!, _lineEndMeta),
+      );
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DocumentChunk map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DocumentChunk(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_id'],
+      )!,
+      ordinal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ordinal'],
+      )!,
+      page: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}page'],
+      ),
+      lineStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}line_start'],
+      ),
+      lineEnd: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}line_end'],
+      ),
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+    );
+  }
+
+  @override
+  $DocumentChunksTable createAlias(String alias) {
+    return $DocumentChunksTable(attachedDatabase, alias);
+  }
+}
+
+class DocumentChunk extends DataClass implements Insertable<DocumentChunk> {
+  final int id;
+  final String documentId;
+  final int ordinal;
+  final int? page;
+  final int? lineStart;
+  final int? lineEnd;
+  final String body;
+  const DocumentChunk({
+    required this.id,
+    required this.documentId,
+    required this.ordinal,
+    this.page,
+    this.lineStart,
+    this.lineEnd,
+    required this.body,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['document_id'] = Variable<String>(documentId);
+    map['ordinal'] = Variable<int>(ordinal);
+    if (!nullToAbsent || page != null) {
+      map['page'] = Variable<int>(page);
+    }
+    if (!nullToAbsent || lineStart != null) {
+      map['line_start'] = Variable<int>(lineStart);
+    }
+    if (!nullToAbsent || lineEnd != null) {
+      map['line_end'] = Variable<int>(lineEnd);
+    }
+    map['body'] = Variable<String>(body);
+    return map;
+  }
+
+  DocumentChunksCompanion toCompanion(bool nullToAbsent) {
+    return DocumentChunksCompanion(
+      id: Value(id),
+      documentId: Value(documentId),
+      ordinal: Value(ordinal),
+      page: page == null && nullToAbsent ? const Value.absent() : Value(page),
+      lineStart: lineStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lineStart),
+      lineEnd: lineEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lineEnd),
+      body: Value(body),
+    );
+  }
+
+  factory DocumentChunk.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DocumentChunk(
+      id: serializer.fromJson<int>(json['id']),
+      documentId: serializer.fromJson<String>(json['documentId']),
+      ordinal: serializer.fromJson<int>(json['ordinal']),
+      page: serializer.fromJson<int?>(json['page']),
+      lineStart: serializer.fromJson<int?>(json['lineStart']),
+      lineEnd: serializer.fromJson<int?>(json['lineEnd']),
+      body: serializer.fromJson<String>(json['body']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'documentId': serializer.toJson<String>(documentId),
+      'ordinal': serializer.toJson<int>(ordinal),
+      'page': serializer.toJson<int?>(page),
+      'lineStart': serializer.toJson<int?>(lineStart),
+      'lineEnd': serializer.toJson<int?>(lineEnd),
+      'body': serializer.toJson<String>(body),
+    };
+  }
+
+  DocumentChunk copyWith({
+    int? id,
+    String? documentId,
+    int? ordinal,
+    Value<int?> page = const Value.absent(),
+    Value<int?> lineStart = const Value.absent(),
+    Value<int?> lineEnd = const Value.absent(),
+    String? body,
+  }) => DocumentChunk(
+    id: id ?? this.id,
+    documentId: documentId ?? this.documentId,
+    ordinal: ordinal ?? this.ordinal,
+    page: page.present ? page.value : this.page,
+    lineStart: lineStart.present ? lineStart.value : this.lineStart,
+    lineEnd: lineEnd.present ? lineEnd.value : this.lineEnd,
+    body: body ?? this.body,
+  );
+  DocumentChunk copyWithCompanion(DocumentChunksCompanion data) {
+    return DocumentChunk(
+      id: data.id.present ? data.id.value : this.id,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
+      ordinal: data.ordinal.present ? data.ordinal.value : this.ordinal,
+      page: data.page.present ? data.page.value : this.page,
+      lineStart: data.lineStart.present ? data.lineStart.value : this.lineStart,
+      lineEnd: data.lineEnd.present ? data.lineEnd.value : this.lineEnd,
+      body: data.body.present ? data.body.value : this.body,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentChunk(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('ordinal: $ordinal, ')
+          ..write('page: $page, ')
+          ..write('lineStart: $lineStart, ')
+          ..write('lineEnd: $lineEnd, ')
+          ..write('body: $body')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, documentId, ordinal, page, lineStart, lineEnd, body);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DocumentChunk &&
+          other.id == this.id &&
+          other.documentId == this.documentId &&
+          other.ordinal == this.ordinal &&
+          other.page == this.page &&
+          other.lineStart == this.lineStart &&
+          other.lineEnd == this.lineEnd &&
+          other.body == this.body);
+}
+
+class DocumentChunksCompanion extends UpdateCompanion<DocumentChunk> {
+  final Value<int> id;
+  final Value<String> documentId;
+  final Value<int> ordinal;
+  final Value<int?> page;
+  final Value<int?> lineStart;
+  final Value<int?> lineEnd;
+  final Value<String> body;
+  const DocumentChunksCompanion({
+    this.id = const Value.absent(),
+    this.documentId = const Value.absent(),
+    this.ordinal = const Value.absent(),
+    this.page = const Value.absent(),
+    this.lineStart = const Value.absent(),
+    this.lineEnd = const Value.absent(),
+    this.body = const Value.absent(),
+  });
+  DocumentChunksCompanion.insert({
+    this.id = const Value.absent(),
+    required String documentId,
+    required int ordinal,
+    this.page = const Value.absent(),
+    this.lineStart = const Value.absent(),
+    this.lineEnd = const Value.absent(),
+    required String body,
+  }) : documentId = Value(documentId),
+       ordinal = Value(ordinal),
+       body = Value(body);
+  static Insertable<DocumentChunk> custom({
+    Expression<int>? id,
+    Expression<String>? documentId,
+    Expression<int>? ordinal,
+    Expression<int>? page,
+    Expression<int>? lineStart,
+    Expression<int>? lineEnd,
+    Expression<String>? body,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (documentId != null) 'document_id': documentId,
+      if (ordinal != null) 'ordinal': ordinal,
+      if (page != null) 'page': page,
+      if (lineStart != null) 'line_start': lineStart,
+      if (lineEnd != null) 'line_end': lineEnd,
+      if (body != null) 'body': body,
+    });
+  }
+
+  DocumentChunksCompanion copyWith({
+    Value<int>? id,
+    Value<String>? documentId,
+    Value<int>? ordinal,
+    Value<int?>? page,
+    Value<int?>? lineStart,
+    Value<int?>? lineEnd,
+    Value<String>? body,
+  }) {
+    return DocumentChunksCompanion(
+      id: id ?? this.id,
+      documentId: documentId ?? this.documentId,
+      ordinal: ordinal ?? this.ordinal,
+      page: page ?? this.page,
+      lineStart: lineStart ?? this.lineStart,
+      lineEnd: lineEnd ?? this.lineEnd,
+      body: body ?? this.body,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (documentId.present) {
+      map['document_id'] = Variable<String>(documentId.value);
+    }
+    if (ordinal.present) {
+      map['ordinal'] = Variable<int>(ordinal.value);
+    }
+    if (page.present) {
+      map['page'] = Variable<int>(page.value);
+    }
+    if (lineStart.present) {
+      map['line_start'] = Variable<int>(lineStart.value);
+    }
+    if (lineEnd.present) {
+      map['line_end'] = Variable<int>(lineEnd.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentChunksCompanion(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('ordinal: $ordinal, ')
+          ..write('page: $page, ')
+          ..write('lineStart: $lineStart, ')
+          ..write('lineEnd: $lineEnd, ')
+          ..write('body: $body')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2210,6 +3358,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $ContentReportsTable contentReports = $ContentReportsTable(this);
+  late final $DocumentsTable documents = $DocumentsTable(this);
+  late final $DocumentChunksTable documentChunks = $DocumentChunksTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2219,6 +3369,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     messages,
     installedModels,
     contentReports,
+    documents,
+    documentChunks,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -2228,6 +3380,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('messages', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'documents',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('document_chunks', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -3564,6 +4723,797 @@ typedef $$ContentReportsTableProcessedTableManager =
       ContentReport,
       PrefetchHooks Function()
     >;
+typedef $$DocumentsTableCreateCompanionBuilder = DocumentsCompanion Function({
+  required String id,
+  required String name,
+  required String kind,
+  required String filePath,
+  required int sizeBytes,
+  Value<int?> pageCount,
+  Value<int> chunkCount,
+  Value<int> charCount,
+  required String status,
+  Value<String?> error,
+  required DateTime importedAt,
+  Value<DateTime?> indexedAt,
+  Value<int> rowid,
+});
+typedef $$DocumentsTableUpdateCompanionBuilder = DocumentsCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String> kind,
+  Value<String> filePath,
+  Value<int> sizeBytes,
+  Value<int?> pageCount,
+  Value<int> chunkCount,
+  Value<int> charCount,
+  Value<String> status,
+  Value<String?> error,
+  Value<DateTime> importedAt,
+  Value<DateTime?> indexedAt,
+  Value<int> rowid,
+});
+
+final class $$DocumentsTableReferences
+    extends BaseReferences<_$AppDatabase, $DocumentsTable, Document> {
+  $$DocumentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$DocumentChunksTable, List<DocumentChunk>>
+  _documentChunksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.documentChunks,
+    aliasName: 'documents__id__document_chunks__document_id',
+  );
+
+  $$DocumentChunksTableProcessedTableManager get documentChunksRefs {
+    final manager = $$DocumentChunksTableTableManager(
+      $_db,
+      $_db.documentChunks,
+    ).filter((f) => f.documentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_documentChunksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$DocumentsTableFilterComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+    column: $table.pageCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chunkCount => $composableBuilder(
+    column: $table.chunkCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get charCount => $composableBuilder(
+    column: $table.charCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get error => $composableBuilder(
+    column: $table.error,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get indexedAt => $composableBuilder(
+    column: $table.indexedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> documentChunksRefs(
+    Expression<bool> Function($$DocumentChunksTableFilterComposer f) f,
+  ) {
+    final $$DocumentChunksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.documentChunks,
+      getReferencedColumn: (t) => t.documentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentChunksTableFilterComposer(
+            $db: $db,
+            $table: $db.documentChunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$DocumentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+    column: $table.pageCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chunkCount => $composableBuilder(
+    column: $table.chunkCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get charCount => $composableBuilder(
+    column: $table.charCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get error => $composableBuilder(
+    column: $table.error,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get indexedAt => $composableBuilder(
+    column: $table.indexedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DocumentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get filePath =>
+      $composableBuilder(column: $table.filePath, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<int> get chunkCount => $composableBuilder(
+    column: $table.chunkCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get charCount =>
+      $composableBuilder(column: $table.charCount, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get error =>
+      $composableBuilder(column: $table.error, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get indexedAt =>
+      $composableBuilder(column: $table.indexedAt, builder: (column) => column);
+
+  Expression<T> documentChunksRefs<T extends Object>(
+    Expression<T> Function($$DocumentChunksTableAnnotationComposer a) f,
+  ) {
+    final $$DocumentChunksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.documentChunks,
+      getReferencedColumn: (t) => t.documentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentChunksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documentChunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$DocumentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DocumentsTable,
+          Document,
+          $$DocumentsTableFilterComposer,
+          $$DocumentsTableOrderingComposer,
+          $$DocumentsTableAnnotationComposer,
+          $$DocumentsTableCreateCompanionBuilder,
+          $$DocumentsTableUpdateCompanionBuilder,
+          (Document, $$DocumentsTableReferences),
+          Document,
+          PrefetchHooks Function({bool documentChunksRefs})
+        > {
+  $$DocumentsTableTableManager(_$AppDatabase db, $DocumentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DocumentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DocumentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DocumentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> filePath = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<int?> pageCount = const Value.absent(),
+                Value<int> chunkCount = const Value.absent(),
+                Value<int> charCount = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> error = const Value.absent(),
+                Value<DateTime> importedAt = const Value.absent(),
+                Value<DateTime?> indexedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DocumentsCompanion(
+                id: id,
+                name: name,
+                kind: kind,
+                filePath: filePath,
+                sizeBytes: sizeBytes,
+                pageCount: pageCount,
+                chunkCount: chunkCount,
+                charCount: charCount,
+                status: status,
+                error: error,
+                importedAt: importedAt,
+                indexedAt: indexedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String kind,
+                required String filePath,
+                required int sizeBytes,
+                Value<int?> pageCount = const Value.absent(),
+                Value<int> chunkCount = const Value.absent(),
+                Value<int> charCount = const Value.absent(),
+                required String status,
+                Value<String?> error = const Value.absent(),
+                required DateTime importedAt,
+                Value<DateTime?> indexedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DocumentsCompanion.insert(
+                id: id,
+                name: name,
+                kind: kind,
+                filePath: filePath,
+                sizeBytes: sizeBytes,
+                pageCount: pageCount,
+                chunkCount: chunkCount,
+                charCount: charCount,
+                status: status,
+                error: error,
+                importedAt: importedAt,
+                indexedAt: indexedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DocumentsTable, Document>(table),
+                  $$DocumentsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({documentChunksRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (documentChunksRefs) db.documentChunks,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (documentChunksRefs)
+                    await $_getPrefetchedData<
+                      Document,
+                      $DocumentsTable,
+                      DocumentChunk
+                    >(
+                      currentTable: table,
+                      referencedTable: $$DocumentsTableReferences
+                          ._documentChunksRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$DocumentsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).documentChunksRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.documentId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DocumentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DocumentsTable,
+      Document,
+      $$DocumentsTableFilterComposer,
+      $$DocumentsTableOrderingComposer,
+      $$DocumentsTableAnnotationComposer,
+      $$DocumentsTableCreateCompanionBuilder,
+      $$DocumentsTableUpdateCompanionBuilder,
+      (Document, $$DocumentsTableReferences),
+      Document,
+      PrefetchHooks Function({bool documentChunksRefs})
+    >;
+typedef $$DocumentChunksTableCreateCompanionBuilder =
+    DocumentChunksCompanion Function({
+      Value<int> id,
+      required String documentId,
+      required int ordinal,
+      Value<int?> page,
+      Value<int?> lineStart,
+      Value<int?> lineEnd,
+      required String body,
+    });
+typedef $$DocumentChunksTableUpdateCompanionBuilder =
+    DocumentChunksCompanion Function({
+      Value<int> id,
+      Value<String> documentId,
+      Value<int> ordinal,
+      Value<int?> page,
+      Value<int?> lineStart,
+      Value<int?> lineEnd,
+      Value<String> body,
+    });
+
+final class $$DocumentChunksTableReferences
+    extends BaseReferences<_$AppDatabase, $DocumentChunksTable, DocumentChunk> {
+  $$DocumentChunksTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $DocumentsTable _documentIdTable(_$AppDatabase db) =>
+      db.documents.createAlias('document_chunks__document_id__documents__id');
+
+  $$DocumentsTableProcessedTableManager get documentId {
+    final $_column = $_itemColumn<String>('document_id')!;
+
+    final manager = $$DocumentsTableTableManager(
+      $_db,
+      $_db.documents,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_documentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$DocumentChunksTableFilterComposer
+    extends Composer<_$AppDatabase, $DocumentChunksTable> {
+  $$DocumentChunksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ordinal => $composableBuilder(
+    column: $table.ordinal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get page => $composableBuilder(
+    column: $table.page,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lineStart => $composableBuilder(
+    column: $table.lineStart,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lineEnd => $composableBuilder(
+    column: $table.lineEnd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DocumentsTableFilterComposer get documentId {
+    final $$DocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DocumentChunksTableOrderingComposer
+    extends Composer<_$AppDatabase, $DocumentChunksTable> {
+  $$DocumentChunksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get ordinal => $composableBuilder(
+    column: $table.ordinal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get page => $composableBuilder(
+    column: $table.page,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lineStart => $composableBuilder(
+    column: $table.lineStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lineEnd => $composableBuilder(
+    column: $table.lineEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DocumentsTableOrderingComposer get documentId {
+    final $$DocumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DocumentChunksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DocumentChunksTable> {
+  $$DocumentChunksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get ordinal =>
+      $composableBuilder(column: $table.ordinal, builder: (column) => column);
+
+  GeneratedColumn<int> get page =>
+      $composableBuilder(column: $table.page, builder: (column) => column);
+
+  GeneratedColumn<int> get lineStart =>
+      $composableBuilder(column: $table.lineStart, builder: (column) => column);
+
+  GeneratedColumn<int> get lineEnd =>
+      $composableBuilder(column: $table.lineEnd, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  $$DocumentsTableAnnotationComposer get documentId {
+    final $$DocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DocumentChunksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DocumentChunksTable,
+          DocumentChunk,
+          $$DocumentChunksTableFilterComposer,
+          $$DocumentChunksTableOrderingComposer,
+          $$DocumentChunksTableAnnotationComposer,
+          $$DocumentChunksTableCreateCompanionBuilder,
+          $$DocumentChunksTableUpdateCompanionBuilder,
+          (DocumentChunk, $$DocumentChunksTableReferences),
+          DocumentChunk,
+          PrefetchHooks Function({bool documentId})
+        > {
+  $$DocumentChunksTableTableManager(
+    _$AppDatabase db,
+    $DocumentChunksTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DocumentChunksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DocumentChunksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DocumentChunksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> documentId = const Value.absent(),
+                Value<int> ordinal = const Value.absent(),
+                Value<int?> page = const Value.absent(),
+                Value<int?> lineStart = const Value.absent(),
+                Value<int?> lineEnd = const Value.absent(),
+                Value<String> body = const Value.absent(),
+              }) => DocumentChunksCompanion(
+                id: id,
+                documentId: documentId,
+                ordinal: ordinal,
+                page: page,
+                lineStart: lineStart,
+                lineEnd: lineEnd,
+                body: body,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String documentId,
+                required int ordinal,
+                Value<int?> page = const Value.absent(),
+                Value<int?> lineStart = const Value.absent(),
+                Value<int?> lineEnd = const Value.absent(),
+                required String body,
+              }) => DocumentChunksCompanion.insert(
+                id: id,
+                documentId: documentId,
+                ordinal: ordinal,
+                page: page,
+                lineStart: lineStart,
+                lineEnd: lineEnd,
+                body: body,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DocumentChunksTable, DocumentChunk>(table),
+                  $$DocumentChunksTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({documentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (documentId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.documentId,
+                        referencedTable: $$DocumentChunksTableReferences
+                            ._documentIdTable(db),
+                        referencedColumn: $$DocumentChunksTableReferences
+                            ._documentIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DocumentChunksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DocumentChunksTable,
+      DocumentChunk,
+      $$DocumentChunksTableFilterComposer,
+      $$DocumentChunksTableOrderingComposer,
+      $$DocumentChunksTableAnnotationComposer,
+      $$DocumentChunksTableCreateCompanionBuilder,
+      $$DocumentChunksTableUpdateCompanionBuilder,
+      (DocumentChunk, $$DocumentChunksTableReferences),
+      DocumentChunk,
+      PrefetchHooks Function({bool documentId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3576,4 +5526,8 @@ class $AppDatabaseManager {
       $$InstalledModelsTableTableManager(_db, _db.installedModels);
   $$ContentReportsTableTableManager get contentReports =>
       $$ContentReportsTableTableManager(_db, _db.contentReports);
+  $$DocumentsTableTableManager get documents =>
+      $$DocumentsTableTableManager(_db, _db.documents);
+  $$DocumentChunksTableTableManager get documentChunks =>
+      $$DocumentChunksTableTableManager(_db, _db.documentChunks);
 }

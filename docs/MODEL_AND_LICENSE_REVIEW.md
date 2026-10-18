@@ -10,6 +10,9 @@ Reviewed 2026-10-17. Sizes and SHA-256 values are taken from the Hugging Face AP
 | llama.cpp native runtime (via `leehack/llamadart-native` `v0.7.0`) | pinned by llamadart | MIT (llama.cpp / ggml) | Bundled as shared libraries in the APK; attribution in About → Licenses |
 | GetX | 4.7.3 | MIT | |
 | Drift / sqlite3 | 2.35.2 / 3.x | MIT / public domain (SQLite) | |
+| pdfrx (PDF text extraction, M6) | 2.6.5 (with pdfrx_engine 0.6.1, pdfium_flutter / pdfium_dart 0.3.1) | MIT (© 2018 Takashi Kawasaki) | Only `PdfDocument.openFile` + `PdfPage.loadText()` are used. pdfrx_engine also contains an `openUri` HTTP loader; the app never calls it (a unit test checks the documents code does not reference it) |
+| PDFium native library | `chromium/7811` build from `bblanchon/pdfium-binaries` | BSD-3-Clause (© 2014 The PDFium Authors); the binaries project is MIT | Downloaded by the `pdfium_dart` build hook **at build time** and bundled as `libpdfium.so`; no download at runtime. Notice added to About → Licenses. PDFium statically includes third-party code (FreeType, libjpeg-turbo, OpenJPEG, lcms2, zlib, Abseil, …); the full notice set from the binary release must be collected before Play release |
+| pdfrx transitive deps | rxdart 0.28, synchronized 3.4, image 4.8, archive 4.0, vector_math 2.x, url_launcher 6.3 | Apache-2.0 / MIT / MIT / MIT / BSD-3 / BSD-3 | Dart package licenses appear in About → Licenses automatically |
 
 LiteRT-LM and stable-diffusion runtimes are **excluded** (`llamadart_native_runtimes: [llama_cpp]`), and on Android only the CPU backend is bundled (`llamadart_native_backends.platforms.android: [cpu]`); the Vulkan module is left out until it is tested on real GPUs.
 
@@ -37,6 +40,12 @@ File size is **not** peak RAM. Rough estimate used in the app: `weights + KV cac
 ### Untrusted assets
 
 GGUF files are treated as untrusted input. The app checks: catalog SHA-256 (downloads), `GGUF` magic bytes, minimum size, and free storage. Parsing is done by llama.cpp; historic GGUF parser CVEs exist in llama.cpp, so the runtime version must be kept current and imported files are labelled "unverified source".
+
+### Document Q&A (M6)
+
+- No OCR: PDFium reads the PDF text layer only. Scanned or image-only PDFs are rejected with an explicit message; the app does not claim to support them.
+- Semantic (embedding) retrieval is **not implemented**. llamadart can embed, but it would need a second engine instance holding an embedding model next to the chat model, or swapping models per question; neither was built or measured. No embedding model is in the catalog.
+- Keyword search uses SQLite FTS5 (`unicode61` tokenizer) from the sqlite3 build drift already ships, with a LIKE fallback if FTS5 is missing.
 
 ## Test record
 

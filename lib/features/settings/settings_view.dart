@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../app/routes.dart';
 import '../../app/theme.dart';
 import '../../data/local/database.dart';
+import '../../services/documents/document_service.dart';
 import '../../services/inference/model_runtime_service.dart';
 import '../../services/model_service.dart';
 import '../../services/settings_service.dart';
@@ -227,6 +228,7 @@ class SettingsView extends StatelessWidget {
     for (final def in models.catalog.value.models) {
       await models.discardDownload(def);
     }
+    await Get.find<DocumentService>().removeAll();
     await Get.find<AppDatabase>().clearAll();
     await Get.find<SettingsService>().clear();
     Get.offAllNamed(Routes.onboarding);

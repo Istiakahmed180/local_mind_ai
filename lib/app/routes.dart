@@ -5,6 +5,7 @@ import '../features/agent/agent_controller.dart';
 import '../features/agent/agent_view.dart';
 import '../features/chat/chat_controller.dart';
 import '../features/chat/chat_view.dart';
+import '../features/documents/documents_controller.dart';
 import '../features/documents/documents_view.dart';
 import '../features/models/model_details_view.dart';
 import '../features/onboarding/onboarding_view.dart';
@@ -44,6 +45,12 @@ final appPages = [
       Get.put(AgentController());
     }),
   ),
-  GetPage(name: Routes.documents, page: () => const DocumentsView()),
+  GetPage(
+    name: Routes.documents,
+    page: () => const DocumentsView(),
+    binding: BindingsBuilder(() {
+      Get.put(DocumentsController());
+    }),
+  ),
   GetPage(name: Routes.reports, page: () => const ReportsView()),
 ];

@@ -1,0 +1,174 @@
+import 'dart:io';
+import 'dart:isolate';
+
+import 'package:drift/drift.dart' show Value;
+import 'package:get/get.dart' hide Value;
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../data/local/database.dart';
+import '../../data/repositories/document_repository.dart';
+import 'chunker.dart';
+import 'retrieval.dart';
+import 'text_extraction.dart';
+
+/// Imports, indexes and searches the user's documents. Files are copied into
+/// app-private storage and never leave the device.
+class DocumentService extends GetxService {
+  DocumentService(
+    this._repo, {
+    TextExtractor? extractor,
+    Future<Directory> Function()? baseDir,
+    Uuid? uuid,
+  }) : _extractor = extractor ?? TextExtractor(),
+       _baseDir = baseDir ?? getApplicationSupportDirectory,
+       _uuid = uuid ?? const Uuid();
+
+  static const maxFileBytes = 50 * 1024 * 1024;
+
+  /// Below this many characters a PDF is treated as having no text layer.
+  static const minTextChars = 20;
+
+  final DocumentRepository _repo;
+  final TextExtractor _extractor;
+  final Future<Directory> Function() _baseDir;
+  final Uuid _uuid;
+
+  final busy = false.obs;
+
+  Stream<List<Document>> watchAll() => _repo.watchAll();
+
+  bool get usesFts5 => _repo.usesFts5;
+
+  Future<Directory> _docsDir() async {
+    final dir = Directory(p.join((await _baseDir()).path, 'documents'));
+    await dir.create(recursive: true);
+    return dir;
+  }
+
+  /// Copies [sourcePath] into app storage and indexes it. Throws
+  /// [ExtractionException] with a translation key when the file is unusable;
+  /// nothing is kept in that case.
+  Future<Document> import(String sourcePath, String name) async {
+    final kind = kindForFileName(name);
+    if (kind == null) throw const ExtractionException('doc_error_type');
+    final source = File(sourcePath);
+    final size = await source.length();
+    if (size > maxFileBytes) {
+      throw const ExtractionException('doc_error_too_large');
+    }
+    final id = _uuid.v4();
+    final target = p.join((await _docsDir()).path, '$id.${kind.name}');
+    await source.copy(target);
+    try {
+      final indexed = await _index(target, kind);
+      final now = DateTime.now();
+      await _repo.insert(
+        DocumentsCompanion.insert(
+          id: id,
+          name: name,
+          kind: kind.name,
+          filePath: target,
+          sizeBytes: size,
+          pageCount: Value(indexed.pageCount),
+          chunkCount: Value(indexed.chunks.length),
+          charCount: Value(indexed.charCount),
+          status: 'ready',
+          importedAt: now,
+          indexedAt: Value(now),
+        ),
+      );
+      await _repo.replaceChunks(id, indexed.chunks);
+      return (await _repo.byId(id))!;
+    } catch (_) {
+      await _deleteFile(target);
+      await _repo.delete(id);
+      rethrow;
+    }
+  }
+
+  Future<_Indexed> _index(String path, DocumentKind kind) async {
+    final extracted = await _extractor.extract(path, kind);
+    if (kind == DocumentKind.pdf && extracted.charCount < minTextChars) {
+      throw const ExtractionException('doc_error_no_text_pdf');
+    }
+    if (extracted.charCount == 0) {
+      throw const ExtractionException('doc_error_empty');
+    }
+    final segments = extracted.segments;
+    final chunks = await Isolate.run(() => chunkSegments(segments));
+    return _Indexed(chunks, extracted.pageCount, extracted.charCount);
+  }
+
+  Future<void> remove(String id) async {
+    final doc = await _repo.byId(id);
+    if (doc == null) return;
+    await _repo.delete(id);
+    await _deleteFile(doc.filePath);
+  }
+
+  Future<void> removeAll() async {
+    for (final d in await _repo.all()) {
+      await remove(d.id);
+    }
+    final dir = await _docsDir();
+    if (await dir.exists()) await dir.delete(recursive: true);
+  }
+
+  /// Re-extracts and re-chunks every stored copy, then rebuilds the keyword
+  /// index. Returns the number of documents that failed.
+  Future<int> rebuildIndex() async {
+    var failed = 0;
+    for (final d in await _repo.all()) {
+      final kind = DocumentKind.values.byName(d.kind);
+      try {
+        final indexed = await _index(d.filePath, kind);
+        await _repo.replaceChunks(d.id, indexed.chunks);
+        await _repo.update(
+          d.id,
+          DocumentsCompanion(
+            status: const Value('ready'),
+            error: const Value(null),
+            pageCount: Value(indexed.pageCount),
+            chunkCount: Value(indexed.chunks.length),
+            charCount: Value(indexed.charCount),
+            indexedAt: Value(DateTime.now()),
+          ),
+        );
+      } on Object catch (e) {
+        failed++;
+        await _repo.replaceChunks(d.id, const []);
+        await _repo.update(
+          d.id,
+          DocumentsCompanion(
+            status: const Value('error'),
+            error: Value(e is ExtractionException ? e.reason : '$e'),
+            chunkCount: const Value(0),
+          ),
+        );
+      }
+    }
+    await _repo.rebuildKeywordIndex();
+    return failed;
+  }
+
+  Future<List<RetrievedPassage>> search(
+    String query, {
+    int limit = 5,
+    Set<String>? documentIds,
+  }) => _repo.search(query, limit: limit, documentIds: documentIds);
+
+  Future<void> _deleteFile(String path) async {
+    final f = File(path);
+    if (await f.exists()) await f.delete();
+  }
+}
+
+class _Indexed {
+  const _Indexed(this.chunks, this.pageCount, this.charCount);
+
+  final List<TextChunk> chunks;
+  final int? pageCount;
+  final int charCount;
+}
