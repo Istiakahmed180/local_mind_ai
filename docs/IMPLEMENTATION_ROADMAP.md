@@ -169,3 +169,19 @@ Tests: `flutter test` → 159 passed; `flutter analyze` → no issues.
 - Verified on the `localmind_test` emulator: exported a chat to Downloads (JSON content checked with `adb`), deleted the chat, imported the file → "Imported: 1 · already present: 0 · skipped as damaged: 0", chat restored with messages in the right order and stats intact.
 
 Tests: `flutter test` → 170 passed; `flutter analyze` → no issues. Not committed (the user commits manually).
+
+### Long-chat summarization — 2026-10-18
+
+- **What it does:** when a chat no longer fits the context length, the model folds the oldest messages into a running summary instead of silently dropping them. The summary is stored on the conversation (schema v4: `conversations.summary`, `summary_through_message_id`) and added to the system prompt, clearly labelled as AI-written and possibly incomplete. Later summaries build on the previous one; large backlogs are summarized in chunks that fit the context.
+- **Safety nets:** if summarizing fails, returns nothing or is stopped, the app falls back to the old drop-oldest behaviour; the final prompt still passes through `fitToContext`. Deleting a message the summary covers removes the summary. The summary can be viewed and removed from the chat ("Earlier messages are summarized · tap to view"). Setting: **Summarize long chats** (on by default). Stop works while summarizing.
+- Code: `lib/services/inference/summary_planner.dart` (pure planning, chunking, prompt), `ChatController._summarize`. Tests: `test/services/summary_planner_test.dart`, `test/features/chat_summary_flow_test.dart` (full chat flow with a scripted fake model), migration test extended to v4.
+- **Real model, emulator** — `flutter test integration_test/summary_test.dart -d emulator-5556`, Qwen2.5 0.5B, context 512, max reply 96 tokens, temperature 0. A chat that starts with "My name is Rahim and my favourite colour is green" followed by 8 long filler messages, then "What is my name and my favourite colour?":
+
+| Setting | Reply | Time |
+|---------|-------|------|
+| Summarization on (9 messages summarized, 0 dropped) | "Your name is Rahim and your favorite color is green." | 11.5 s |
+| Summarization off (4 messages dropped) | "I am named "Alice" and my favorite color is blue." | 2.2 s |
+
+  The summary kept the name and colour but only described the first filler topic, so detail is lost; summaries from a 0.5B model are short and imperfect. Summarizing costs extra seconds on each reply that triggers it.
+
+Tests: `flutter test` → 181 passed; `flutter analyze` → no issues. Not committed (the user commits manually).

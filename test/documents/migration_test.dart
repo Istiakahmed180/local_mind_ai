@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:localmind_ai/data/local/database.dart';
+import 'package:localmind_ai/data/repositories/conversation_repository.dart';
 
 /// Schema of version 1 (commit e2e62a6), as drift created it.
 const _v1 = [
@@ -92,6 +93,12 @@ void main() {
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.read<int>('user_version'), db.schemaVersion);
     expect(await db.select(db.memoryEntries).get(), isEmpty);
+    // v4 columns exist on the upgraded conversations table.
+    await ConversationRepository(db).setSummary('c1', 'old summary', 'm1');
+    expect(
+      (await db.select(db.conversations).get()).single.summary,
+      'old summary',
+    );
 
     await db
         .into(db.documents)

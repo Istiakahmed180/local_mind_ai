@@ -10,11 +10,12 @@ import '../../data/repositories/model_repository.dart';
 import '../../services/inference/context_budget.dart';
 import '../../services/inference/inference_runtime.dart';
 import '../../services/inference/model_runtime_service.dart';
+import '../../services/inference/summary_planner.dart';
 import '../../services/memory_prompt.dart';
 import '../../services/model_service.dart';
 import '../../services/settings_service.dart';
 
-enum ChatPhase { idle, loadingModel, generating }
+enum ChatPhase { idle, loadingModel, summarizing, generating }
 
 class ChatController extends GetxController {
   ChatController({String? conversationId}) : _initialId = conversationId;
@@ -33,6 +34,9 @@ class ChatController extends GetxController {
   final streamingText = ''.obs;
   final error = RxnString();
   final droppedTurns = 0.obs;
+
+  /// Messages folded into the chat's summary for the last reply.
+  final summarizedCount = 0.obs;
 
   /// Memories added to the last prompt; 0 when memory is off or empty.
   final memoriesUsed = 0.obs;
@@ -112,7 +116,49 @@ class ChatController extends GetxController {
         ? buildMemoryBlock(await _memory.enabled())
         : null;
     memoriesUsed.value = memoryBlock?.used ?? 0;
-    final turns = _buildTurns(history, text, memoryBlock?.text);
+    final usable = [
+      for (final m in history)
+        if (m.status != 'error' && m.content.isNotEmpty) m,
+    ];
+    final systemText = _systemText(memoryBlock?.text);
+    var (summary, covered) = await _currentSummary(c.id, usable);
+
+    if (settings.summarizeLongChats.value) {
+      final plan = planSummary(
+        systemText: systemText,
+        summary: summary,
+        history: [for (final m in usable) _turn(m)],
+        coveredCount: covered,
+        newUserText: text,
+        contextSize: runtime.loadedContextSize,
+        reservedForOutput: settings.generation.maxTokens,
+      );
+      if (plan != null) {
+        phase.value = ChatPhase.summarizing;
+        _cancelled = false;
+        final updated = await _summarize(summary, plan.toSummarize);
+        if (_cancelled) {
+          phase.value = ChatPhase.idle;
+          return;
+        }
+        if (updated != null) {
+          summary = updated;
+          covered = plan.newCoveredCount;
+          await _repo.setSummary(c.id, updated, usable[covered - 1].id);
+          conversation.value = await _repo.byId(c.id);
+        }
+      }
+    }
+    summarizedCount.value = summary == null ? 0 : covered;
+
+    final turns = [
+      ChatTurn(
+        ChatRole.system,
+        summary == null ? systemText : systemText + summaryBlock(summary),
+      ),
+      for (final m in usable.skip(covered)) _turn(m),
+      ChatTurn(ChatRole.user, text),
+    ];
     final budget = fitToContext(
       turns: turns,
       contextSize: runtime.loadedContextSize,
@@ -172,16 +218,15 @@ class ChatController extends GetxController {
   }
 
   void stop() {
-    if (phase.value != ChatPhase.generating) return;
+    if (phase.value != ChatPhase.generating &&
+        phase.value != ChatPhase.summarizing) {
+      return;
+    }
     _cancelled = true;
     runtime.cancel();
   }
 
-  List<ChatTurn> _buildTurns(
-    List<Message> history,
-    String userText,
-    String? memoryBlock,
-  ) {
+  String _systemText(String? memoryBlock) {
     final system = StringBuffer(settings.systemPrompt.value);
     if (settings.localeCode.value == 'bn') {
       system.write(
@@ -189,16 +234,71 @@ class ChatController extends GetxController {
       );
     }
     if (memoryBlock != null) system.write(memoryBlock);
-    return [
-      ChatTurn(ChatRole.system, system.toString()),
-      for (final m in history)
-        if (m.status != 'error' && m.content.isNotEmpty)
-          ChatTurn(
-            m.role == 'user' ? ChatRole.user : ChatRole.assistant,
-            m.content,
+    return system.toString();
+  }
+
+  static ChatTurn _turn(Message m) => ChatTurn(
+    m.role == 'user' ? ChatRole.user : ChatRole.assistant,
+    m.content,
+  );
+
+  /// The stored summary and how many of [usable] it covers. A summary whose
+  /// last covered message was deleted is discarded.
+  Future<(String?, int)> _currentSummary(
+    String id,
+    List<Message> usable,
+  ) async {
+    final conv = await _repo.byId(id);
+    final summary = conv?.summary;
+    final through = conv?.summaryThroughMessageId;
+    if (summary == null || through == null) return (null, 0);
+    final index = usable.indexWhere((m) => m.id == through);
+    if (index < 0) {
+      await _repo.clearSummary(id);
+      return (null, 0);
+    }
+    return (summary, index + 1);
+  }
+
+  /// Folds [messages] into [previous] chunk by chunk. Returns null if the
+  /// model fails or the user stops it; the caller then falls back to
+  /// dropping old messages.
+  Future<String?> _summarize(String? previous, List<ChatTurn> messages) async {
+    var current = previous;
+    final chunks = chunkForSummary(
+      messages,
+      summaryInputBudget(runtime.loadedContextSize, previous),
+    );
+    for (final chunk in chunks) {
+      final out = StringBuffer();
+      try {
+        await for (final e in runtime.generate(
+          buildSummaryPrompt(current, chunk),
+          settings: const GenerationSettings(
+            temperature: 0.2,
+            topP: 0.9,
+            maxTokens: summaryMaxTokens,
           ),
-      ChatTurn(ChatRole.user, userText),
-    ];
+        )) {
+          if (e is TokenEvent) out.write(e.text);
+        }
+      } on InferenceException {
+        return null;
+      }
+      if (_cancelled) return null;
+      final text = out.toString().trim();
+      if (text.isEmpty) return null;
+      current = text;
+    }
+    return current;
+  }
+
+  Future<void> clearSummary() async {
+    final c = conversation.value;
+    if (c == null) return;
+    await _repo.clearSummary(c.id);
+    conversation.value = await _repo.byId(c.id);
+    summarizedCount.value = 0;
   }
 
   Future<ContentReport> report(Message m, String reason) => _repo.report(
@@ -210,7 +310,19 @@ class ChatController extends GetxController {
 
   Future<void> remember(String text) => _memory.add(text);
 
-  Future<void> deleteMessage(Message m) => _repo.deleteMessage(m.id);
+  /// Deleting a message the summary already covers also removes the
+  /// summary, so deleted content does not live on inside it.
+  Future<void> deleteMessage(Message m) async {
+    final c = conversation.value;
+    final through = c?.summaryThroughMessageId;
+    if (c != null && through != null) {
+      final all = messages.toList();
+      final anchor = all.indexWhere((x) => x.id == through);
+      final index = all.indexWhere((x) => x.id == m.id);
+      if (anchor >= 0 && index >= 0 && index <= anchor) await clearSummary();
+    }
+    await _repo.deleteMessage(m.id);
+  }
 
   static String _titleFrom(String text) {
     final line = text.split('\n').first.trim();
@@ -227,7 +339,10 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    if (phase.value == ChatPhase.generating) runtime.cancel();
+    if (phase.value == ChatPhase.generating ||
+        phase.value == ChatPhase.summarizing) {
+      runtime.cancel();
+    }
     _msgSub?.cancel();
     input.dispose();
     scroll.dispose();

@@ -10,6 +10,14 @@ class Conversations extends Table {
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
+  /// AI-written summary of the oldest messages, used once the chat no longer
+  /// fits the context window.
+  TextColumn get summary => text().nullable()();
+
+  /// Last message the summary covers. If that message is deleted the summary
+  /// is discarded.
+  TextColumn get summaryThroughMessageId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -127,7 +135,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'localmind'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   /// Whether the SQLite build has FTS5. Set when the database opens.
   bool hasFts5 = false;
@@ -144,6 +152,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await m.createTable(memoryEntries);
+      }
+      if (from < 4) {
+        await m.addColumn(conversations, conversations.summary);
+        await m.addColumn(conversations, conversations.summaryThroughMessageId);
       }
     },
     beforeOpen: (details) async {

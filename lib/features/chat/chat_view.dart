@@ -33,6 +33,7 @@ class ChatView extends GetView<ChatController> {
           children: [
             Expanded(child: _MessageList(controller)),
             _MemoryNote(controller),
+            _SummaryNote(controller),
             const _VoiceBar(),
             _Banner(controller),
             _Composer(controller),
@@ -143,6 +144,8 @@ class _MessageList extends StatelessWidget {
               isUser: false,
               pendingLabel: phase == ChatPhase.loadingModel
                   ? 'loading_model'.tr
+                  : phase == ChatPhase.summarizing
+                  ? 'chat_summarizing'.tr
                   : streaming.isEmpty
                   ? 'thinking'.tr
                   : null,
@@ -365,6 +368,77 @@ class _Bubble extends StatelessWidget {
   }
 }
 
+/// Shows that older messages are represented by a summary, with a way to
+/// read or remove it.
+class _SummaryNote extends StatelessWidget {
+  const _SummaryNote(this.c);
+
+  final ChatController c;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final summary = c.conversation.value?.summary;
+      if (summary == null) return const SizedBox.shrink();
+      return InkWell(
+        onTap: () => _show(context, summary),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.xs,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.summarize_outlined, size: 16),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  'chat_summary_in_use'.tr,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Future<void> _show(BuildContext context, String summary) async {
+    final remove = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('chat_summary_title'.tr),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(summary),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'chat_summary_note'.tr,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('chat_summary_remove'.tr),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('close'.tr),
+          ),
+        ],
+      ),
+    );
+    if (remove == true) await c.clearSummary();
+  }
+}
+
 /// Tells the user when saved memories were added to the last prompt.
 class _MemoryNote extends StatelessWidget {
   const _MemoryNote(this.c);
@@ -464,7 +538,7 @@ class _Composer extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Obx(() {
             switch (c.phase.value) {
-              case ChatPhase.generating:
+              case ChatPhase.generating || ChatPhase.summarizing:
                 return IconButton.filledTonal(
                   tooltip: 'stop'.tr,
                   onPressed: c.stop,

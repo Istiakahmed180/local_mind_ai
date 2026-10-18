@@ -51,6 +51,22 @@ class ConversationRepository {
         ConversationsCompanion(title: Value(title)),
       );
 
+  Future<void> setSummary(String id, String summary, String throughMessageId) =>
+      (_db.update(_db.conversations)..where((c) => c.id.equals(id))).write(
+        ConversationsCompanion(
+          summary: Value(summary),
+          summaryThroughMessageId: Value(throughMessageId),
+        ),
+      );
+
+  Future<void> clearSummary(String id) =>
+      (_db.update(_db.conversations)..where((c) => c.id.equals(id))).write(
+        const ConversationsCompanion(
+          summary: Value(null),
+          summaryThroughMessageId: Value(null),
+        ),
+      );
+
   Future<void> setModel(String id, String? modelId) =>
       (_db.update(_db.conversations)..where((c) => c.id.equals(id))).write(
         ConversationsCompanion(modelId: Value(modelId)),

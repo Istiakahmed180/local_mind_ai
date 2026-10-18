@@ -120,6 +120,12 @@ class SettingsView extends StatelessWidget {
               ),
             ),
             SwitchListTile(
+              title: Text('summarize_long_chats'.tr),
+              subtitle: Text('summarize_long_chats_hint'.tr),
+              value: s.summarizeLongChats.value,
+              onChanged: s.setSummarizeLongChats,
+            ),
+            SwitchListTile(
               title: Text('low_resource_mode'.tr),
               subtitle: Text('low_resource_hint'.tr),
               value: s.lowResource.value,

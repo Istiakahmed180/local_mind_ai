@@ -10,7 +10,12 @@ class FakeRuntime implements InferenceRuntime {
     this.tokens = const ['Hello', ' world'],
     this.loadError,
     List<String>? responses,
+    this.respond,
   }) : responses = responses ?? [];
+
+  /// Computes the whole reply from the prompt; takes priority over
+  /// [responses] and [tokens].
+  final String Function(List<ChatTurn> turns)? respond;
 
   final List<String> tokens;
 
@@ -25,6 +30,9 @@ class FakeRuntime implements InferenceRuntime {
   String? _loaded;
   bool _cancel = false;
   List<ChatTurn>? lastTurns;
+
+  /// Prompts of every generate() call, in order.
+  final calls = <List<ChatTurn>>[];
 
   @override
   bool get isLoaded => _loaded != null;
@@ -49,11 +57,16 @@ class FakeRuntime implements InferenceRuntime {
     Map<String, Object?>? jsonSchema,
   }) async* {
     lastTurns = turns;
+    calls.add(turns);
     schemas.add(jsonSchema);
     generateCalls++;
     _cancel = false;
     var n = 0;
-    final out = responses.isNotEmpty ? [responses.removeAt(0)] : tokens;
+    final out = respond != null
+        ? [respond!(turns)]
+        : responses.isNotEmpty
+        ? [responses.removeAt(0)]
+        : tokens;
     for (final t in out) {
       await Future<void>.delayed(Duration.zero);
       if (_cancel) break;

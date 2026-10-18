@@ -22,6 +22,7 @@ class SettingsService extends GetxService {
   static const _kAgentHistorySearch = 'agentHistorySearch';
   static const _kUseMemory = 'useMemory';
   static const _kVoice = 'voiceEnabled';
+  static const _kSummarize = 'summarizeLongChats';
 
   static const defaultSystemPromptEn =
       'You are a helpful assistant running entirely on the user\'s phone. '
@@ -50,6 +51,10 @@ class SettingsService extends GetxService {
 
   /// Off by default: no microphone button or read-aloud until switched on.
   late final voiceEnabled = (_prefs.getBool(_kVoice) ?? false).obs;
+
+  /// On by default: long chats are summarized instead of silently dropping
+  /// the oldest messages.
+  late final summarizeLongChats = (_prefs.getBool(_kSummarize) ?? true).obs;
 
   Locale get locale => localeCode.value == 'bn'
       ? const Locale('bn', 'BD')
@@ -136,6 +141,11 @@ class SettingsService extends GetxService {
     await _prefs.setBool(_kVoice, v);
   }
 
+  Future<void> setSummarizeLongChats(bool v) async {
+    summarizeLongChats.value = v;
+    await _prefs.setBool(_kSummarize, v);
+  }
+
   Future<void> clear() async {
     await _prefs.clear();
     onboarded.value = false;
@@ -143,5 +153,6 @@ class SettingsService extends GetxService {
     agentHistorySearch.value = false;
     useMemory.value = false;
     voiceEnabled.value = false;
+    summarizeLongChats.value = true;
   }
 }

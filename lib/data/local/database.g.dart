@@ -60,6 +60,28 @@ class $ConversationsTable extends Conversations
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _summaryMeta = const VerificationMeta(
+    'summary',
+  );
+  @override
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+    'summary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _summaryThroughMessageIdMeta =
+      const VerificationMeta('summaryThroughMessageId');
+  @override
+  late final GeneratedColumn<String> summaryThroughMessageId =
+      GeneratedColumn<String>(
+        'summary_through_message_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -67,6 +89,8 @@ class $ConversationsTable extends Conversations
     modelId,
     createdAt,
     updatedAt,
+    summary,
+    summaryThroughMessageId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -115,6 +139,21 @@ class $ConversationsTable extends Conversations
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('summary')) {
+      context.handle(
+        _summaryMeta,
+        summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta),
+      );
+    }
+    if (data.containsKey('summary_through_message_id')) {
+      context.handle(
+        _summaryThroughMessageIdMeta,
+        summaryThroughMessageId.isAcceptableOrUnknown(
+          data['summary_through_message_id']!,
+          _summaryThroughMessageIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -144,6 +183,14 @@ class $ConversationsTable extends Conversations
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      summary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}summary'],
+      ),
+      summaryThroughMessageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}summary_through_message_id'],
+      ),
     );
   }
 
@@ -159,12 +206,22 @@ class Conversation extends DataClass implements Insertable<Conversation> {
   final String? modelId;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// AI-written summary of the oldest messages, used once the chat no longer
+  /// fits the context window.
+  final String? summary;
+
+  /// Last message the summary covers. If that message is deleted the summary
+  /// is discarded.
+  final String? summaryThroughMessageId;
   const Conversation({
     required this.id,
     required this.title,
     this.modelId,
     required this.createdAt,
     required this.updatedAt,
+    this.summary,
+    this.summaryThroughMessageId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -176,6 +233,14 @@ class Conversation extends DataClass implements Insertable<Conversation> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || summary != null) {
+      map['summary'] = Variable<String>(summary);
+    }
+    if (!nullToAbsent || summaryThroughMessageId != null) {
+      map['summary_through_message_id'] = Variable<String>(
+        summaryThroughMessageId,
+      );
+    }
     return map;
   }
 
@@ -188,6 +253,12 @@ class Conversation extends DataClass implements Insertable<Conversation> {
           : Value(modelId),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      summary: summary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(summary),
+      summaryThroughMessageId: summaryThroughMessageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(summaryThroughMessageId),
     );
   }
 
@@ -202,6 +273,10 @@ class Conversation extends DataClass implements Insertable<Conversation> {
       modelId: serializer.fromJson<String?>(json['modelId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      summary: serializer.fromJson<String?>(json['summary']),
+      summaryThroughMessageId: serializer.fromJson<String?>(
+        json['summaryThroughMessageId'],
+      ),
     );
   }
   @override
@@ -213,6 +288,10 @@ class Conversation extends DataClass implements Insertable<Conversation> {
       'modelId': serializer.toJson<String?>(modelId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'summary': serializer.toJson<String?>(summary),
+      'summaryThroughMessageId': serializer.toJson<String?>(
+        summaryThroughMessageId,
+      ),
     };
   }
 
@@ -222,12 +301,18 @@ class Conversation extends DataClass implements Insertable<Conversation> {
     Value<String?> modelId = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    Value<String?> summary = const Value.absent(),
+    Value<String?> summaryThroughMessageId = const Value.absent(),
   }) => Conversation(
     id: id ?? this.id,
     title: title ?? this.title,
     modelId: modelId.present ? modelId.value : this.modelId,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    summary: summary.present ? summary.value : this.summary,
+    summaryThroughMessageId: summaryThroughMessageId.present
+        ? summaryThroughMessageId.value
+        : this.summaryThroughMessageId,
   );
   Conversation copyWithCompanion(ConversationsCompanion data) {
     return Conversation(
@@ -236,6 +321,10 @@ class Conversation extends DataClass implements Insertable<Conversation> {
       modelId: data.modelId.present ? data.modelId.value : this.modelId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      summary: data.summary.present ? data.summary.value : this.summary,
+      summaryThroughMessageId: data.summaryThroughMessageId.present
+          ? data.summaryThroughMessageId.value
+          : this.summaryThroughMessageId,
     );
   }
 
@@ -246,13 +335,23 @@ class Conversation extends DataClass implements Insertable<Conversation> {
           ..write('title: $title, ')
           ..write('modelId: $modelId, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('summary: $summary, ')
+          ..write('summaryThroughMessageId: $summaryThroughMessageId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, modelId, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    modelId,
+    createdAt,
+    updatedAt,
+    summary,
+    summaryThroughMessageId,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -261,7 +360,9 @@ class Conversation extends DataClass implements Insertable<Conversation> {
           other.title == this.title &&
           other.modelId == this.modelId &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.summary == this.summary &&
+          other.summaryThroughMessageId == this.summaryThroughMessageId);
 }
 
 class ConversationsCompanion extends UpdateCompanion<Conversation> {
@@ -270,6 +371,8 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
   final Value<String?> modelId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String?> summary;
+  final Value<String?> summaryThroughMessageId;
   final Value<int> rowid;
   const ConversationsCompanion({
     this.id = const Value.absent(),
@@ -277,6 +380,8 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
     this.modelId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.summaryThroughMessageId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ConversationsCompanion.insert({
@@ -285,6 +390,8 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
     this.modelId = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.summary = const Value.absent(),
+    this.summaryThroughMessageId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -296,6 +403,8 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
     Expression<String>? modelId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? summary,
+    Expression<String>? summaryThroughMessageId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -304,6 +413,9 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
       if (modelId != null) 'model_id': modelId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (summary != null) 'summary': summary,
+      if (summaryThroughMessageId != null)
+        'summary_through_message_id': summaryThroughMessageId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -314,6 +426,8 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
     Value<String?>? modelId,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String?>? summary,
+    Value<String?>? summaryThroughMessageId,
     Value<int>? rowid,
   }) {
     return ConversationsCompanion(
@@ -322,6 +436,9 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
       modelId: modelId ?? this.modelId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      summary: summary ?? this.summary,
+      summaryThroughMessageId:
+          summaryThroughMessageId ?? this.summaryThroughMessageId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -344,6 +461,14 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (summaryThroughMessageId.present) {
+      map['summary_through_message_id'] = Variable<String>(
+        summaryThroughMessageId.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -358,6 +483,8 @@ class ConversationsCompanion extends UpdateCompanion<Conversation> {
           ..write('modelId: $modelId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('summary: $summary, ')
+          ..write('summaryThroughMessageId: $summaryThroughMessageId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3763,6 +3890,8 @@ typedef $$ConversationsTableCreateCompanionBuilder =
       Value<String?> modelId,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<String?> summary,
+      Value<String?> summaryThroughMessageId,
       Value<int> rowid,
     });
 typedef $$ConversationsTableUpdateCompanionBuilder =
@@ -3772,6 +3901,8 @@ typedef $$ConversationsTableUpdateCompanionBuilder =
       Value<String?> modelId,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<String?> summary,
+      Value<String?> summaryThroughMessageId,
       Value<int> rowid,
     });
 
@@ -3837,6 +3968,16 @@ class $$ConversationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get summaryThroughMessageId => $composableBuilder(
+    column: $table.summaryThroughMessageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> messagesRefs(
     Expression<bool> Function($$MessagesTableFilterComposer f) f,
   ) {
@@ -3896,6 +4037,16 @@ class $$ConversationsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get summaryThroughMessageId => $composableBuilder(
+    column: $table.summaryThroughMessageId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ConversationsTableAnnotationComposer
@@ -3921,6 +4072,14 @@ class $$ConversationsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<String> get summaryThroughMessageId => $composableBuilder(
+    column: $table.summaryThroughMessageId,
+    builder: (column) => column,
+  );
 
   Expression<T> messagesRefs<T extends Object>(
     Expression<T> Function($$MessagesTableAnnotationComposer a) f,
@@ -3981,6 +4140,8 @@ class $$ConversationsTableTableManager
                 Value<String?> modelId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String?> summary = const Value.absent(),
+                Value<String?> summaryThroughMessageId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ConversationsCompanion(
                 id: id,
@@ -3988,6 +4149,8 @@ class $$ConversationsTableTableManager
                 modelId: modelId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                summary: summary,
+                summaryThroughMessageId: summaryThroughMessageId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3997,6 +4160,8 @@ class $$ConversationsTableTableManager
                 Value<String?> modelId = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String?> summary = const Value.absent(),
+                Value<String?> summaryThroughMessageId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ConversationsCompanion.insert(
                 id: id,
@@ -4004,6 +4169,8 @@ class $$ConversationsTableTableManager
                 modelId: modelId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                summary: summary,
+                summaryThroughMessageId: summaryThroughMessageId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

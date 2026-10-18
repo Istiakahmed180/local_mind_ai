@@ -8,7 +8,7 @@ LocalMind AI runs AI models on your device. We do not operate servers for the ap
 
 ## Data stored on your device
 
-- Conversations (your messages and AI responses), with timing statistics
+- Conversations (your messages and AI responses), with timing statistics, and AI-written summaries of long conversations
 - Downloaded or imported model files
 - App settings (language, theme, generation settings, system prompt)
 - Content reports you create
