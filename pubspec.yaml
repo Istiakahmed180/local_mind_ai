@@ -107,7 +107,8 @@ hooks:
   user_defines:
     llamadart:
       llamadart_native_runtimes: [llama_cpp]
-      # CPU only until Vulkan is validated on real devices.
+      # Vulkan is bundled but used only per model after the in-app CPU/GPU
+      # output check passes (llama.cpp Vulkan on Android is experimental).
       llamadart_native_backends:
         platforms:
-          android: [cpu]
+          android: [cpu, vulkan]

@@ -106,6 +106,9 @@ class BenchmarkResults extends Table {
   IntColumn get rssAfterLoadBytes => integer().nullable()();
   IntColumn get rssPeakBytes => integer().nullable()();
 
+  /// Compute backend the engine reported, e.g. "CPU" or "Vulkan".
+  TextColumn get backend => text().nullable()();
+
   /// e.g. "Google Pixel 7 · Android 14 · 8 cores · 8.0 GB".
   TextColumn get device => text()();
 

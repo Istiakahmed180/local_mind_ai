@@ -8,9 +8,17 @@ class ChatTurn {
 }
 
 class RuntimeLoadConfig {
-  const RuntimeLoadConfig({required this.contextSize, this.threads = 0});
+  const RuntimeLoadConfig({
+    required this.contextSize,
+    this.threads = 0,
+    this.gpu = false,
+  });
 
   final int contextSize;
+
+  /// Offload every layer to the GPU (Vulkan on Android). The load throws
+  /// instead of silently running on the CPU when no usable GPU is found.
+  final bool gpu;
 
   /// 0 lets the runtime choose.
   final int threads;
@@ -81,6 +89,10 @@ class InferenceException implements Exception {
 /// The only boundary between the app and a native inference engine.
 abstract interface class InferenceRuntime {
   bool get isLoaded;
+
+  /// Compute backend of the loaded model as the engine reports it, e.g.
+  /// "Vulkan" or "CPU"; null when nothing is loaded or it is unknown.
+  String? get backendName;
 
   Future<void> load(String path, RuntimeLoadConfig config);
 

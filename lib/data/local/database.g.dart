@@ -4333,6 +4333,17 @@ class $BenchmarkResultsTable extends BenchmarkResults
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _backendMeta = const VerificationMeta(
+    'backend',
+  );
+  @override
+  late final GeneratedColumn<String> backend = GeneratedColumn<String>(
+    'backend',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _deviceMeta = const VerificationMeta('device');
   @override
   late final GeneratedColumn<String> device = GeneratedColumn<String>(
@@ -4360,6 +4371,7 @@ class $BenchmarkResultsTable extends BenchmarkResults
     generationMax,
     rssAfterLoadBytes,
     rssPeakBytes,
+    backend,
     device,
   ];
   @override
@@ -4515,6 +4527,12 @@ class $BenchmarkResultsTable extends BenchmarkResults
         ),
       );
     }
+    if (data.containsKey('backend')) {
+      context.handle(
+        _backendMeta,
+        backend.isAcceptableOrUnknown(data['backend']!, _backendMeta),
+      );
+    }
     if (data.containsKey('device')) {
       context.handle(
         _deviceMeta,
@@ -4596,6 +4614,10 @@ class $BenchmarkResultsTable extends BenchmarkResults
         DriftSqlType.int,
         data['${effectivePrefix}rss_peak_bytes'],
       ),
+      backend: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}backend'],
+      ),
       device: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}device'],
@@ -4627,6 +4649,9 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
   final int? rssAfterLoadBytes;
   final int? rssPeakBytes;
 
+  /// Compute backend the engine reported, e.g. "CPU" or "Vulkan".
+  final String? backend;
+
   /// e.g. "Google Pixel 7 · Android 14 · 8 cores · 8.0 GB".
   final String device;
   const BenchmarkRecord({
@@ -4646,6 +4671,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
     this.generationMax,
     this.rssAfterLoadBytes,
     this.rssPeakBytes,
+    this.backend,
     required this.device,
   });
   @override
@@ -4682,6 +4708,9 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
     }
     if (!nullToAbsent || rssPeakBytes != null) {
       map['rss_peak_bytes'] = Variable<int>(rssPeakBytes);
+    }
+    if (!nullToAbsent || backend != null) {
+      map['backend'] = Variable<String>(backend);
     }
     map['device'] = Variable<String>(device);
     return map;
@@ -4720,6 +4749,9 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
       rssPeakBytes: rssPeakBytes == null && nullToAbsent
           ? const Value.absent()
           : Value(rssPeakBytes),
+      backend: backend == null && nullToAbsent
+          ? const Value.absent()
+          : Value(backend),
       device: Value(device),
     );
   }
@@ -4750,6 +4782,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
       generationMax: serializer.fromJson<double?>(json['generationMax']),
       rssAfterLoadBytes: serializer.fromJson<int?>(json['rssAfterLoadBytes']),
       rssPeakBytes: serializer.fromJson<int?>(json['rssPeakBytes']),
+      backend: serializer.fromJson<String?>(json['backend']),
       device: serializer.fromJson<String>(json['device']),
     );
   }
@@ -4777,6 +4810,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
       'generationMax': serializer.toJson<double?>(generationMax),
       'rssAfterLoadBytes': serializer.toJson<int?>(rssAfterLoadBytes),
       'rssPeakBytes': serializer.toJson<int?>(rssPeakBytes),
+      'backend': serializer.toJson<String?>(backend),
       'device': serializer.toJson<String>(device),
     };
   }
@@ -4798,6 +4832,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
     Value<double?> generationMax = const Value.absent(),
     Value<int?> rssAfterLoadBytes = const Value.absent(),
     Value<int?> rssPeakBytes = const Value.absent(),
+    Value<String?> backend = const Value.absent(),
     String? device,
   }) => BenchmarkRecord(
     id: id ?? this.id,
@@ -4828,6 +4863,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
         ? rssAfterLoadBytes.value
         : this.rssAfterLoadBytes,
     rssPeakBytes: rssPeakBytes.present ? rssPeakBytes.value : this.rssPeakBytes,
+    backend: backend.present ? backend.value : this.backend,
     device: device ?? this.device,
   );
   BenchmarkRecord copyWithCompanion(BenchmarkResultsCompanion data) {
@@ -4868,6 +4904,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
       rssPeakBytes: data.rssPeakBytes.present
           ? data.rssPeakBytes.value
           : this.rssPeakBytes,
+      backend: data.backend.present ? data.backend.value : this.backend,
       device: data.device.present ? data.device.value : this.device,
     );
   }
@@ -4891,6 +4928,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
           ..write('generationMax: $generationMax, ')
           ..write('rssAfterLoadBytes: $rssAfterLoadBytes, ')
           ..write('rssPeakBytes: $rssPeakBytes, ')
+          ..write('backend: $backend, ')
           ..write('device: $device')
           ..write(')'))
         .toString();
@@ -4914,6 +4952,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
     generationMax,
     rssAfterLoadBytes,
     rssPeakBytes,
+    backend,
     device,
   );
   @override
@@ -4936,6 +4975,7 @@ class BenchmarkRecord extends DataClass implements Insertable<BenchmarkRecord> {
           other.generationMax == this.generationMax &&
           other.rssAfterLoadBytes == this.rssAfterLoadBytes &&
           other.rssPeakBytes == this.rssPeakBytes &&
+          other.backend == this.backend &&
           other.device == this.device);
 }
 
@@ -4956,6 +4996,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
   final Value<double?> generationMax;
   final Value<int?> rssAfterLoadBytes;
   final Value<int?> rssPeakBytes;
+  final Value<String?> backend;
   final Value<String> device;
   final Value<int> rowid;
   const BenchmarkResultsCompanion({
@@ -4975,6 +5016,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
     this.generationMax = const Value.absent(),
     this.rssAfterLoadBytes = const Value.absent(),
     this.rssPeakBytes = const Value.absent(),
+    this.backend = const Value.absent(),
     this.device = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -4995,6 +5037,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
     this.generationMax = const Value.absent(),
     this.rssAfterLoadBytes = const Value.absent(),
     this.rssPeakBytes = const Value.absent(),
+    this.backend = const Value.absent(),
     required String device,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -5024,6 +5067,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
     Expression<double>? generationMax,
     Expression<int>? rssAfterLoadBytes,
     Expression<int>? rssPeakBytes,
+    Expression<String>? backend,
     Expression<String>? device,
     Expression<int>? rowid,
   }) {
@@ -5047,6 +5091,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
       if (generationMax != null) 'generation_max': generationMax,
       if (rssAfterLoadBytes != null) 'rss_after_load_bytes': rssAfterLoadBytes,
       if (rssPeakBytes != null) 'rss_peak_bytes': rssPeakBytes,
+      if (backend != null) 'backend': backend,
       if (device != null) 'device': device,
       if (rowid != null) 'rowid': rowid,
     });
@@ -5069,6 +5114,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
     Value<double?>? generationMax,
     Value<int?>? rssAfterLoadBytes,
     Value<int?>? rssPeakBytes,
+    Value<String?>? backend,
     Value<String>? device,
     Value<int>? rowid,
   }) {
@@ -5091,6 +5137,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
       generationMax: generationMax ?? this.generationMax,
       rssAfterLoadBytes: rssAfterLoadBytes ?? this.rssAfterLoadBytes,
       rssPeakBytes: rssPeakBytes ?? this.rssPeakBytes,
+      backend: backend ?? this.backend,
       device: device ?? this.device,
       rowid: rowid ?? this.rowid,
     );
@@ -5151,6 +5198,9 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
     if (rssPeakBytes.present) {
       map['rss_peak_bytes'] = Variable<int>(rssPeakBytes.value);
     }
+    if (backend.present) {
+      map['backend'] = Variable<String>(backend.value);
+    }
     if (device.present) {
       map['device'] = Variable<String>(device.value);
     }
@@ -5179,6 +5229,7 @@ class BenchmarkResultsCompanion extends UpdateCompanion<BenchmarkRecord> {
           ..write('generationMax: $generationMax, ')
           ..write('rssAfterLoadBytes: $rssAfterLoadBytes, ')
           ..write('rssPeakBytes: $rssPeakBytes, ')
+          ..write('backend: $backend, ')
           ..write('device: $device, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -8034,6 +8085,7 @@ typedef $$BenchmarkResultsTableCreateCompanionBuilder =
       Value<double?> generationMax,
       Value<int?> rssAfterLoadBytes,
       Value<int?> rssPeakBytes,
+      Value<String?> backend,
       required String device,
       Value<int> rowid,
     });
@@ -8055,6 +8107,7 @@ typedef $$BenchmarkResultsTableUpdateCompanionBuilder =
       Value<double?> generationMax,
       Value<int?> rssAfterLoadBytes,
       Value<int?> rssPeakBytes,
+      Value<String?> backend,
       Value<String> device,
       Value<int> rowid,
     });
@@ -8145,6 +8198,11 @@ class $$BenchmarkResultsTableFilterComposer
 
   ColumnFilters<int> get rssPeakBytes => $composableBuilder(
     column: $table.rssPeakBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get backend => $composableBuilder(
+    column: $table.backend,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8243,6 +8301,11 @@ class $$BenchmarkResultsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get backend => $composableBuilder(
+    column: $table.backend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get device => $composableBuilder(
     column: $table.device,
     builder: (column) => ColumnOrderings(column),
@@ -8326,6 +8389,9 @@ class $$BenchmarkResultsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get backend =>
+      $composableBuilder(column: $table.backend, builder: (column) => column);
+
   GeneratedColumn<String> get device =>
       $composableBuilder(column: $table.device, builder: (column) => column);
 }
@@ -8383,6 +8449,7 @@ class $$BenchmarkResultsTableTableManager
                 Value<double?> generationMax = const Value.absent(),
                 Value<int?> rssAfterLoadBytes = const Value.absent(),
                 Value<int?> rssPeakBytes = const Value.absent(),
+                Value<String?> backend = const Value.absent(),
                 Value<String> device = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BenchmarkResultsCompanion(
@@ -8402,6 +8469,7 @@ class $$BenchmarkResultsTableTableManager
                 generationMax: generationMax,
                 rssAfterLoadBytes: rssAfterLoadBytes,
                 rssPeakBytes: rssPeakBytes,
+                backend: backend,
                 device: device,
                 rowid: rowid,
               ),
@@ -8423,6 +8491,7 @@ class $$BenchmarkResultsTableTableManager
                 Value<double?> generationMax = const Value.absent(),
                 Value<int?> rssAfterLoadBytes = const Value.absent(),
                 Value<int?> rssPeakBytes = const Value.absent(),
+                Value<String?> backend = const Value.absent(),
                 required String device,
                 Value<int> rowid = const Value.absent(),
               }) => BenchmarkResultsCompanion.insert(
@@ -8442,6 +8511,7 @@ class $$BenchmarkResultsTableTableManager
                 generationMax: generationMax,
                 rssAfterLoadBytes: rssAfterLoadBytes,
                 rssPeakBytes: rssPeakBytes,
+                backend: backend,
                 device: device,
                 rowid: rowid,
               ),

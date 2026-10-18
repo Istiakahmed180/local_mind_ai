@@ -130,6 +130,7 @@ class BenchmarkController extends GetxController {
     rssAfterLoadBytes: Value(r.rssAfterLoadBytes),
     rssPeakBytes: Value(r.rssPeakBytes),
     device: deviceSummary(),
+    backend: Value(runtime.backend.value),
   );
 
   String deviceSummary() {
@@ -154,6 +155,7 @@ String benchmarkAsText(BenchmarkRecord b) {
     'LocalMind AI benchmark — ${b.modelName}',
     'Date: ${b.createdAt.toIso8601String()}',
     'Device: ${b.device}',
+    if (b.backend != null) 'Backend: ${b.backend}',
     'Context: ${b.contextSize}, ${b.runs} runs, '
         '${b.promptTokens} prompt tokens, ${b.completionTokens} generated',
     'Load: ${b.loadMs} ms',

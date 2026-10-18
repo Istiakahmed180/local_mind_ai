@@ -10,7 +10,7 @@ LocalMind AI runs AI models on your device. We do not operate servers for the ap
 
 - Conversations (your messages and AI responses), with timing statistics, and AI-written summaries of long conversations
 - Downloaded or imported model files
-- App settings (language, theme, generation settings, system prompt)
+- App settings (language, theme, generation settings, system prompt, and which models you allowed to use the GPU)
 - Content reports you create
 - Memories you save (only if you add them; used in chats only when you switch memory on)
 - Documents you import and their search index (including meaning-search vectors if you turn that on)

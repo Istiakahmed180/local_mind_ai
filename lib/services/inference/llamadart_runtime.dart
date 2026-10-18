@@ -6,6 +6,10 @@ import 'inference_runtime.dart';
 /// so the UI thread is not blocked.
 class LlamadartRuntime implements InferenceRuntime {
   LlamaEngine? _engine;
+  String? _backend;
+
+  @override
+  String? get backendName => _engine == null ? null : _backend;
 
   @override
   bool get isLoaded => _engine?.isReady ?? false;
@@ -18,13 +22,19 @@ class LlamadartRuntime implements InferenceRuntime {
         LlamaModel(ModelSource.path(path, format: ModelFormat.gguf)),
         params: ModelParams(
           contextSize: config.contextSize,
-          // CPU only until GPU paths are validated on real devices.
-          device: ComputeDevice.cpu,
-          gpuLayers: 0,
+          // GPU only when asked for (after the app's CPU/GPU output check);
+          // an explicit device throws rather than falling back silently.
+          device: config.gpu ? ComputeDevice.gpu : ComputeDevice.cpu,
+          gpuLayers: config.gpu ? ModelParams.maxGpuLayers : 0,
           numberOfThreads: config.threads,
           numberOfThreadsBatch: config.threads,
         ),
       );
+      try {
+        _backend = await _engine!.getBackendName();
+      } on Object {
+        _backend = null;
+      }
     } on LlamaException catch (e) {
       _engine = null;
       throw InferenceException(

@@ -360,6 +360,23 @@ class AppTranslations extends Translations {
 
     // Planned features
     'not_available_yet': 'Not available yet',
+    // GPU
+    'gpu_title': 'GPU acceleration (experimental)',
+    'gpu_explainer': 'Runs this model on the phone\'s graphics chip through Vulkan. On some phones it is faster; on others llama.cpp writes wrong text or is slower. It can only be switched on after a check: the same question is answered on the CPU and on the GPU (about a minute), and the GPU is used only if both answers match and the GPU is not slower.',
+    'gpu_use': 'Use the GPU for this model',
+    'gpu_off_hint': 'Off: runs on the CPU. Switching on runs the check first.',
+    'gpu_on_hint': 'On: passed the check on this phone. If loading on the GPU ever fails, the CPU is used.',
+    'gpu_running_on': 'Running on',
+    'gpu_fell_back': 'The GPU could not load this model, so it is running on the CPU. (@detail)',
+    'gpu_checking_cpu': 'Check 1 of 2: answering on the CPU…',
+    'gpu_checking_gpu': 'Check 2 of 2: answering on the GPU…',
+    'gpu_result_passed': 'Check passed: same answer as the CPU and faster. The GPU is now used for this model.',
+    'gpu_result_unsupported': 'This phone\'s GPU cannot run this model (no usable Vulkan GPU, an excluded driver, or the load failed). It stays on the CPU.',
+    'gpu_result_mismatch': 'The GPU gave a different answer from the CPU, which means it computes wrongly on this phone. It stays on the CPU.',
+    'gpu_result_slower': 'The GPU answered correctly but was not faster than the CPU, so it stays on the CPU.',
+    'gpu_speed_cpu': 'CPU speed',
+    'gpu_speed_gpu': 'GPU speed',
+    'gpu_backend': 'GPU backend',
     // Benchmark
     'benchmark_title': 'Benchmark',
     'benchmark_open': 'Run a benchmark',
@@ -832,6 +849,24 @@ class AppTranslations extends Translations {
     'open_source_licenses': 'ওপেন-সোর্স লাইসেন্স',
 
     'not_available_yet': 'এখনো উপলব্ধ নয়',
+    // GPU
+    'gpu_title': 'GPU অ্যাক্সেলারেশন (পরীক্ষামূলক)',
+    'gpu_explainer': 'Vulkan দিয়ে এই মডেলটি ফোনের গ্রাফিক্স চিপে চালায়। কিছু ফোনে এটি দ্রুততর; কিছু ফোনে llama.cpp ভুল লেখা দেয় বা ধীর হয়। তাই আগে একটি পরীক্ষা হয়: একই প্রশ্নের উত্তর CPU আর GPU-তে তৈরি করা হয় (প্রায় এক মিনিট), দুই উত্তর মিললে এবং GPU ধীর না হলে তবেই GPU ব্যবহার হয়।',
+    'gpu_use': 'এই মডেলের জন্য GPU ব্যবহার করুন',
+    'gpu_off_hint': 'বন্ধ: CPU-তে চলে। চালু করলে আগে পরীক্ষা চলবে।',
+    'gpu_on_hint': 'চালু: এই ফোনে পরীক্ষায় পাস করেছে। GPU-তে লোড কখনো ব্যর্থ হলে CPU ব্যবহার হবে।',
+    'gpu_running_on': 'চলছে',
+    'gpu_fell_back':
+        'GPU এই মডেল লোড করতে পারেনি, তাই এটি CPU-তে চলছে। (@detail)',
+    'gpu_checking_cpu': 'পরীক্ষা ১/২: CPU-তে উত্তর তৈরি হচ্ছে…',
+    'gpu_checking_gpu': 'পরীক্ষা ২/২: GPU-তে উত্তর তৈরি হচ্ছে…',
+    'gpu_result_passed': 'পরীক্ষায় পাস: উত্তর CPU-র সঙ্গে মিলেছে এবং দ্রুততর। এখন থেকে এই মডেলে GPU ব্যবহার হবে।',
+    'gpu_result_unsupported': 'এই ফোনের GPU এই মডেল চালাতে পারে না (ব্যবহারযোগ্য Vulkan GPU নেই, ড্রাইভার বাদ দেওয়া, বা লোড ব্যর্থ)। মডেলটি CPU-তেই চলবে।',
+    'gpu_result_mismatch': 'GPU-র উত্তর CPU-র থেকে আলাদা হয়েছে, অর্থাৎ এই ফোনে GPU ভুল হিসাব করে। মডেলটি CPU-তেই চলবে।',
+    'gpu_result_slower': 'GPU সঠিক উত্তর দিয়েছে কিন্তু CPU-র চেয়ে দ্রুত নয়, তাই মডেলটি CPU-তেই চলবে।',
+    'gpu_speed_cpu': 'CPU-র গতি',
+    'gpu_speed_gpu': 'GPU-র গতি',
+    'gpu_backend': 'GPU ব্যাকএন্ড',
     // Benchmark
     'benchmark_title': 'বেঞ্চমার্ক',
     'benchmark_open': 'বেঞ্চমার্ক চালান',

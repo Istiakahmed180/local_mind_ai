@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../app/routes.dart';
 import '../../app/theme.dart';
+import 'gpu_card.dart';
 import '../../core/format.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
@@ -53,6 +54,10 @@ class ModelDetailsView extends StatelessWidget {
                   label: Text('benchmark_open'.tr),
                 ),
               ),
+            if (inst != null && def?.isEmbedding != true) ...[
+              const SizedBox(height: AppSpacing.sm),
+              GpuCard(modelId: inst.id),
+            ],
             const SizedBox(height: AppSpacing.md),
             if (inst == null && def != null)
               _DownloadControls(def: def, state: dl, models: models)

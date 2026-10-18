@@ -11,7 +11,23 @@ class FakeRuntime implements InferenceRuntime {
     this.loadError,
     List<String>? responses,
     this.respond,
+    this.gpuError,
+    this.gpuRespond,
   }) : responses = responses ?? [];
+
+  /// Thrown by a GPU load (e.g. no Vulkan device).
+  final InferenceException? gpuError;
+
+  /// Reply while loaded on the GPU; defaults to the normal reply.
+  final String Function(List<ChatTurn> turns)? gpuRespond;
+
+  /// Load configs in order.
+  final configs = <RuntimeLoadConfig>[];
+  bool _onGpu = false;
+
+  @override
+  String? get backendName =>
+      _loaded == null ? null : (_onGpu ? 'Vulkan' : 'CPU');
 
   /// Computes the whole reply from the prompt; takes priority over
   /// [responses] and [tokens].
@@ -40,6 +56,9 @@ class FakeRuntime implements InferenceRuntime {
   @override
   Future<void> load(String path, RuntimeLoadConfig config) async {
     if (loadError != null) throw loadError!;
+    if (config.gpu && gpuError != null) throw gpuError!;
+    configs.add(config);
+    _onGpu = config.gpu;
     loads.add(path);
     _loaded = path;
   }
@@ -62,7 +81,9 @@ class FakeRuntime implements InferenceRuntime {
     generateCalls++;
     _cancel = false;
     var n = 0;
-    final out = respond != null
+    final out = _onGpu && gpuRespond != null
+        ? [gpuRespond!(turns)]
+        : respond != null
         ? [respond!(turns)]
         : responses.isNotEmpty
         ? [responses.removeAt(0)]

@@ -30,29 +30,35 @@ class ModelRuntimeService extends GetxService {
   final lastError = RxnString();
   final lastLoadDuration = Rxn<Duration>();
   int _loadedContext = 0;
+  bool _requestedGpu = false;
+
+  /// Backend the loaded model runs on, as the engine reports it.
+  final backend = RxnString();
+
+  /// Set when a GPU load failed and the model was loaded on the CPU instead.
+  final gpuFallback = RxnString();
   Future<void>? _pendingLoad;
 
   int get loadedContextSize => _loadedContext;
 
-  Future<void> ensureLoaded(String modelId) async {
+  /// Loads [modelId] unless it is already loaded the same way. [gpu]
+  /// overrides the per-model setting (used by the GPU check).
+  Future<void> ensureLoaded(String modelId, {bool? gpu}) async {
     final ctx = _settings.effectiveContextSize;
-    if (loadedModelId.value == modelId &&
+    bool same() =>
+        loadedModelId.value == modelId &&
         _runtime.isLoaded &&
-        _loadedContext == ctx) {
-      return;
-    }
+        _loadedContext == ctx &&
+        _requestedGpu == (gpu ?? _settings.usesGpu(modelId));
+    if (same()) return;
     while (_pendingLoad != null) {
       await _pendingLoad;
     }
-    if (loadedModelId.value == modelId &&
-        _runtime.isLoaded &&
-        _loadedContext == ctx) {
-      return;
-    }
+    if (same()) return;
     final completer = Completer<void>();
     _pendingLoad = completer.future;
     try {
-      await _load(modelId, ctx);
+      await _load(modelId, ctx, gpu ?? _settings.usesGpu(modelId), gpu != null);
       completer.complete();
     } catch (e) {
       completer.complete();
@@ -62,7 +68,12 @@ class ModelRuntimeService extends GetxService {
     }
   }
 
-  Future<void> _load(String modelId, int contextSize) async {
+  Future<void> _load(
+    String modelId,
+    int contextSize,
+    bool gpu,
+    bool strict,
+  ) async {
     final model = _models.installedById(modelId);
     if (model == null) throw const LoadFailure('error_model_not_installed');
     final block = await _models.checkLoadable(model);
@@ -73,15 +84,30 @@ class ModelRuntimeService extends GetxService {
     lastError.value = null;
     await unload();
     status.value = RuntimeStatus.loading;
+    gpuFallback.value = null;
     final watch = Stopwatch()..start();
     try {
-      await _runtime.load(
-        model.filePath,
-        RuntimeLoadConfig(contextSize: contextSize),
-      );
+      try {
+        await _runtime.load(
+          model.filePath,
+          RuntimeLoadConfig(contextSize: contextSize, gpu: gpu),
+        );
+      } on InferenceException catch (e) {
+        // GPU support is experimental: any GPU failure falls back to the CPU
+        // unless the caller asked for the GPU specifically (the GPU check).
+        if (!gpu || strict) rethrow;
+        gpuFallback.value = e.message;
+        await _runtime.unload();
+        await _runtime.load(
+          model.filePath,
+          RuntimeLoadConfig(contextSize: contextSize),
+        );
+      }
       watch.stop();
       loadedModelId.value = modelId;
       _loadedContext = contextSize;
+      _requestedGpu = gpu;
+      backend.value = _runtime.backendName;
       lastLoadDuration.value = watch.elapsed;
       status.value = RuntimeStatus.ready;
       await _repo.recordLoad(modelId, loadMs: watch.elapsedMilliseconds);
@@ -102,6 +128,7 @@ class ModelRuntimeService extends GetxService {
     await _runtime.unload();
     loadedModelId.value = null;
     _loadedContext = 0;
+    backend.value = null;
     if (status.value != RuntimeStatus.error) status.value = RuntimeStatus.idle;
   }
 

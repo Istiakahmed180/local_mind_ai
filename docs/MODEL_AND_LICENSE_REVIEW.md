@@ -14,7 +14,7 @@ Reviewed 2026-10-17. Sizes and SHA-256 values are taken from the Hugging Face AP
 | PDFium native library | `chromium/7811` build from `bblanchon/pdfium-binaries` | BSD-3-Clause (© 2014 The PDFium Authors); the binaries project is MIT | Downloaded by the `pdfium_dart` build hook **at build time** and bundled as `libpdfium.so`; no download at runtime. Notice added to About → Licenses. PDFium statically includes third-party code (FreeType, libjpeg-turbo, OpenJPEG, lcms2, zlib, Abseil, …); the full notice set from the binary release must be collected before Play release |
 | pdfrx transitive deps | rxdart 0.28, synchronized 3.4, image 4.8, archive 4.0, vector_math 2.x, url_launcher 6.3 | Apache-2.0 / MIT / MIT / MIT / BSD-3 / BSD-3 | Dart package licenses appear in About → Licenses automatically |
 
-LiteRT-LM and stable-diffusion runtimes are **excluded** (`llamadart_native_runtimes: [llama_cpp]`), and on Android only the CPU backend is bundled (`llamadart_native_backends.platforms.android: [cpu]`); the Vulkan module is left out until it is tested on real GPUs.
+LiteRT-LM and stable-diffusion runtimes are **excluded** (`llamadart_native_runtimes: [llama_cpp]`), and on Android the CPU and Vulkan backends are bundled (`llamadart_native_backends.platforms.android: [cpu, vulkan]`, added 2026-10-18; `libggml-vulkan.so` is part of llama.cpp/ggml, MIT, already covered by the llama.cpp notice). Vulkan is used only for models that pass the in-app CPU/GPU check.
 
 ## Model catalog
 

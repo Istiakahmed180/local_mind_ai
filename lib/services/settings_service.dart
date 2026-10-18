@@ -24,6 +24,7 @@ class SettingsService extends GetxService {
   static const _kVoice = 'voiceEnabled';
   static const _kSummarize = 'summarizeLongChats';
   static const _kEmbeddingModel = 'embeddingModelId';
+  static const _kGpuModels = 'gpuModelIds';
 
   static const defaultSystemPromptEn =
       'You are a helpful assistant running entirely on the user\'s phone. '
@@ -56,6 +57,14 @@ class SettingsService extends GetxService {
   /// On by default: long chats are summarized instead of silently dropping
   /// the oldest messages.
   late final summarizeLongChats = (_prefs.getBool(_kSummarize) ?? true).obs;
+
+  /// Models that passed the GPU check on this phone and run on the GPU.
+  /// Empty by default: everything runs on the CPU.
+  late final gpuModelIds = (_prefs.getStringList(_kGpuModels) ?? <String>[])
+      .toSet()
+      .obs;
+
+  bool usesGpu(String modelId) => gpuModelIds.contains(modelId);
 
   /// Model used for meaning-based document search; null means keyword only.
   late final embeddingModelId = RxnString(_prefs.getString(_kEmbeddingModel));
@@ -157,6 +166,11 @@ class SettingsService extends GetxService {
         : await _prefs.setString(_kEmbeddingModel, id);
   }
 
+  Future<void> setGpu(String modelId, bool on) async {
+    on ? gpuModelIds.add(modelId) : gpuModelIds.remove(modelId);
+    await _prefs.setStringList(_kGpuModels, gpuModelIds.toList()..sort());
+  }
+
   Future<void> clear() async {
     await _prefs.clear();
     onboarded.value = false;
@@ -166,5 +180,6 @@ class SettingsService extends GetxService {
     voiceEnabled.value = false;
     summarizeLongChats.value = true;
     embeddingModelId.value = null;
+    gpuModelIds.clear();
   }
 }

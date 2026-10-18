@@ -238,7 +238,10 @@ class _ResultCard extends StatelessWidget {
                 ),
               ],
             ),
-            Text('$date · ${b.device}', style: theme.textTheme.bodySmall),
+            Text(
+              [date, b.device, ?b.backend].join(' · '),
+              style: theme.textTheme.bodySmall,
+            ),
             const SizedBox(height: AppSpacing.sm),
             InfoRow(
               'benchmark_generation'.tr,
