@@ -11,7 +11,6 @@ import '../../services/documents/ocr_service.dart';
 void showOcrSheet(BuildContext context) {
   showModalBottomSheet<void>(
     context: context,
-    showDragHandle: true,
     isScrollControlled: true,
     builder: (_) => const SafeArea(child: _OcrSheet()),
   );
@@ -23,26 +22,33 @@ class _OcrSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ocr = Get.find<OcrService>();
-    final theme = Theme.of(context);
     return Obx(() {
       final states = Map.of(ocr.states);
       return ListView(
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
+          AppSpacing.page,
           0,
-          AppSpacing.md,
+          AppSpacing.page,
           AppSpacing.lg,
         ),
         children: [
-          Text('ocr_title'.tr, style: theme.textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.xs),
-          Text('ocr_explainer'.tr, style: theme.textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.md),
+          SheetHeader(
+            icon: Icons.document_scanner_outlined,
+            title: 'ocr_title'.tr,
+            body: 'ocr_explainer'.tr,
+          ),
           for (final l in ocr.languages)
             Card(
               margin: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: ListTile(
+                leading: IconBadge(
+                  states[l.id] == OcrLangState.installed
+                      ? Icons.check_rounded
+                      : Icons.translate_rounded,
+                  size: 36,
+                  iconSize: 18,
+                ),
                 title: Text('ocr_lang_${l.id}'.tr),
                 subtitle: Text(
                   '${formatBytes(l.sizeBytes)} · ${l.license}'
@@ -65,8 +71,8 @@ class _OcrSheet extends StatelessWidget {
                 },
               ),
             ),
-          const SizedBox(height: AppSpacing.xs),
-          Text('ocr_limits'.tr, style: theme.textTheme.bodySmall),
+          const SizedBox(height: AppSpacing.sm),
+          NoticeText('ocr_limits'.tr, tone: PillTone.neutral),
         ],
       );
     });
@@ -114,8 +120,10 @@ class OcrCard extends StatelessWidget {
     return Obx(() {
       ocr.states.length;
       final installed = ocr.installedIds;
+      final theme = Theme.of(context);
       return SectionCard(
         title: 'ocr_title'.tr,
+        icon: Icons.document_scanner_outlined,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -127,8 +135,11 @@ class OcrCard extends StatelessWidget {
                           .map((id) => 'ocr_lang_$id'.tr)
                           .join(', '),
                     }),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.ms),
             OutlinedButton(
               onPressed: () => showOcrSheet(context),
               child: Text(
@@ -155,10 +166,12 @@ class OcrProgressBar extends StatelessWidget {
       final (done, total) = progress;
       return Container(
         width: double.infinity,
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
+        color: Theme.of(context).colorScheme.primaryContainer,
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.page,
+          AppSpacing.sm,
+          AppSpacing.sm,
+          AppSpacing.sm,
         ),
         child: Row(
           children: [

@@ -27,11 +27,12 @@ Direction chosen with the owner (2026-10-18): **calm and premium** — a privacy
 - `IconBadge` — tinted rounded square around an icon.
 - `SectionCard` (optional title + icon), `SectionLabel` (group heading), `InfoRow` (label/value).
 - `StatusPill` (neutral / primary / success / warning / error) and `NoticeText` (inline notice with icon).
-- `MessageState` — empty/error states.
+- `MessageState` — empty/error states (safe inside lists too).
+- `SheetHeader`, `StatRow`, `ComposerBar` / `composerDecoration`, `dangerButtonStyle`.
 
 ## Screens redesigned
 
-Onboarding (concentric hero, pill page dots, full-width CTA), Home (brand header, connectivity pill, active-model gradient card with status pill, gradient "New chat" tile, equal-height feature tiles, recent chats with relative times), Chats (search + card rows), Model library (device stats card, model cards with status pills; active model outlined in primary), Model details (hero with key numbers and pills, action first, then measurements/benchmark/GPU, then full info), Chat (teal user bubbles with a tail corner, assistant replies in hairline cards with the logo avatar, animated typing dots, starter prompts on an empty chat, pill composer), Settings (grouped cards, compact sliders with value pills), Agent (warning notice, per-tool icons, "asks first" pills). Other screens (Documents, Memory, Benchmark, About, Privacy, Reports, sheets and dialogs) take the new look through the theme and shared widgets but were not restyled one by one.
+Onboarding (concentric hero, pill page dots, full-width CTA), Home (brand header, connectivity pill, active-model gradient card with status pill, gradient "New chat" tile, equal-height feature tiles, recent chats with relative times), Chats (search + card rows), Model library (device stats card, model cards with status pills; active model outlined in primary), Model details (hero with key numbers and pills, action first, then measurements/benchmark/GPU, then full info), Chat (teal user bubbles with a tail corner, assistant replies in hairline cards with the logo avatar, animated typing dots, starter prompts on an empty chat, pill composer), Settings (grouped cards, compact sliders with value pills), Agent (warning notice, per-tool icons, "asks first" pills). Second pass (same day): Documents (stats card, file cards, answer card with numbered source chips that open the passage, shared composer), meaning-search and OCR cards and their sheets (`SheetHeader`), Memory (switch card with explainer, memory cards with dates), Benchmark (workload pills, tinted progress panel, result card led by a large tok/s number), About (logo hero, licence list with pills), Privacy (headline banner, icon sections), Reports (reason pills, send action), agent run view (step badges, code blocks, outlined answer/failure cards), approval dialog, chat model picker and message menu. Destructive confirm buttons are red (`dangerButtonStyle`). Chat, documents and agent share one input bar (`core/widgets/composer.dart`).
 
 ## App icon and splash
 
@@ -43,5 +44,7 @@ Onboarding (concentric hero, pill page dots, full-width CTA), Home (brand header
 ## Verified
 
 On the `localmind_test` emulator (1080×2400): onboarding, home, chats, models, model details, chat (with a real SmolLM2 reply), agent, documents and settings in light; home and chat in dark; home and settings in Bengali; splash and launcher (themed icon). Screenshots: `docs/design/screens/` (`00_before_home.png` is the old design). `test/core/brand_test.dart` renders the logo and shared widgets in light and dark at 360 px without layout errors; `flutter test` → 235 passed.
+
+Second pass checked on the emulator in Bengali: Documents (empty, OCR sheet, with a file, an answer), Benchmark (running and a real result), Memory, Privacy, Reports, About. Not checked by hand: the agent run view, the approval dialog and the meaning-search sheet (covered only by `flutter analyze` and existing tests).
 
 Not verified: real phones, very small (≤ 320 dp) or large screens/tablets, font scaling above 1.3×, TalkBack with the new layouts, and the screens listed above as theme-only.

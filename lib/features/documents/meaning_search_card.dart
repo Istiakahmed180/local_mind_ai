@@ -24,7 +24,14 @@ class MeaningSearchCard extends StatelessWidget {
       final def = e.activeModel;
       final children = <Widget>[];
       if (def == null) {
-        children.add(Text('doc_meaning_off'.tr));
+        children.add(
+          Text(
+            'doc_meaning_off'.tr,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        );
       } else {
         final done = e.embedded.value;
         final total = e.total.value;
@@ -51,17 +58,22 @@ class MeaningSearchCard extends StatelessWidget {
         }
         if (e.error.value != null) {
           children.add(
-            Text(
-              'doc_meaning_error'.tr,
-              style: TextStyle(color: theme.colorScheme.error),
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: NoticeText(
+                'doc_meaning_error'.tr,
+                tone: PillTone.error,
+                icon: Icons.error_outline_rounded,
+              ),
             ),
           );
         }
       }
-      children.add(const SizedBox(height: AppSpacing.sm));
+      children.add(const SizedBox(height: AppSpacing.ms));
       children.add(
         Wrap(
           spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
           children: [
             if (def != null &&
                 !e.indexing.value &&
@@ -83,6 +95,7 @@ class MeaningSearchCard extends StatelessWidget {
       );
       return SectionCard(
         title: 'doc_meaning_title'.tr,
+        icon: Icons.hub_outlined,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: children,
@@ -94,7 +107,6 @@ class MeaningSearchCard extends StatelessWidget {
   void _chooseModel(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
-      showDragHandle: true,
       isScrollControlled: true,
       builder: (_) => const SafeArea(child: _ModelSheet()),
     );
@@ -109,7 +121,6 @@ class _ModelSheet extends StatelessWidget {
     final models = Get.find<ModelService>();
     final e = Get.find<EmbeddingService>();
     final settings = Get.find<SettingsService>();
-    final theme = Theme.of(context);
     return Obx(() {
       final defs = models.catalog.value.embeddingModels;
       final selected = settings.embeddingModelId.value;
@@ -117,16 +128,17 @@ class _ModelSheet extends StatelessWidget {
       return ListView(
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
+          AppSpacing.page,
           0,
-          AppSpacing.md,
+          AppSpacing.page,
           AppSpacing.lg,
         ),
         children: [
-          Text('doc_meaning_title'.tr, style: theme.textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.xs),
-          Text('doc_meaning_explainer'.tr, style: theme.textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.md),
+          SheetHeader(
+            icon: Icons.hub_outlined,
+            title: 'doc_meaning_title'.tr,
+            body: 'doc_meaning_explainer'.tr,
+          ),
           for (final d in defs)
             _ModelTile(
               def: d,
@@ -206,7 +218,13 @@ class _ModelTile extends StatelessWidget {
         (d.status == DownloadStatus.downloading ||
             d.status == DownloadStatus.verifying);
     return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      margin: const EdgeInsets.only(bottom: AppSpacing.ms),
+      shape: selected
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
+            )
+          : null,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -215,21 +233,21 @@ class _ModelTile extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(def.name, style: theme.textTheme.titleSmall),
+                  child: Text(def.name, style: theme.textTheme.titleMedium),
                 ),
                 if (selected)
-                  Chip(
-                    label: Text('active'.tr),
-                    visualDensity: VisualDensity.compact,
-                  ),
+                  StatusPill('active'.tr, tone: PillTone.primary)
+                else if (installed)
+                  StatusPill('installed'.tr),
               ],
             ),
+            const SizedBox(height: 2),
             Text(
               '${formatBytes(def.sizeBytes)} · ${def.license} · ${'bengali_${def.bengali.name}'.tr}',
               style: theme.textTheme.bodySmall,
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(def.notes, style: theme.textTheme.bodySmall),
+            const SizedBox(height: AppSpacing.sm),
+            Text(def.notes, style: theme.textTheme.bodyMedium),
             if (busy) ...[
               const SizedBox(height: AppSpacing.sm),
               LinearProgressIndicator(

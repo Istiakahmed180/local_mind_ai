@@ -29,36 +29,37 @@ class BenchmarkView extends GetView<BenchmarkController> {
                     onPressed: () => _confirmDeleteAll(context),
                   ),
           ),
+          const SizedBox(width: AppSpacing.xs),
         ],
       ),
       body: Obx(() {
         final chat = c.models.installedChat;
         if (chat.isEmpty && c.history.isEmpty) {
           return MessageState(
-            icon: Icons.speed,
+            icon: Icons.speed_rounded,
             title: 'benchmark_no_models'.tr,
             body: 'benchmark_no_models_body'.tr,
           );
         }
         return ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.page,
+            AppSpacing.xs,
+            AppSpacing.page,
+            AppSpacing.xl + MediaQuery.paddingOf(context).bottom,
+          ),
           children: [
             if (chat.isNotEmpty) _RunCard(c),
-            const SizedBox(height: AppSpacing.sm),
             if (c.history.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                child: Text(
-                  'benchmark_results'.tr,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              for (final b in c.history)
+              SectionLabel('benchmark_results'.tr),
+              for (final b in c.history) ...[
                 _ResultCard(
                   b,
                   latest: b.id == c.latestId.value,
                   onDelete: c.running.value ? null : () => c.delete(b.id),
                 ),
+                const SizedBox(height: AppSpacing.ms),
+              ],
             ],
           ],
         );
@@ -78,6 +79,7 @@ class BenchmarkView extends GetView<BenchmarkController> {
             child: Text('cancel'.tr),
           ),
           FilledButton(
+            style: dangerButtonStyle(context),
             onPressed: () => Navigator.pop(context, true),
             child: Text('delete'.tr),
           ),
@@ -101,71 +103,126 @@ class _RunCard extends StatelessWidget {
     final chat = c.models.installedChat;
     final running = c.running.value;
     final cfg = BenchmarkController.config;
-    return SectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'benchmark_explainer'.trParams({
-              'runs': '${cfg.runs}',
-              'tokens': '${cfg.maxTokens}',
-            }),
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          DropdownButtonFormField<String>(
-            initialValue: c.modelId.value,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: 'benchmark_model'.tr),
-            items: [
-              for (final m in chat)
-                DropdownMenuItem(
-                  value: m.id,
+    final colors = AppColors.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md + 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const IconBadge(Icons.speed_rounded),
+                const SizedBox(width: AppSpacing.ms),
+                Expanded(
                   child: Text(
-                    c.models.displayName(m.id),
-                    overflow: TextOverflow.ellipsis,
+                    'benchmark_open'.tr,
+                    style: theme.textTheme.titleMedium,
                   ),
                 ),
-            ],
-            onChanged: running ? null : (v) => c.modelId.value = v,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'benchmark_context'.trParams({
-              'n': '${c.settings.effectiveContextSize}',
-            }),
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          if (running) ...[
-            Text(_phaseText(c.phase.value, c.run.value, cfg.runs)),
-            const SizedBox(height: AppSpacing.sm),
-            LinearProgressIndicator(value: _progress(c, cfg)),
-            const SizedBox(height: AppSpacing.sm),
-            Text('benchmark_keep_open'.tr, style: theme.textTheme.bodySmall),
-            const SizedBox(height: AppSpacing.sm),
-            OutlinedButton(onPressed: c.cancel, child: Text('cancel'.tr)),
-          ] else
-            FilledButton.icon(
-              onPressed: c.modelId.value == null ? null : c.start,
-              icon: const Icon(Icons.speed),
-              label: Text('benchmark_run'.tr),
+              ],
             ),
-          if (c.cancelled.value) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text('benchmark_cancelled'.tr),
-          ],
-          if (c.error.value != null) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.ms),
             Text(
-              [
-                c.error.value!.tr,
-                if (c.errorDetail.value != null) c.errorDetail.value!,
-              ].join('\n'),
-              style: TextStyle(color: theme.colorScheme.error),
+              'benchmark_explainer'.trParams({
+                'runs': '${cfg.runs}',
+                'tokens': '${cfg.maxTokens}',
+              }),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
+            const SizedBox(height: AppSpacing.ms),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              children: [
+                StatusPill(
+                  'benchmark_pill_runs'.trParams({'n': '${cfg.runs}'}),
+                  icon: Icons.repeat_rounded,
+                ),
+                StatusPill(
+                  'benchmark_pill_tokens'.trParams({'n': '${cfg.maxTokens}'}),
+                  icon: Icons.notes_rounded,
+                ),
+                StatusPill(
+                  'benchmark_context'.trParams({
+                    'n': '${c.settings.effectiveContextSize}',
+                  }),
+                  icon: Icons.memory_rounded,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            DropdownButtonFormField<String>(
+              initialValue: c.modelId.value,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: 'benchmark_model'.tr),
+              items: [
+                for (final m in chat)
+                  DropdownMenuItem(
+                    value: m.id,
+                    child: Text(
+                      c.models.displayName(m.id),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: running ? null : (v) => c.modelId.value = v,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            if (running) ...[
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.ms),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer.withValues(
+                    alpha: 0.5,
+                  ),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: colors.hairline),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      _phaseText(c.phase.value, c.run.value, cfg.runs),
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    LinearProgressIndicator(value: _progress(c, cfg)),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      'benchmark_keep_open'.tr,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.ms),
+              OutlinedButton(onPressed: c.cancel, child: Text('cancel'.tr)),
+            ] else
+              FilledButton.icon(
+                onPressed: c.modelId.value == null ? null : c.start,
+                icon: const Icon(Icons.play_arrow_rounded),
+                label: Text('benchmark_run'.tr),
+              ),
+            if (c.cancelled.value) ...[
+              const SizedBox(height: AppSpacing.ms),
+              NoticeText('benchmark_cancelled'.tr, tone: PillTone.neutral),
+            ],
+            if (c.error.value != null) ...[
+              const SizedBox(height: AppSpacing.ms),
+              NoticeText(
+                [
+                  c.error.value!.tr,
+                  if (c.errorDetail.value != null) c.errorDetail.value!,
+                ].join('\n'),
+                tone: PillTone.error,
+                icon: Icons.error_outline_rounded,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -205,21 +262,38 @@ class _ResultCard extends StatelessWidget {
     String tps(double? v) =>
         v == null ? '—' : '${v.toStringAsFixed(1)} ${'tok_per_s'.tr}';
     final date = DateFormat.yMMMd().add_Hm().format(b.createdAt);
+    final gen = b.generationTokensPerSecond;
     return Card(
-      color: latest ? theme.colorScheme.primaryContainer : null,
+      shape: latest
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
+            )
+          : null,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md + 2,
+          AppSpacing.sm,
+          AppSpacing.xs,
+          AppSpacing.md + 2,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Expanded(
-                  child: Text(b.modelName, style: theme.textTheme.titleSmall),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(b.modelName, style: theme.textTheme.titleMedium),
+                      Text(date, style: theme.textTheme.bodySmall),
+                    ],
+                  ),
                 ),
                 IconButton(
                   tooltip: 'copy'.tr,
-                  icon: const Icon(Icons.copy, size: 18),
+                  icon: const Icon(Icons.copy_rounded, size: 18),
                   onPressed: () async {
                     await Clipboard.setData(
                       ClipboardData(text: benchmarkAsText(b)),
@@ -233,44 +307,89 @@ class _ResultCard extends StatelessWidget {
                 ),
                 IconButton(
                   tooltip: 'delete'.tr,
-                  icon: const Icon(Icons.delete_outline, size: 18),
+                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
                   onPressed: onDelete,
                 ),
               ],
             ),
-            Text(
-              [date, b.device, ?b.backend].join(' · '),
-              style: theme.textTheme.bodySmall,
-            ),
             const SizedBox(height: AppSpacing.sm),
-            InfoRow(
-              'benchmark_generation'.tr,
-              b.generationMin == null
-                  ? tps(b.generationTokensPerSecond)
-                  : '${tps(b.generationTokensPerSecond)}\n'
-                        '(${b.generationMin!.toStringAsFixed(1)}–'
-                        '${b.generationMax!.toStringAsFixed(1)})',
-            ),
-            InfoRow('benchmark_prompt'.tr, tps(b.promptTokensPerSecond)),
-            if (b.timeToFirstTokenMs != null)
-              InfoRow(
-                'first_token'.tr,
-                formatDuration(Duration(milliseconds: b.timeToFirstTokenMs!)),
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        gen == null ? '—' : gen.toStringAsFixed(1),
+                        style: theme.textTheme.displaySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Text('tok_per_s'.tr, style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  Text(
+                    b.generationMin == null
+                        ? 'benchmark_generation'.tr
+                        : '${'benchmark_generation'.tr} · '
+                              '${b.generationMin!.toStringAsFixed(1)}–'
+                              '${b.generationMax!.toStringAsFixed(1)}',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  StatRow([
+                    (tps(b.promptTokensPerSecond), 'benchmark_prompt'.tr),
+                    (
+                      b.timeToFirstTokenMs == null
+                          ? '—'
+                          : formatDuration(
+                              Duration(milliseconds: b.timeToFirstTokenMs!),
+                            ),
+                      'first_token'.tr,
+                    ),
+                  ]),
+                  const SizedBox(height: AppSpacing.ms),
+                  StatRow([
+                    (
+                      formatDuration(Duration(milliseconds: b.loadMs)),
+                      'load_time'.tr,
+                    ),
+                    (
+                      b.rssPeakBytes == null
+                          ? '—'
+                          : formatBytes(b.rssPeakBytes!),
+                      'benchmark_memory'.tr,
+                    ),
+                  ]),
+                  const SizedBox(height: AppSpacing.ms),
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      if (b.backend != null)
+                        StatusPill(
+                          b.backend!,
+                          icon: Icons.developer_board_rounded,
+                          tone: PillTone.primary,
+                        ),
+                      StatusPill(
+                        'benchmark_workload_value'.trParams({
+                          'ctx': '${b.contextSize}',
+                          'runs': '${b.runs}',
+                          'prompt': '${b.promptTokens}',
+                          'gen': '${b.completionTokens}',
+                        }),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(b.device, style: theme.textTheme.bodySmall),
+                ],
               ),
-            InfoRow(
-              'load_time'.tr,
-              formatDuration(Duration(milliseconds: b.loadMs)),
-            ),
-            if (b.rssPeakBytes != null)
-              InfoRow('benchmark_memory'.tr, formatBytes(b.rssPeakBytes!)),
-            InfoRow(
-              'benchmark_workload'.tr,
-              'benchmark_workload_value'.trParams({
-                'ctx': '${b.contextSize}',
-                'runs': '${b.runs}',
-                'prompt': '${b.promptTokens}',
-                'gen': '${b.completionTokens}',
-              }),
             ),
           ],
         ),

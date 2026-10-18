@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../app/theme.dart';
+import '../../core/format.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories/memory_repository.dart';
@@ -26,67 +27,145 @@ class MemoryView extends StatelessWidget {
             icon: const Icon(Icons.delete_sweep_outlined),
             onPressed: () => _clearAll(context, repo),
           ),
+          const SizedBox(width: AppSpacing.xs),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => editMemoryDialog(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text('memory_add'.tr),
       ),
       body: StreamBuilder<List<MemoryEntry>>(
         stream: repo.watchAll(),
         builder: (context, snap) {
           final items = snap.data ?? const [];
+          final on = items.where((m) => m.enabled).length;
           return ListView(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.md,
-              AppSpacing.md,
+              AppSpacing.page,
+              AppSpacing.xs,
+              AppSpacing.page,
               96,
             ),
             children: [
               Obx(
                 () => Card(
-                  child: SwitchListTile(
-                    title: Text('memory_use'.tr),
-                    subtitle: Text('memory_use_hint'.tr),
-                    value: settings.useMemory.value,
-                    onChanged: settings.setUseMemory,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md + 2),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const IconBadge(Icons.psychology_alt_outlined),
+                            const SizedBox(width: AppSpacing.ms),
+                            Expanded(
+                              child: Text(
+                                'memory_use'.tr,
+                                style: theme.textTheme.titleMedium,
+                              ),
+                            ),
+                            Switch(
+                              value: settings.useMemory.value,
+                              onChanged: settings.setUseMemory,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          'memory_use_hint'.tr,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.ms),
+                        NoticeText(
+                          'memory_explainer'.tr,
+                          tone: PillTone.neutral,
+                          icon: Icons.lock_outline_rounded,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'memory_explainer'.tr,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+              SectionLabel(
+                'memory_saved'.trParams({
+                  'on': '$on',
+                  'total': '${items.length}',
+                }),
               ),
-              const SizedBox(height: AppSpacing.md),
               if (items.isEmpty)
-                MessageState(
-                  icon: Icons.psychology_alt_outlined,
-                  title: 'memory_empty_title'.tr,
-                  body: 'memory_empty_body'.tr,
+                Card(
+                  child: Padding(
+                    padding: EdgeInsets.zero,
+                    child: MessageState(
+                      icon: Icons.bookmark_add_outlined,
+                      title: 'memory_empty_title'.tr,
+                      body: 'memory_empty_body'.tr,
+                    ),
+                  ),
                 )
               else
-                for (final m in items)
+                for (final m in items) ...[
                   Card(
-                    child: ListTile(
-                      leading: Checkbox(
-                        value: m.enabled,
-                        onChanged: (v) => repo.setEnabled(m.id, v ?? false),
-                      ),
-                      title: Text(m.content),
-                      subtitle: m.enabled ? null : Text('memory_disabled'.tr),
+                    child: InkWell(
                       onTap: () => editMemoryDialog(context, entry: m),
-                      trailing: IconButton(
-                        tooltip: 'delete'.tr,
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => repo.delete(m.id),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.xs,
+                          AppSpacing.sm,
+                          AppSpacing.xs,
+                          AppSpacing.sm,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Checkbox(
+                              value: m.enabled,
+                              onChanged: (v) =>
+                                  repo.setEnabled(m.id, v ?? false),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      m.content,
+                                      style: theme.textTheme.bodyLarge
+                                          ?.copyWith(
+                                            color: m.enabled
+                                                ? null
+                                                : theme
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                          ),
+                                    ),
+                                    const SizedBox(height: AppSpacing.xs),
+                                    Text(
+                                      m.enabled
+                                          ? formatWhen(m.updatedAt)
+                                          : '${formatWhen(m.updatedAt)} · ${'memory_disabled'.tr}',
+                                      style: theme.textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'delete'.tr,
+                              icon: const Icon(Icons.delete_outline_rounded),
+                              onPressed: () => repo.delete(m.id),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
             ],
           );
         },
@@ -106,6 +185,7 @@ class MemoryView extends StatelessWidget {
             child: Text('cancel'.tr),
           ),
           FilledButton(
+            style: dangerButtonStyle(context),
             onPressed: () => Navigator.pop(context, true),
             child: Text('delete'.tr),
           ),

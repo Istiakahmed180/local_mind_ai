@@ -275,3 +275,5 @@ New design system ("calm and premium", chosen by the owner) with a hand-picked t
 - Release AAB 119.3 → 119.8 MB (icon/splash PNGs).
 
 Tests: `flutter test` → 235 passed; `flutter analyze` → no issues. Not committed.
+- **Second pass (same day):** Documents, meaning-search/OCR sheets, Memory, Benchmark, About, Privacy, Reports, agent run view, approval dialog and chat sheets restyled; shared composer; red destructive buttons; `MessageState` made safe inside scrolling lists. Checked on the emulator in Bengali (see DESIGN_SYSTEM.md). `flutter test` → 235 passed, analyze clean.
+- **Found while testing (not fixed, not design):** document Q&A answered "not enough evidence" for "How many days to return a product?" although the file says "returned within 30 days" — the keyword evidence rule does not match word forms (return/returned, product/products). Needs a stemming or prefix-match fix plus a test.

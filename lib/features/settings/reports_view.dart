@@ -38,28 +38,68 @@ class ReportsView extends StatelessWidget {
               body: explainer,
             );
           }
+          final theme = Theme.of(context);
           return ListView(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.page,
+              AppSpacing.xs,
+              AppSpacing.page,
+              AppSpacing.xl + MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
-              Text(explainer),
-              const SizedBox(height: AppSpacing.md),
-              for (final r in items)
+              NoticeText(
+                explainer,
+                tone: PillTone.neutral,
+                icon: Icons.lock_outline_rounded,
+              ),
+              SectionLabel('reports_saved'.trParams({'n': '${items.length}'})),
+              for (final r in items) ...[
                 Card(
-                  child: ListTile(
-                    title: Text(r.reason.tr),
-                    subtitle: Text(
-                      '${fmt.format(r.createdAt)}\n${r.excerpt}',
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md + 2,
+                      AppSpacing.md,
+                      AppSpacing.md + 2,
+                      AppSpacing.sm,
                     ),
-                    isThreeLine: true,
-                    trailing: IconButton(
-                      tooltip: 'report_send'.tr,
-                      icon: const Icon(Icons.outgoing_mail),
-                      onPressed: () => showReportSendDialog(context, r),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            StatusPill(
+                              r.reason.tr,
+                              icon: Icons.flag_outlined,
+                              tone: PillTone.warning,
+                            ),
+                            const Spacer(),
+                            Text(
+                              fmt.format(r.createdAt),
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.ms),
+                        Text(
+                          r.excerpt,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: TextButton.icon(
+                            onPressed: () => showReportSendDialog(context, r),
+                            icon: const Icon(Icons.outgoing_mail, size: 18),
+                            label: Text('report_send'.tr),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                const SizedBox(height: AppSpacing.ms),
+              ],
             ],
           );
         },
@@ -88,8 +128,11 @@ Future<void> showReportSendDialog(BuildContext context, ContentReport r) async {
             const SizedBox(height: AppSpacing.sm),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              padding: const EdgeInsets.all(AppSpacing.ms),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
               child: SelectableText(
                 body,
                 style: Theme.of(context).textTheme.bodySmall,

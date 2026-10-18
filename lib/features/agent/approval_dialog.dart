@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../app/theme.dart';
+import '../../core/widgets/state_views.dart';
 import '../../services/agent/agent_tool.dart';
 
 /// Asks the user before a tool that touches files runs. Dismissing the
@@ -32,7 +33,13 @@ class _ApprovalDialog extends StatelessWidget {
     };
     final content = call.args['content'];
     return AlertDialog(
-      icon: const Icon(Icons.lock_outline),
+      icon: IconBadge(
+        Icons.lock_outline_rounded,
+        size: 48,
+        iconSize: 24,
+        background: AppColors.of(context).warningContainer,
+        color: AppColors.of(context).warning,
+      ),
       title: Text('agent_approve_title'.trParams({'tool': tool.labelKey.tr})),
       content: SingleChildScrollView(
         child: Column(
@@ -50,10 +57,10 @@ class _ApprovalDialog extends StatelessWidget {
               Container(
                 width: double.infinity,
                 constraints: const BoxConstraints(maxHeight: 200),
-                padding: const EdgeInsets.all(AppSpacing.sm),
+                padding: const EdgeInsets.all(AppSpacing.ms),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
+                  color: theme.colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: SingleChildScrollView(child: Text(content)),
               ),

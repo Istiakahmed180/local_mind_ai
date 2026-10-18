@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 
 import '../../app/theme.dart';
 import '../../core/format.dart';
+import '../../core/widgets/brand.dart';
+import '../../core/widgets/composer.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../../services/documents/retrieval.dart';
@@ -34,7 +36,7 @@ class DocumentsView extends GetView<DocumentsController> {
                       controller.busy
                   ? null
                   : () => _rebuild(context),
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.sync_rounded),
             ),
           ),
           Obx(
@@ -46,6 +48,7 @@ class DocumentsView extends GetView<DocumentsController> {
               icon: const Icon(Icons.note_add_outlined),
             ),
           ),
+          const SizedBox(width: AppSpacing.xs),
         ],
       ),
       body: SafeArea(
@@ -79,17 +82,28 @@ class DocumentsView extends GetView<DocumentsController> {
                 const LinearProgressIndicator(),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.page,
+                    AppSpacing.xs,
+                    AppSpacing.page,
+                    AppSpacing.lg,
+                  ),
                   children: [
                     _AnswerCard(controller),
                     _StorageCard(controller),
-                    const SizedBox(height: AppSpacing.sm),
-                    const MeaningSearchCard(),
-                    const SizedBox(height: AppSpacing.sm),
-                    const OcrCard(),
-                    const SizedBox(height: AppSpacing.sm),
-                    for (final d in controller.documents)
+                    SectionLabel(
+                      'doc_your_files'.trParams({
+                        'n': '${controller.documents.length}',
+                      }),
+                    ),
+                    for (final d in controller.documents) ...[
                       _DocumentTile(d, onRemove: () => _remove(context, d)),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+                    SectionLabel('doc_search_tools'.tr),
+                    const MeaningSearchCard(),
+                    const SizedBox(height: AppSpacing.ms),
+                    const OcrCard(),
                   ],
                 ),
               ),
@@ -121,6 +135,7 @@ class DocumentsView extends GetView<DocumentsController> {
             child: Text('cancel'.tr),
           ),
           FilledButton(
+            style: dangerButtonStyle(context),
             onPressed: () => Navigator.pop(context, true),
             child: Text('delete'.tr),
           ),
@@ -150,34 +165,46 @@ class _StorageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SectionCard(
-      title: 'doc_storage_title'.tr,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InfoRow('doc_count'.tr, '${c.documents.length}'),
-          InfoRow('doc_files_size'.tr, formatBytes(c.totalBytes)),
-          InfoRow('doc_indexed_chars'.tr, '${c.totalChars}'),
-          Obx(() {
-            Get.find<SettingsService>().embeddingModelId.value;
-            final keyword = c.service.usesFts5
-                ? 'doc_search_fts5'.tr
-                : 'doc_search_like'.tr;
-            final meaning = c.service.semantic?.ready ?? false;
-            return InfoRow(
-              'doc_search_mode'.tr,
-              meaning ? '$keyword ${'doc_search_plus_meaning'.tr}' : keyword,
-            );
-          }),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'doc_privacy_note'.tr,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md + 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StatRow([
+              ('${c.documents.length}', 'doc_count'.tr),
+              (formatBytes(c.totalBytes), 'doc_files_size'.tr),
+              ('${c.totalChars}', 'doc_indexed_chars'.tr),
+            ]),
+            const SizedBox(height: AppSpacing.ms),
+            Obx(() {
+              Get.find<SettingsService>().embeddingModelId.value;
+              final keyword = c.service.usesFts5
+                  ? 'doc_search_fts5'.tr
+                  : 'doc_search_like'.tr;
+              final meaning = c.service.semantic?.ready ?? false;
+              return Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  StatusPill(keyword, icon: Icons.search_rounded),
+                  if (meaning)
+                    StatusPill(
+                      'doc_search_plus_meaning'.tr,
+                      icon: Icons.hub_outlined,
+                      tone: PillTone.primary,
+                    ),
+                ],
+              );
+            }),
+            const SizedBox(height: AppSpacing.ms),
+            NoticeText(
+              'doc_privacy_note'.tr,
+              tone: PillTone.neutral,
+              icon: Icons.lock_outline_rounded,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -199,26 +226,35 @@ class _DocumentTile extends StatelessWidget {
       if (d.ocrPages != null) 'doc_ocr_pages'.trParams({'n': '${d.ocrPages}'}),
     ];
     final failed = d.status == 'error';
+    final s = Theme.of(context).colorScheme;
     return Card(
       child: ListTile(
-        leading: Icon(
-          d.kind == 'pdf'
+        contentPadding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.xs,
+          AppSpacing.xs,
+          AppSpacing.xs,
+        ),
+        leading: IconBadge(
+          failed
+              ? Icons.error_outline_rounded
+              : d.kind == 'pdf'
               ? Icons.picture_as_pdf_outlined
               : Icons.article_outlined,
+          background: failed ? s.errorContainer : null,
+          color: failed ? s.onErrorContainer : null,
         ),
         title: Text(d.name, maxLines: 2, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           failed
               ? '${'doc_status_error'.tr}: ${(d.error ?? '').tr}'
               : parts.join(' · '),
-          style: failed
-              ? TextStyle(color: Theme.of(context).colorScheme.error)
-              : null,
+          style: failed ? TextStyle(color: s.error) : null,
         ),
         trailing: IconButton(
           tooltip: 'doc_remove'.tr,
           onPressed: onRemove,
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(Icons.delete_outline_rounded),
         ),
       ),
     );
@@ -240,34 +276,56 @@ class _AnswerCard extends StatelessWidget {
       final phase = c.phase.value;
       final a = c.answer.value;
       final children = <Widget>[
-        if (q != null) Text(q, style: theme.textTheme.titleSmall),
-        const SizedBox(height: AppSpacing.sm),
-      ];
-      if (err != null) {
-        children.add(
-          Text(err.tr, style: TextStyle(color: theme.colorScheme.error)),
-        );
-      } else if (phase == AskPhase.searching) {
-        children.add(Text('doc_searching'.tr));
-      } else if (phase == AskPhase.loadingModel) {
-        children.add(Text('loading_model'.tr));
-      } else if (phase == AskPhase.generating) {
-        final t = c.streamingText.value;
-        children.add(SelectableText(t.isEmpty ? 'thinking'.tr : t));
-      } else if (a != null && a.notEnoughEvidence) {
-        children.add(
+        if (q != null)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.search_off, color: theme.colorScheme.tertiary),
+              const BrandLogo(size: 24),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(child: Text('doc_not_enough_evidence'.tr)),
+              Expanded(child: Text(q, style: theme.textTheme.titleMedium)),
             ],
+          ),
+        const SizedBox(height: AppSpacing.ms),
+      ];
+      Widget progress(String label) => Row(
+        children: [
+          const SizedBox.square(
+            dimension: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: Text(label)),
+        ],
+      );
+      if (err != null) {
+        children.add(
+          NoticeText(
+            err.tr,
+            tone: PillTone.error,
+            icon: Icons.error_outline_rounded,
+          ),
+        );
+      } else if (phase == AskPhase.searching) {
+        children.add(progress('doc_searching'.tr));
+      } else if (phase == AskPhase.loadingModel) {
+        children.add(progress('loading_model'.tr));
+      } else if (phase == AskPhase.generating) {
+        final t = c.streamingText.value;
+        children.add(
+          t.isEmpty
+              ? progress('thinking'.tr)
+              : SelectableText(t, style: theme.textTheme.bodyLarge),
+        );
+      } else if (a != null && a.notEnoughEvidence) {
+        children.add(
+          NoticeText(
+            'doc_not_enough_evidence'.tr,
+            icon: Icons.search_off_rounded,
           ),
         );
       } else if (a != null) {
-        children.add(SelectableText(a.text));
-        children.add(const SizedBox(height: AppSpacing.sm));
+        children.add(SelectableText(a.text, style: theme.textTheme.bodyLarge));
+        children.add(const SizedBox(height: AppSpacing.ms));
         final sources = a.hasCitations
             ? a.cited
             : a.matched.isNotEmpty
@@ -280,9 +338,12 @@ class _AnswerCard extends StatelessWidget {
                 : a.matched.isNotEmpty
                 ? 'doc_sources_matched'.tr
                 : 'doc_uncited'.tr,
-            style: theme.textTheme.labelLarge,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         );
+        children.add(const SizedBox(height: AppSpacing.xs));
         for (final p in sources) {
           final n = c.passages.indexOf(p) + 1;
           children.add(_SourceRow(n: n, label: c.label(p), passage: p));
@@ -308,11 +369,16 @@ class _AnswerCard extends StatelessWidget {
         );
       }
       return Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+        padding: const EdgeInsets.only(bottom: AppSpacing.md),
         child: Card(
-          color: theme.colorScheme.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            side: BorderSide(
+              color: theme.colorScheme.primary.withValues(alpha: 0.35),
+            ),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(AppSpacing.md + 2),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: children,
@@ -337,35 +403,87 @@ class _SourceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (_) => DraggableScrollableSheet(
-          expand: false,
-          builder: (_, scroll) => ListView(
-            controller: scroll,
-            padding: const EdgeInsets.all(AppSpacing.md),
-            children: [
-              Text(
-                '[$n] $label',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              SelectableText(passage.text),
-            ],
-          ),
+    final theme = Theme.of(context);
+    final s = theme.colorScheme;
+    final badge = Container(
+      width: 24,
+      height: 24,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: s.primaryContainer,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        '$n',
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: s.onPrimaryContainer,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        child: Row(
-          children: [
-            const Icon(Icons.format_quote, size: 16),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(child: Text('[$n] $label')),
-          ],
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Material(
+        color: s.surfaceContainer,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (_) => DraggableScrollableSheet(
+              expand: false,
+              builder: (_, scroll) => ListView(
+                controller: scroll,
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.page,
+                  0,
+                  AppSpacing.page,
+                  AppSpacing.xl,
+                ),
+                children: [
+                  Row(
+                    children: [
+                      badge,
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(label, style: theme.textTheme.titleMedium),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  SelectableText(
+                    passage.text,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                badge,
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: s.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -379,55 +497,36 @@ class _AskBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.sm,
-        AppSpacing.sm,
+    return ComposerBar(
+      field: TextField(
+        controller: c.question,
+        minLines: 1,
+        maxLines: 4,
+        textInputAction: TextInputAction.send,
+        onSubmitted: (_) => c.ask(),
+        decoration: composerDecoration(context, 'doc_ask_hint'.tr),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: c.question,
-              minLines: 1,
-              maxLines: 4,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => c.ask(),
-              decoration: InputDecoration(hintText: 'doc_ask_hint'.tr),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Obx(() {
-            switch (c.phase.value) {
-              case AskPhase.generating:
-                return IconButton.filledTonal(
-                  tooltip: 'stop'.tr,
-                  onPressed: c.stop,
-                  icon: const Icon(Icons.stop),
-                );
-              case AskPhase.searching:
-              case AskPhase.loadingModel:
-                return const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              case AskPhase.idle:
-                return IconButton.filled(
-                  tooltip: 'doc_ask'.tr,
-                  onPressed: c.ask,
-                  icon: const Icon(Icons.arrow_upward),
-                );
-            }
-          }),
-        ],
-      ),
+      trailing: [
+        Obx(() {
+          switch (c.phase.value) {
+            case AskPhase.generating:
+              return IconButton.filledTonal(
+                tooltip: 'stop'.tr,
+                onPressed: c.stop,
+                icon: const Icon(Icons.stop_rounded),
+              );
+            case AskPhase.searching:
+            case AskPhase.loadingModel:
+              return const ComposerSpinner();
+            case AskPhase.idle:
+              return IconButton.filled(
+                tooltip: 'doc_ask'.tr,
+                onPressed: c.ask,
+                icon: const Icon(Icons.arrow_upward_rounded),
+              );
+          }
+        }),
+      ],
     );
   }
 }
