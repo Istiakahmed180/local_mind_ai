@@ -40,6 +40,18 @@ class DocumentService extends GetxService {
 
   final busy = false.obs;
 
+  /// OCR progress while importing a scanned PDF: (pages done, total).
+  final ocrProgress = Rxn<(int, int)>();
+  ExtractionCancel? _cancel;
+
+  /// Turns on OCR for pages without a text layer.
+  set ocr(PageOcr? value) => _extractor.ocr = value;
+
+  bool get ocrReady => _extractor.ocr?.ready ?? false;
+
+  /// Stops an import that is reading pages with OCR.
+  void cancelImport() => _cancel?.cancel();
+
   /// Meaning search, set once the embedding service exists. Null or not
   /// ready means keyword search only.
   EmbeddingService? semantic;
@@ -84,6 +96,7 @@ class DocumentService extends GetxService {
           status: 'ready',
           importedAt: now,
           indexedAt: Value(now),
+          ocrPages: Value(indexed.ocrPages == 0 ? null : indexed.ocrPages),
         ),
       );
       await _repo.replaceChunks(id, indexed.chunks);
@@ -97,16 +110,35 @@ class DocumentService extends GetxService {
   }
 
   Future<_Indexed> _index(String path, DocumentKind kind) async {
-    final extracted = await _extractor.extract(path, kind);
+    final cancel = _cancel = ExtractionCancel();
+    final ExtractionResult extracted;
+    try {
+      extracted = await _extractor.extract(
+        path,
+        kind,
+        cancel: cancel,
+        onOcrProgress: (done, total) => ocrProgress.value = (done, total),
+      );
+    } finally {
+      ocrProgress.value = null;
+      _cancel = null;
+    }
     if (kind == DocumentKind.pdf && extracted.charCount < minTextChars) {
-      throw const ExtractionException('doc_error_no_text_pdf');
+      throw ExtractionException(
+        ocrReady ? 'doc_error_ocr_no_text' : 'doc_error_no_text_pdf',
+      );
     }
     if (extracted.charCount == 0) {
       throw const ExtractionException('doc_error_empty');
     }
     final segments = extracted.segments;
-    final chunks = await Isolate.run(() => chunkSegments(segments));
-    return _Indexed(chunks, extracted.pageCount, extracted.charCount);
+    final chunks = await _chunkInIsolate(segments);
+    return _Indexed(
+      chunks,
+      extracted.pageCount,
+      extracted.charCount,
+      extracted.ocrPages,
+    );
   }
 
   Future<void> remove(String id) async {
@@ -142,6 +174,7 @@ class DocumentService extends GetxService {
             chunkCount: Value(indexed.chunks.length),
             charCount: Value(indexed.charCount),
             indexedAt: Value(DateTime.now()),
+            ocrPages: Value(indexed.ocrPages == 0 ? null : indexed.ocrPages),
           ),
         );
       } on Object catch (e) {
@@ -206,9 +239,15 @@ class DocumentService extends GetxService {
 }
 
 class _Indexed {
-  const _Indexed(this.chunks, this.pageCount, this.charCount);
+  const _Indexed(this.chunks, this.pageCount, this.charCount, this.ocrPages);
 
   final List<TextChunk> chunks;
   final int? pageCount;
   final int charCount;
+  final int ocrPages;
 }
+
+/// Top level so the isolate closure captures only [segments], not the
+/// service (which holds Futures and cannot be sent to another isolate).
+Future<List<TextChunk>> _chunkInIsolate(List<SourceSegment> segments) =>
+    Isolate.run(() => chunkSegments(segments));

@@ -33,6 +33,15 @@ android {
         }
     }
 
+    // Only 64-bit devices are supported (llama.cpp natives are 64-bit only).
+    // Some dependencies ship 32-bit libraries too; drop them so the app can
+    // never be installed on a 32-bit device without its core libraries.
+    packaging {
+        jniLibs {
+            excludes += listOf("lib/armeabi-v7a/**", "lib/x86/**")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -50,4 +59,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Offline OCR for scanned PDFs: Tesseract 5.5.1 (Apache-2.0) with Leptonica.
+    implementation("cz.adaptech.tesseract4android:tesseract4android-openmp:4.9.0")
 }

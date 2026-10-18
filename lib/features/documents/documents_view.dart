@@ -9,6 +9,7 @@ import '../../services/documents/retrieval.dart';
 import '../../services/settings_service.dart';
 import 'documents_controller.dart';
 import 'meaning_search_card.dart';
+import 'ocr_sheet.dart';
 
 class DocumentsView extends GetView<DocumentsController> {
   const DocumentsView({super.key});
@@ -19,6 +20,11 @@ class DocumentsView extends GetView<DocumentsController> {
       appBar: AppBar(
         title: Text('documents'.tr),
         actions: [
+          IconButton(
+            tooltip: 'ocr_title'.tr,
+            onPressed: () => showOcrSheet(context),
+            icon: const Icon(Icons.document_scanner_outlined),
+          ),
           Obx(
             () => IconButton(
               tooltip: 'doc_rebuild_index'.tr,
@@ -45,6 +51,14 @@ class DocumentsView extends GetView<DocumentsController> {
       body: SafeArea(
         child: Obx(() {
           if (controller.documents.isEmpty) {
+            if (controller.importing.value) {
+              return const Column(
+                children: [
+                  OcrProgressBar(),
+                  Expanded(child: Center(child: CircularProgressIndicator())),
+                ],
+              );
+            }
             return MessageState(
               icon: Icons.description_outlined,
               title: 'doc_empty_title'.tr,
@@ -60,6 +74,7 @@ class DocumentsView extends GetView<DocumentsController> {
           }
           return Column(
             children: [
+              const OcrProgressBar(),
               if (controller.importing.value || controller.rebuilding.value)
                 const LinearProgressIndicator(),
               Expanded(
@@ -70,6 +85,8 @@ class DocumentsView extends GetView<DocumentsController> {
                     _StorageCard(controller),
                     const SizedBox(height: AppSpacing.sm),
                     const MeaningSearchCard(),
+                    const SizedBox(height: AppSpacing.sm),
+                    const OcrCard(),
                     const SizedBox(height: AppSpacing.sm),
                     for (final d in controller.documents)
                       _DocumentTile(d, onRemove: () => _remove(context, d)),
@@ -179,6 +196,7 @@ class _DocumentTile extends StatelessWidget {
       if (d.pageCount != null) 'doc_pages'.trParams({'n': '${d.pageCount}'}),
       'doc_passages'.trParams({'n': '${d.chunkCount}'}),
       formatBytes(d.sizeBytes),
+      if (d.ocrPages != null) 'doc_ocr_pages'.trParams({'n': '${d.ocrPages}'}),
     ];
     final failed = d.status == 'error';
     return Card(

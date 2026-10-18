@@ -23,7 +23,7 @@ You can export chats to a file you choose (Chats → Export). The file is not en
 
 ## Network use
 
-The app connects to the internet only when you choose to download a model. The file is requested from the host shown before the download (currently Hugging Face, huggingface.co). Like any web server, that host receives your IP address and standard HTTP request information, and its own privacy policy applies. The app itself never sends prompts, conversations, files or reports; the only exception is a report email that you choose to send from your own email app (see below).
+The app connects to the internet only when you choose to download a model, a search model or text-recognition (OCR) language data. The file is requested from the host shown before the download (currently Hugging Face, huggingface.co, for models and GitHub, raw.githubusercontent.com, for OCR language data). Like any web server, that host receives your IP address and standard HTTP request information, and its own privacy policy applies. The app itself never sends prompts, conversations, files or reports; the only exception is a report email that you choose to send from your own email app (see below).
 
 The app contains no analytics, advertising or crash-reporting SDKs.
 
@@ -34,7 +34,7 @@ The app contains no analytics, advertising or crash-reporting SDKs.
 - **Microphone** — only if you switch on voice input in Settings, asked the first time you tap the mic. Speech is recognised by Android's on-device speech service; this app never stores or sends audio. Read-aloud uses only offline voices on your phone.
 - **Foreground service and notifications** — to keep a model download running in the background and show its progress. Android 13+ asks you before showing notifications.
 
-Files are opened only when you select them with the Android file picker.
+Files are opened only when you select them with the Android file picker. Scanned PDF pages are read with text recognition (Tesseract) on your phone; page images are not stored or sent anywhere.
 
 ## Content reports
 

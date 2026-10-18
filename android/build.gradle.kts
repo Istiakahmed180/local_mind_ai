@@ -2,6 +2,12 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // Tesseract4Android (offline OCR) is only published on JitPack. Limit
+        // JitPack to that one group so nothing else can resolve from it.
+        maven {
+            url = uri("https://jitpack.io")
+            content { includeGroup("cz.adaptech.tesseract4android") }
+        }
     }
 }
 

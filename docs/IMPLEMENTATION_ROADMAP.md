@@ -203,3 +203,23 @@ Tests: `flutter test` → 181 passed; `flutter analyze` → no issues. Not commi
 - In-app check: downloaded Nomic from the sheet (SHA-256 verified), chose it, the existing document was indexed ("1 of 1"), the storage card shows "Keyword (SQLite FTS5) + meaning", and the choice survived an app restart. Asking a question end-to-end with a chat model was covered by unit tests, not by hand.
 
 Tests: `flutter test` → 193 passed; `flutter analyze` → no issues. Not committed (the user commits manually).
+
+### Scanned PDFs (OCR) — 2026-10-18
+
+- **Engine:** Tesseract 5.5.1 (LSTM) via Tesseract4Android 4.9.0 (Apache-2.0; bundles Leptonica 1.85.0, libjpeg v9f, libpng 1.6.48). JitPack is scoped in Gradle to the `cz.adaptech.tesseract4android` group only. ML Kit was rejected: no Bengali script, and its terms say it sends usage metrics to Google.
+- **Language data:** `tessdata_fast` (Apache-2.0) English (4.1 MB) and Bengali (856 KB), pinned to commit `87416418…`, downloaded on demand and SHA-256-verified (`assets/models/catalog.json` → `ocrLanguages`).
+- **How it works:** the PDF text layer is read first; only pages with < 20 characters are rendered by PDFium at ~200 DPI (long side ≤ 2400 px), converted to 8-bit grayscale in an isolate, and sent to Tesseract over `localmind/ocr` (single worker thread, engine kept loaded per language set). Mixed PDFs work page by page; page numbers are kept for citations. Limits: 150 scanned pages per document; Cancel between pages; progress "Reading scanned page X of N".
+- **Storage:** schema v6 adds `documents.ocr_pages`; the document list shows "OCR: N pages (may contain errors)".
+- **UI:** scanner icon in the Documents app bar (works with no documents), OCR card, language sheet (download/delete). Without OCR a scanned PDF now gets "turn on OCR (scanner icon above)" instead of "not supported".
+- **Bugs found and fixed:** (1) the chunking `Isolate.run` closure started capturing the service (it shared a scope with the new progress callback) and failed with "object is unsendable" — moved to a top-level helper; (2) upgrading from v1 created `documents` with the new column and then tried to add it again ("duplicate column") — the v6 step now runs only when the table already existed; (3) cancel was checked before the progress callback, so one extra page was read after Cancel; (4) a dependency shipped 32-bit (`armeabi-v7a`, `x86`) libraries, which could have let the app install on 32-bit phones without its llama.cpp/Flutter libraries — 32-bit libraries are now excluded in Gradle `packaging`.
+- **Real OCR on the `localmind_test` emulator** (`integration_test/ocr_test.dart`; image-only PDFs generated with no font/text layer):
+
+| Scan | Key words recognised | Time (first run incl. engine load) | Notes |
+|------|---------------------|------------------------------------|-------|
+| English, 3 lines | 8/8 | 2.0 s | Text exactly right |
+| Bengali, 3 lines | 6/8 | 0.8 s | Title line "ফেরত নীতি" missed; "ত্রিশ" → "ব্বিশ"; body sentences otherwise correct; keyword search for "ঢাকার" finds the passage |
+
+- **In-app check:** importing the Bengali scan without OCR showed the new guidance message; downloaded Bengali data from the sheet (855,841 bytes, verified); re-imported → "OCR: 1 pages (may contain errors)", 93 characters indexed. Not tested: real camera scans, multi-page or low-quality scans, handwriting, phones.
+- **Size:** the OCR libraries add 7.9 MB of arm64 native code (all LOAD segments 16 KB-aligned). Release AAB 86.8 MB including x86_64 and debug-symbol metadata; arm64 native libs 57.0 MB uncompressed.
+
+Tests: `flutter test` → 207 passed; `flutter analyze` → no issues. Not committed (the user commits manually).

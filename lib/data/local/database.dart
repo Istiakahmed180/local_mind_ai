@@ -114,6 +114,9 @@ class Documents extends Table {
   DateTimeColumn get importedAt => dateTime()();
   DateTimeColumn get indexedAt => dateTime().nullable()();
 
+  /// Pages whose text came from OCR; their text may contain errors.
+  IntColumn get ocrPages => integer().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -148,7 +151,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'localmind'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   /// Whether the SQLite build has FTS5. Set when the database opens.
   bool hasFts5 = false;
@@ -172,6 +175,11 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) {
         await m.createTable(chunkEmbeddings);
+      }
+      // Before v2 the documents table did not exist; createTable above
+      // already made it with every current column.
+      if (from >= 2 && from < 6) {
+        await m.addColumn(documents, documents.ocrPages);
       }
     },
     beforeOpen: (details) async {

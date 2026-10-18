@@ -29,6 +29,7 @@ Verified sources (2026-10-17): Android target SDK requirements page (developer.a
 - [ ] Content rating questionnaire (AI chatbot generating user-requested text → answer honestly; expect at least Teen)
 - [ ] Target audience: not directed at children
 - [ ] Large downloads: models are fetched at runtime by user action; not bundled in the AAB (keeps base size under limits)
+- [x] OCR notices (Tesseract, Tesseract4Android, tessdata_fast, Leptonica, libjpeg, libpng) added to About → Licenses — compare against the full upstream LICENSE files before release
 - [ ] Open-source notices: About → Licenses (Flutter `LicenseRegistry` + llama.cpp MIT notice + model licenses)
 
 ## Testing before production

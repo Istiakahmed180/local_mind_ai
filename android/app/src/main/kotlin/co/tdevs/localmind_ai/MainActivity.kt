@@ -22,11 +22,13 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var voice: VoiceBridge? = null
+    private var ocr: OcrBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         voice = VoiceBridge(this, messenger)
+        ocr = OcrBridge(messenger)
 
         MethodChannel(messenger, "localmind/device").setMethodCallHandler { call, result ->
             when (call.method) {
@@ -106,6 +108,7 @@ class MainActivity : FlutterActivity() {
 
     override fun onDestroy() {
         voice?.dispose()
+        ocr?.dispose()
         unregisterNetworkCallback()
         super.onDestroy()
     }

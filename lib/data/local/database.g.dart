@@ -2458,6 +2458,17 @@ class $DocumentsTable extends Documents
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _ocrPagesMeta = const VerificationMeta(
+    'ocrPages',
+  );
+  @override
+  late final GeneratedColumn<int> ocrPages = GeneratedColumn<int>(
+    'ocr_pages',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2472,6 +2483,7 @@ class $DocumentsTable extends Documents
     error,
     importedAt,
     indexedAt,
+    ocrPages,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2568,6 +2580,12 @@ class $DocumentsTable extends Documents
         indexedAt.isAcceptableOrUnknown(data['indexed_at']!, _indexedAtMeta),
       );
     }
+    if (data.containsKey('ocr_pages')) {
+      context.handle(
+        _ocrPagesMeta,
+        ocrPages.isAcceptableOrUnknown(data['ocr_pages']!, _ocrPagesMeta),
+      );
+    }
     return context;
   }
 
@@ -2625,6 +2643,10 @@ class $DocumentsTable extends Documents
         DriftSqlType.dateTime,
         data['${effectivePrefix}indexed_at'],
       ),
+      ocrPages: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ocr_pages'],
+      ),
     );
   }
 
@@ -2647,6 +2669,9 @@ class Document extends DataClass implements Insertable<Document> {
   final String? error;
   final DateTime importedAt;
   final DateTime? indexedAt;
+
+  /// Pages whose text came from OCR; their text may contain errors.
+  final int? ocrPages;
   const Document({
     required this.id,
     required this.name,
@@ -2660,6 +2685,7 @@ class Document extends DataClass implements Insertable<Document> {
     this.error,
     required this.importedAt,
     this.indexedAt,
+    this.ocrPages,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2681,6 +2707,9 @@ class Document extends DataClass implements Insertable<Document> {
     map['imported_at'] = Variable<DateTime>(importedAt);
     if (!nullToAbsent || indexedAt != null) {
       map['indexed_at'] = Variable<DateTime>(indexedAt);
+    }
+    if (!nullToAbsent || ocrPages != null) {
+      map['ocr_pages'] = Variable<int>(ocrPages);
     }
     return map;
   }
@@ -2705,6 +2734,9 @@ class Document extends DataClass implements Insertable<Document> {
       indexedAt: indexedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(indexedAt),
+      ocrPages: ocrPages == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ocrPages),
     );
   }
 
@@ -2726,6 +2758,7 @@ class Document extends DataClass implements Insertable<Document> {
       error: serializer.fromJson<String?>(json['error']),
       importedAt: serializer.fromJson<DateTime>(json['importedAt']),
       indexedAt: serializer.fromJson<DateTime?>(json['indexedAt']),
+      ocrPages: serializer.fromJson<int?>(json['ocrPages']),
     );
   }
   @override
@@ -2744,6 +2777,7 @@ class Document extends DataClass implements Insertable<Document> {
       'error': serializer.toJson<String?>(error),
       'importedAt': serializer.toJson<DateTime>(importedAt),
       'indexedAt': serializer.toJson<DateTime?>(indexedAt),
+      'ocrPages': serializer.toJson<int?>(ocrPages),
     };
   }
 
@@ -2760,6 +2794,7 @@ class Document extends DataClass implements Insertable<Document> {
     Value<String?> error = const Value.absent(),
     DateTime? importedAt,
     Value<DateTime?> indexedAt = const Value.absent(),
+    Value<int?> ocrPages = const Value.absent(),
   }) => Document(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -2773,6 +2808,7 @@ class Document extends DataClass implements Insertable<Document> {
     error: error.present ? error.value : this.error,
     importedAt: importedAt ?? this.importedAt,
     indexedAt: indexedAt.present ? indexedAt.value : this.indexedAt,
+    ocrPages: ocrPages.present ? ocrPages.value : this.ocrPages,
   );
   Document copyWithCompanion(DocumentsCompanion data) {
     return Document(
@@ -2792,6 +2828,7 @@ class Document extends DataClass implements Insertable<Document> {
           ? data.importedAt.value
           : this.importedAt,
       indexedAt: data.indexedAt.present ? data.indexedAt.value : this.indexedAt,
+      ocrPages: data.ocrPages.present ? data.ocrPages.value : this.ocrPages,
     );
   }
 
@@ -2809,7 +2846,8 @@ class Document extends DataClass implements Insertable<Document> {
           ..write('status: $status, ')
           ..write('error: $error, ')
           ..write('importedAt: $importedAt, ')
-          ..write('indexedAt: $indexedAt')
+          ..write('indexedAt: $indexedAt, ')
+          ..write('ocrPages: $ocrPages')
           ..write(')'))
         .toString();
   }
@@ -2828,6 +2866,7 @@ class Document extends DataClass implements Insertable<Document> {
     error,
     importedAt,
     indexedAt,
+    ocrPages,
   );
   @override
   bool operator ==(Object other) =>
@@ -2844,7 +2883,8 @@ class Document extends DataClass implements Insertable<Document> {
           other.status == this.status &&
           other.error == this.error &&
           other.importedAt == this.importedAt &&
-          other.indexedAt == this.indexedAt);
+          other.indexedAt == this.indexedAt &&
+          other.ocrPages == this.ocrPages);
 }
 
 class DocumentsCompanion extends UpdateCompanion<Document> {
@@ -2860,6 +2900,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
   final Value<String?> error;
   final Value<DateTime> importedAt;
   final Value<DateTime?> indexedAt;
+  final Value<int?> ocrPages;
   final Value<int> rowid;
   const DocumentsCompanion({
     this.id = const Value.absent(),
@@ -2874,6 +2915,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     this.error = const Value.absent(),
     this.importedAt = const Value.absent(),
     this.indexedAt = const Value.absent(),
+    this.ocrPages = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DocumentsCompanion.insert({
@@ -2889,6 +2931,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     this.error = const Value.absent(),
     required DateTime importedAt,
     this.indexedAt = const Value.absent(),
+    this.ocrPages = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -2910,6 +2953,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     Expression<String>? error,
     Expression<DateTime>? importedAt,
     Expression<DateTime>? indexedAt,
+    Expression<int>? ocrPages,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2925,6 +2969,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
       if (error != null) 'error': error,
       if (importedAt != null) 'imported_at': importedAt,
       if (indexedAt != null) 'indexed_at': indexedAt,
+      if (ocrPages != null) 'ocr_pages': ocrPages,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2942,6 +2987,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     Value<String?>? error,
     Value<DateTime>? importedAt,
     Value<DateTime?>? indexedAt,
+    Value<int?>? ocrPages,
     Value<int>? rowid,
   }) {
     return DocumentsCompanion(
@@ -2957,6 +3003,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
       error: error ?? this.error,
       importedAt: importedAt ?? this.importedAt,
       indexedAt: indexedAt ?? this.indexedAt,
+      ocrPages: ocrPages ?? this.ocrPages,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3000,6 +3047,9 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     if (indexedAt.present) {
       map['indexed_at'] = Variable<DateTime>(indexedAt.value);
     }
+    if (ocrPages.present) {
+      map['ocr_pages'] = Variable<int>(ocrPages.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3021,6 +3071,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
           ..write('error: $error, ')
           ..write('importedAt: $importedAt, ')
           ..write('indexedAt: $indexedAt, ')
+          ..write('ocrPages: $ocrPages, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5547,6 +5598,7 @@ typedef $$DocumentsTableCreateCompanionBuilder = DocumentsCompanion Function({
   Value<String?> error,
   required DateTime importedAt,
   Value<DateTime?> indexedAt,
+  Value<int?> ocrPages,
   Value<int> rowid,
 });
 typedef $$DocumentsTableUpdateCompanionBuilder = DocumentsCompanion Function({
@@ -5562,6 +5614,7 @@ typedef $$DocumentsTableUpdateCompanionBuilder = DocumentsCompanion Function({
   Value<String?> error,
   Value<DateTime> importedAt,
   Value<DateTime?> indexedAt,
+  Value<int?> ocrPages,
   Value<int> rowid,
 });
 
@@ -5654,6 +5707,11 @@ class $$DocumentsTableFilterComposer
 
   ColumnFilters<DateTime> get indexedAt => $composableBuilder(
     column: $table.indexedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ocrPages => $composableBuilder(
+    column: $table.ocrPages,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5751,6 +5809,11 @@ class $$DocumentsTableOrderingComposer
     column: $table.indexedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get ocrPages => $composableBuilder(
+    column: $table.ocrPages,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DocumentsTableAnnotationComposer
@@ -5801,6 +5864,9 @@ class $$DocumentsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get indexedAt =>
       $composableBuilder(column: $table.indexedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get ocrPages =>
+      $composableBuilder(column: $table.ocrPages, builder: (column) => column);
 
   Expression<T> documentChunksRefs<T extends Object>(
     Expression<T> Function($$DocumentChunksTableAnnotationComposer a) f,
@@ -5868,6 +5934,7 @@ class $$DocumentsTableTableManager
                 Value<String?> error = const Value.absent(),
                 Value<DateTime> importedAt = const Value.absent(),
                 Value<DateTime?> indexedAt = const Value.absent(),
+                Value<int?> ocrPages = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DocumentsCompanion(
                 id: id,
@@ -5882,6 +5949,7 @@ class $$DocumentsTableTableManager
                 error: error,
                 importedAt: importedAt,
                 indexedAt: indexedAt,
+                ocrPages: ocrPages,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5898,6 +5966,7 @@ class $$DocumentsTableTableManager
                 Value<String?> error = const Value.absent(),
                 required DateTime importedAt,
                 Value<DateTime?> indexedAt = const Value.absent(),
+                Value<int?> ocrPages = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DocumentsCompanion.insert(
                 id: id,
@@ -5912,6 +5981,7 @@ class $$DocumentsTableTableManager
                 error: error,
                 importedAt: importedAt,
                 indexedAt: indexedAt,
+                ocrPages: ocrPages,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

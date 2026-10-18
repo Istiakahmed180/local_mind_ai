@@ -27,6 +27,14 @@ LiteRT-LM and stable-diffusion runtimes are **excluded** (`llamadart_native_runt
 | Gemma 3 1B IT Q4_K_M (ggml-org) | `gemma-3-1b-it-Q4_K_M.gguf` | 806,058,240 | Gemma Terms of Use | Vendor claims 140+ languages | Catalog; user must accept Gemma Terms in-app before download |
 | Qwen3 1.7B Q8_0 | `Qwen3-1.7B-Q8_0.gguf` | 1,834,426,016 | Apache-2.0 | Vendor claims Bengali | Catalog; high-memory devices |
 
+### OCR
+
+| Component | Version | License | Notes |
+|-----------|---------|---------|-------|
+| Tesseract4Android (adaptech-cz) | 4.9.0 (JitPack) | Apache-2.0 | Bundles Tesseract 5.5.1 (Apache-2.0), Leptonica 1.85.0 (BSD-2-Clause-style), libjpeg v9f (IJG), libpng 1.6.48 (libpng license). Attribution needed in About → Licenses before release |
+| tessdata_fast `eng.traineddata` | commit 87416418 | Apache-2.0 | 4,113,088 bytes, SHA-256 7d4322bd… |
+| tessdata_fast `ben.traineddata` | commit 87416418 | Apache-2.0 | 855,841 bytes, SHA-256 31163084… |
+
 ### Embedding (search) models
 
 | Model | File | Size (bytes) | License | Languages | Status |

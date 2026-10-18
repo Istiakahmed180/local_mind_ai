@@ -11,7 +11,9 @@ void main() {
     final assignedPut = RegExp(r'\w+\.\w+\s*=\s*Get\.put\(');
     // The pattern catches the form that caused the bug ...
     expect(
-      assignedPut.hasMatch('documents.semantic = Get.put(\n  EmbeddingService('),
+      assignedPut.hasMatch(
+        'documents.semantic = Get.put(\n  EmbeddingService(',
+      ),
       isTrue,
     );
     // ... and allows the fixed form.

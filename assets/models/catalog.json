@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
   "hosts": {
-    "huggingface": "https://huggingface.co"
+    "huggingface": "https://huggingface.co",
+    "githubRaw": "https://raw.githubusercontent.com"
   },
   "models": [
     {
@@ -230,6 +231,28 @@
       "documentPrefix": "",
       "minSimilarity": 0.45,
       "notes": "Larger multilingual search model (publisher: 100+ languages; Bengali not named). In our small emulator test it matched a Bengali question to the right English passage. The chat model is unloaded while it runs, so each search takes a second or two."
+    }
+  ],
+  "ocrLanguages": [
+    {
+      "id": "eng",
+      "name": "English",
+      "host": "githubRaw",
+      "path": "tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/eng.traineddata",
+      "sizeBytes": 4113088,
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://github.com/tesseract-ocr/tessdata_fast/blob/main/LICENSE"
+    },
+    {
+      "id": "ben",
+      "name": "Bengali",
+      "host": "githubRaw",
+      "path": "tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/ben.traineddata",
+      "sizeBytes": 855841,
+      "sha256": "31163084c279aaebd376216f0c3d5c17ad4b5fee8db49dae79c20000b5de5964",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://github.com/tesseract-ocr/tessdata_fast/blob/main/LICENSE"
     }
   ]
 }
