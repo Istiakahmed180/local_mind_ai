@@ -27,9 +27,13 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        // llama.cpp natives exist only for 64-bit ABIs.
-        ndk {
-            abiFilters += listOf("arm64-v8a", "x86_64")
+        // llama.cpp natives exist only for 64-bit ABIs. AGP rejects ndk
+        // abiFilters together with ABI splits, so `--split-per-abi` builds
+        // pick ABIs with `--target-platform android-arm64,android-x64` instead.
+        if (!project.hasProperty("split-per-abi")) {
+            ndk {
+                abiFilters += listOf("arm64-v8a", "x86_64")
+            }
         }
     }
 
@@ -47,6 +51,10 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
