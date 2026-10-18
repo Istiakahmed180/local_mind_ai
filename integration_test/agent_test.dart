@@ -70,8 +70,9 @@ void main() {
             .trimRight(),
       );
     }
-    if (o.failure != null)
+    if (o.failure != null) {
       log('  failure=${o.failure} ${o.failureDetail ?? ''}');
+    }
     return o;
   }
 
