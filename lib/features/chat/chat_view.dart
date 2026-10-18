@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 
 import '../../app/routes.dart';
 import '../../app/theme.dart';
+import '../../core/widgets/brand.dart';
+import '../../core/widgets/composer.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../shell/shell_view.dart';
@@ -52,15 +54,19 @@ class _ModelChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: AppSpacing.sm),
+      padding: const EdgeInsets.only(right: AppSpacing.ms, left: AppSpacing.xs),
       child: Obx(() {
         final id = c.modelId.value;
         final label = id == null ? 'choose_model'.tr : c.models.displayName(id);
+        final scheme = Theme.of(context).colorScheme;
         return ActionChip(
-          avatar: const Icon(Icons.memory, size: 18),
+          avatar: Icon(Icons.memory_rounded, size: 16, color: scheme.primary),
           label: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 140),
+            constraints: const BoxConstraints(maxWidth: 120),
             child: Text(label, overflow: TextOverflow.ellipsis),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(99),
           ),
           onPressed: c.busy ? null : () => _pickModel(context),
         );
@@ -72,7 +78,6 @@ class _ModelChip extends StatelessWidget {
     final installed = c.models.installedChat;
     showModalBottomSheet<void>(
       context: context,
-      showDragHandle: true,
       builder: (_) => SafeArea(
         child: installed.isEmpty
             ? MessageState(
@@ -95,7 +100,17 @@ class _ModelChip extends StatelessWidget {
                 },
                 child: ListView(
                   shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.page,
+                    0,
+                    AppSpacing.page,
+                    AppSpacing.md,
+                  ),
                   children: [
+                    SheetHeader(
+                      icon: Icons.memory_rounded,
+                      title: 'chat_pick_model'.tr,
+                    ),
                     for (final m in installed)
                       RadioListTile<String>(
                         value: m.id,
@@ -126,16 +141,17 @@ class _MessageList extends StatelessWidget {
       final streaming = c.streamingText.value;
       final phase = c.phase.value;
       if (msgs.isEmpty && phase == ChatPhase.idle) {
-        return MessageState(
-          icon: Icons.chat_bubble_outline,
-          title: 'chat_empty_title'.tr,
-          body: 'chat_empty_body'.tr,
-        );
+        return _EmptyChat(c);
       }
       final showPending = phase != ChatPhase.idle;
       return ListView.builder(
         controller: c.scroll,
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.sm,
+          AppSpacing.md,
+          AppSpacing.md,
+        ),
         itemCount: msgs.length + (showPending ? 1 : 0),
         itemBuilder: (context, i) {
           if (i == msgs.length) {
@@ -166,11 +182,25 @@ class _MessageList extends StatelessWidget {
   void _actions(BuildContext context, Message m) {
     showModalBottomSheet<void>(
       context: context,
-      showDragHandle: true,
       builder: (_) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.page,
+                0,
+                AppSpacing.page,
+                AppSpacing.sm,
+              ),
+              child: Text(
+                m.content,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.copy),
               title: Text('copy'.tr),
@@ -306,61 +336,229 @@ class _Bubble extends StatelessWidget {
       if (m?.timeToFirstTokenMs != null)
         '${'first_token'.tr} ${m!.timeToFirstTokenMs} ms',
     ];
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.85,
+    final colors = AppColors.of(context);
+    final pending = pendingLabel != null && text.isEmpty;
+    final body = pending
+        ? _Typing(label: pendingLabel!)
+        // Plain Text so long-press opens the message menu (which has
+        // Copy); SelectableText would swallow the gesture.
+        : Text(
+            text,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: isUser ? colors.onUserBubble : scheme.onSurface,
+            ),
+          );
+    final metaText = meta.isEmpty
+        ? null
+        : Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs + 2),
+            child: Text(
+              meta.join(' · '),
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.2,
+                color: isUser
+                    ? colors.onUserBubble.withValues(alpha: 0.75)
+                    : scheme.onSurfaceVariant,
+              ),
+            ),
+          );
+    if (isUser) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.sizeOf(context).width * 0.8,
+          ),
+          child: GestureDetector(
+            onLongPress: onLongPress,
+            child: Container(
+              margin: const EdgeInsets.only(
+                bottom: AppSpacing.ms,
+                top: AppSpacing.xs,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+              decoration: BoxDecoration(
+                color: colors.userBubble,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(6),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [body, ?metaText],
+              ),
+            ),
+          ),
         ),
-        child: GestureDetector(
-          onLongPress: onLongPress,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: isUser
-                  ? scheme.primaryContainer
-                  : scheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(18),
+      );
+    }
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 2),
+              child: BrandLogo(size: 28),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (pendingLabel != null && text.isEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Text(pendingLabel!),
-                    ],
-                  )
-                else
-                  // Plain Text so long-press opens the message menu (which
-                  // has Copy); SelectableText would swallow the gesture.
-                  Text(
-                    text,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: isUser
-                          ? scheme.onPrimaryContainer
-                          : scheme.onSurface,
+            const SizedBox(width: AppSpacing.ms),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerLow,
+                  border: Border.all(color: colors.hairline),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(6),
+                    topRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [body, ?metaText],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Three pulsing dots plus what the app is doing.
+class _Typing extends StatefulWidget {
+  const _Typing({required this.label});
+
+  final String label;
+
+  @override
+  State<_Typing> createState() => _TypingState();
+}
+
+class _TypingState extends State<_Typing> with SingleTickerProviderStateMixin {
+  late final _anim = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.primary;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedBuilder(
+          animation: _anim,
+          builder: (_, _) => Row(
+            children: [
+              for (var i = 0; i < 3; i++)
+                Container(
+                  width: 7,
+                  height: 7,
+                  margin: const EdgeInsets.only(right: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color.withValues(
+                      alpha:
+                          0.3 +
+                          0.7 *
+                              (1 - ((_anim.value * 3 - i) % 3 - 0.5).abs() * 2)
+                                  .clamp(0, 1),
                     ),
                   ),
-                if (meta.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    meta.join(' · '),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Flexible(
+          child: Text(
+            widget.label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// First screen of a new chat: the mark, a short promise and a few starters.
+class _EmptyChat extends StatelessWidget {
+  const _EmptyChat(this.c);
+
+  final ChatController c;
+
+  static const _starters = [
+    (Icons.lightbulb_outline_rounded, 'chat_starter_1'),
+    (Icons.edit_note_rounded, 'chat_starter_2'),
+    (Icons.translate_rounded, 'chat_starter_3'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const BrandLogo(size: 56),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'chat_empty_title'.tr,
+                style: theme.textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'chat_empty_body'.tr,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              for (final (icon, key) in _starters) ...[
+                Card(
+                  child: ListTile(
+                    leading: Icon(icon, color: theme.colorScheme.primary),
+                    title: Text(key.tr, style: theme.textTheme.bodyMedium),
+                    trailing: const Icon(Icons.north_west_rounded, size: 18),
+                    onTap: () {
+                      c.input.text = key.tr;
+                      c.input.selection = TextSelection.collapsed(
+                        offset: c.input.text.length,
+                      );
+                    },
                   ),
-                ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
               ],
-            ),
+            ],
           ),
         ),
       ),
@@ -482,26 +680,22 @@ class _Banner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Obx(() {
       final err = c.error.value;
       final dropped = c.droppedTurns.value;
       if (err == null && dropped == 0) return const SizedBox.shrink();
       final isError = err != null;
-      return Container(
-        width: double.infinity,
-        color: isError ? scheme.errorContainer : scheme.secondaryContainer,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          0,
+          AppSpacing.md,
+          AppSpacing.sm,
         ),
-        child: Text(
+        child: NoticeText(
           isError ? err.tr : 'context_trimmed'.trParams({'n': '$dropped'}),
-          style: TextStyle(
-            color: isError
-                ? scheme.onErrorContainer
-                : scheme.onSecondaryContainer,
-          ),
+          tone: isError ? PillTone.error : PillTone.primary,
+          icon: isError ? Icons.error_outline_rounded : Icons.info_outline,
         ),
       );
     });
@@ -515,54 +709,35 @@ class _Composer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.sm,
-        AppSpacing.sm,
+    return ComposerBar(
+      field: TextField(
+        controller: c.input,
+        minLines: 1,
+        maxLines: 6,
+        textInputAction: TextInputAction.newline,
+        decoration: composerDecoration(context, 'message_hint'.tr),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: c.input,
-              minLines: 1,
-              maxLines: 6,
-              textInputAction: TextInputAction.newline,
-              decoration: InputDecoration(hintText: 'message_hint'.tr),
-            ),
-          ),
-          const _MicButton(),
-          const SizedBox(width: AppSpacing.sm),
-          Obx(() {
-            switch (c.phase.value) {
-              case ChatPhase.generating || ChatPhase.summarizing:
-                return IconButton.filledTonal(
-                  tooltip: 'stop'.tr,
-                  onPressed: c.stop,
-                  icon: const Icon(Icons.stop),
-                );
-              case ChatPhase.loadingModel:
-                return const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              case ChatPhase.idle:
-                return IconButton.filled(
-                  tooltip: 'send'.tr,
-                  onPressed: c.send,
-                  icon: const Icon(Icons.arrow_upward),
-                );
-            }
-          }),
-        ],
-      ),
+      trailing: [
+        const _MicButton(),
+        Obx(() {
+          switch (c.phase.value) {
+            case ChatPhase.generating || ChatPhase.summarizing:
+              return IconButton.filledTonal(
+                tooltip: 'stop'.tr,
+                onPressed: c.stop,
+                icon: const Icon(Icons.stop_rounded),
+              );
+            case ChatPhase.loadingModel:
+              return const ComposerSpinner();
+            case ChatPhase.idle:
+              return IconButton.filled(
+                tooltip: 'send'.tr,
+                onPressed: c.send,
+                icon: const Icon(Icons.arrow_upward_rounded),
+              );
+          }
+        }),
+      ],
     );
   }
 }

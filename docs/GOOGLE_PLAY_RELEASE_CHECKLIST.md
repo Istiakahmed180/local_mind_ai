@@ -29,6 +29,7 @@ Verified sources (2026-10-17): Android target SDK requirements page (developer.a
 - [ ] Content rating questionnaire (AI chatbot generating user-requested text → answer honestly; expect at least Teen)
 - [ ] Target audience: not directed at children
 - [ ] Large downloads: models are fetched at runtime by user action; not bundled in the AAB (keeps base size under limits)
+- [ ] Store icon: `assets/brand/play_store_icon_512.png` (512×512, rendered from the in-app logo by `flutter test tool/brand_assets_test.dart`; not bundled in the app). Feature graphic and phone screenshots still to make — `docs/design/screens/` has emulator captures for reference only
 - [ ] GPU (Vulkan): run the in-app GPU check on several real phones (at least one Adreno, one Mali, one Xclipse/PowerVR if possible) and record results; Vulkan adds ~8 MB compressed per ABI (AAB 119.3 MB incl. debug symbols). Do not declare `android.hardware.vulkan` as required — the app must install and run on CPU-only phones
 - [x] OCR notices (Tesseract, Tesseract4Android, tessdata_fast, Leptonica, libjpeg, libpng) added to About → Licenses — compare against the full upstream LICENSE files before release
 - [ ] Open-source notices: About → Licenses (Flutter `LicenseRegistry` + llama.cpp MIT notice + model licenses)

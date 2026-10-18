@@ -10,7 +10,7 @@ See [docs/IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md) for exactly
 
 Working today: streaming offline chat, stop generation, conversation history (search/rename/delete, export/import, long-chat summaries), model catalog with verified downloads (resume, SHA-256, storage check, background downloads), GGUF import, device-aware recommendations, load/speed measurements, an experimental tool-using agent (calculator, date/time, file read/write with approval, summarize, history search, document search), local document Q&A with citations (keyword + optional meaning-based search, OCR for scanned PDFs), memory, offline voice input/output, Bengali + English UI, light/dark theme, local content reports, clear-all-data.
 
-On-device benchmark screen (Model library → speed icon, or a model's details). Experimental per-model GPU (Vulkan) use, switched on only after an in-app CPU/GPU answer check — not yet tested on a real phone GPU. Not built yet: final app icon and splash screen.
+On-device benchmark screen (Model library → speed icon, or a model's details). Experimental per-model GPU (Vulkan) use, switched on only after an in-app CPU/GPU answer check — not yet tested on a real phone GPU. Own design system (calm teal/indigo, light and dark), app icon and splash — see [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md).
 
 ## Requirements
 

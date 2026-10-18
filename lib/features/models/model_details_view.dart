@@ -37,27 +37,22 @@ class ModelDetailsView extends StatelessWidget {
         final dl = models.downloads[id];
         final active = settings.activeModelId.value == id;
         final loaded = runtime.loadedModelId.value == id;
+        final chat = def?.isEmbedding != true;
         return ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.page,
+            AppSpacing.xs,
+            AppSpacing.page,
+            AppSpacing.xl + MediaQuery.paddingOf(context).bottom,
+          ),
           children: [
-            if (def != null) _CatalogInfo(def, settings.effectiveContextSize),
-            if (def == null && inst != null) _ImportedInfo(inst),
-            const SizedBox(height: AppSpacing.md),
-            if (inst != null) _Measured(inst, loaded: loaded, runtime: runtime),
-            if (inst != null && def?.isEmbedding != true)
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton.icon(
-                  onPressed: () =>
-                      Get.toNamed(Routes.benchmark, arguments: inst.id),
-                  icon: const Icon(Icons.speed),
-                  label: Text('benchmark_open'.tr),
-                ),
-              ),
-            if (inst != null && def?.isEmbedding != true) ...[
-              const SizedBox(height: AppSpacing.sm),
-              GpuCard(modelId: inst.id),
-            ],
+            _Hero(
+              def: def,
+              inst: inst,
+              active: active,
+              loaded: loaded,
+              runtime: runtime,
+            ),
             const SizedBox(height: AppSpacing.md),
             if (inst == null && def != null)
               _DownloadControls(def: def, state: dl, models: models)
@@ -70,9 +65,127 @@ class ModelDetailsView extends StatelessWidget {
                 models: models,
                 settings: settings,
               ),
+            if (inst != null) ...[
+              SectionLabel('measured_on_device'.tr),
+              _Measured(inst, loaded: loaded, runtime: runtime),
+              if (chat) ...[
+                const SizedBox(height: AppSpacing.sm),
+                OutlinedButton.icon(
+                  onPressed: () =>
+                      Get.toNamed(Routes.benchmark, arguments: inst.id),
+                  icon: const Icon(Icons.speed_rounded),
+                  label: Text('benchmark_open'.tr),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                GpuCard(modelId: inst.id),
+              ],
+            ],
+            SectionLabel('model_info'.tr),
+            if (def != null) _CatalogInfo(def, settings.effectiveContextSize),
+            if (def == null && inst != null) _ImportedInfo(inst),
           ],
         );
       }),
+    );
+  }
+}
+
+/// Name, key numbers and status at the top of the screen.
+class _Hero extends StatelessWidget {
+  const _Hero({
+    required this.def,
+    required this.inst,
+    required this.active,
+    required this.loaded,
+    required this.runtime,
+  });
+
+  final ModelDefinition? def;
+  final InstalledModel? inst;
+  final bool active;
+  final bool loaded;
+  final ModelRuntimeService runtime;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final d = def;
+    final size = d?.sizeBytes ?? inst?.sizeBytes ?? 0;
+    Widget stat(String value, String label) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(value, style: theme.textTheme.titleMedium),
+          Text(label, style: theme.textTheme.bodySmall),
+        ],
+      ),
+    );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md + 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconBadge(
+                  d?.isEmbedding == true
+                      ? Icons.hub_outlined
+                      : Icons.memory_rounded,
+                  size: 48,
+                  iconSize: 26,
+                ),
+                const SizedBox(width: AppSpacing.ms),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        d?.publisher ?? 'imported_unverified'.tr,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      Wrap(
+                        spacing: AppSpacing.xs,
+                        runSpacing: AppSpacing.xs,
+                        children: [
+                          if (active)
+                            StatusPill('active'.tr, tone: PillTone.primary)
+                          else if (inst != null)
+                            StatusPill('installed'.tr),
+                          if (loaded)
+                            StatusPill(
+                              'runtime_${runtime.status.value.name}'.tr,
+                              tone: PillTone.success,
+                            ),
+                          if (d != null)
+                            StatusPill(
+                              'bengali_${d.bengali.name}'.tr,
+                              icon: Icons.translate_rounded,
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                stat(formatBytes(size), 'file_size'.tr),
+                if (d != null) ...[
+                  stat(d.parameters, 'parameters'.tr),
+                  stat(d.quantization, 'quantization'.tr),
+                ],
+              ],
+            ),
+            if (d != null) ...[
+              const SizedBox(height: AppSpacing.ms),
+              Text(d.notes, style: theme.textTheme.bodyMedium),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -87,7 +200,6 @@ class _CatalogInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final ram = m.estimatedRamBytes(contextSize);
     return SectionCard(
-      title: 'model_info'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -105,8 +217,6 @@ class _CatalogInfo extends StatelessWidget {
           InfoRow('language_support'.tr, 'bengali_${m.bengali.name}'.tr),
           InfoRow('license'.tr, m.license),
           InfoRow('source'.tr, m.sourcePage.toString()),
-          const SizedBox(height: AppSpacing.sm),
-          Text(m.notes, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: AppSpacing.sm),
           Text(
             'ram_estimate_note'.tr,
@@ -126,7 +236,6 @@ class _ImportedInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SectionCard(
-      title: 'model_info'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -171,7 +280,6 @@ class _Measured extends StatelessWidget {
       if (m.lastError != null) InfoRow('last_error'.tr, m.lastError!),
     ];
     return SectionCard(
-      title: 'measured_on_device'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -242,7 +350,7 @@ class _DownloadControls extends StatelessWidget {
               DownloadStatus.idle => [
                 FilledButton.icon(
                   onPressed: () => _start(context),
-                  icon: const Icon(Icons.download),
+                  icon: const Icon(Icons.download_rounded),
                   label: Text(
                     'download_size_btn'.trParams({
                       'size': formatBytes(def.sizeBytes),
@@ -393,6 +501,7 @@ class _InstalledControls extends StatelessWidget {
             child: Text('cancel'.tr),
           ),
           FilledButton(
+            style: dangerButtonStyle(context),
             onPressed: () => Navigator.pop(context, true),
             child: Text('delete'.tr),
           ),
@@ -425,13 +534,13 @@ class _InstalledControls extends StatelessWidget {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.play_arrow),
+                : const Icon(Icons.play_arrow_rounded),
             label: Text(active ? 'load_model'.tr : 'use_and_load'.tr),
           )
         else
           OutlinedButton.icon(
             onPressed: generating ? null : runtime.unload,
-            icon: const Icon(Icons.eject),
+            icon: const Icon(Icons.eject_rounded),
             label: Text('unload_model'.tr),
           ),
         if (!active)

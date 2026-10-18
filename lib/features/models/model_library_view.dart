@@ -26,12 +26,12 @@ class ModelLibraryView extends StatelessWidget {
         actions: [
           IconButton(
             tooltip: 'benchmark_title'.tr,
-            icon: const Icon(Icons.speed),
+            icon: const Icon(Icons.speed_rounded),
             onPressed: () => Get.toNamed(Routes.benchmark),
           ),
           IconButton(
             tooltip: 'import_model'.tr,
-            icon: const Icon(Icons.file_open_outlined),
+            icon: const Icon(Icons.upload_file_rounded),
             onPressed: () => _import(models),
           ),
         ],
@@ -50,15 +50,19 @@ class ModelLibraryView extends StatelessWidget {
         final activeId = settings.activeModelId.value;
         final downloads = Map.of(models.downloads);
         return ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.page,
+            AppSpacing.xs,
+            AppSpacing.page,
+            AppSpacing.xl,
+          ),
           children: [
             if (info != null) _DeviceCard(info),
-            if (info != null && !info.supportsArm64)
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: Text('abi_unsupported'.tr),
-              ),
-            const SizedBox(height: AppSpacing.md),
+            if (info != null && !info.supportsArm64) ...[
+              const SizedBox(height: AppSpacing.sm),
+              NoticeText('abi_unsupported'.tr, tone: PillTone.error),
+            ],
+            SectionLabel('catalog_models'.tr),
             for (final f in fits) ...[
               _ModelTile(
                 fit: f,
@@ -66,34 +70,33 @@ class ModelLibraryView extends StatelessWidget {
                 active: activeId == f.model.id,
                 download: downloads[f.model.id],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.ms),
             ],
             if (imported.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                'imported_models'.tr,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              for (final m in imported)
+              SectionLabel('imported_models'.tr),
+              for (final m in imported) ...[
                 Card(
                   child: ListTile(
+                    leading: const IconBadge(Icons.upload_file_rounded),
                     title: Text(m.displayName),
                     subtitle: Text(
                       '${formatBytes(m.sizeBytes)} · ${'imported_unverified'.tr}',
                     ),
                     trailing: activeId == m.id
-                        ? const Icon(Icons.check_circle)
-                        : null,
+                        ? StatusPill('active'.tr, tone: PillTone.primary)
+                        : const Icon(Icons.chevron_right_rounded),
                     onTap: () =>
                         Get.toNamed(Routes.modelDetails, arguments: m.id),
                   ),
                 ),
+                const SizedBox(height: AppSpacing.ms),
+              ],
             ],
-            const SizedBox(height: AppSpacing.lg),
-            Text(
+            const SizedBox(height: AppSpacing.sm),
+            NoticeText(
               'model_source_note'.tr,
-              style: Theme.of(context).textTheme.bodySmall,
+              tone: PillTone.neutral,
+              icon: Icons.verified_user_outlined,
             ),
           ],
         );
@@ -136,16 +139,53 @@ class _DeviceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SectionCard(
-      title: 'your_device'.tr,
+    final theme = Theme.of(context);
+    Widget stat(String label, String value) => Expanded(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          InfoRow('device'.tr, '${info.manufacturer} ${info.model}'),
-          InfoRow('total_ram'.tr, formatBytes(info.totalRamBytes)),
-          InfoRow('free_storage'.tr, formatBytes(info.freeStorageBytes)),
-          InfoRow('cpu_cores'.tr, '${info.cpuCores}'),
-          if (info.isEmulator) InfoRow('note'.tr, 'emulator_note'.tr),
+          Text(value, style: theme.textTheme.titleMedium),
+          Text(label, style: theme.textTheme.bodySmall),
         ],
+      ),
+    );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md + 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const IconBadge(Icons.smartphone_rounded),
+                const SizedBox(width: AppSpacing.ms),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('your_device'.tr, style: theme.textTheme.bodySmall),
+                      Text(
+                        '${info.manufacturer} ${info.model}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                ),
+                if (info.isEmulator) StatusPill('emulator'.tr),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                stat('total_ram'.tr, formatBytes(info.totalRamBytes)),
+                stat('free_storage'.tr, formatBytes(info.freeStorageBytes)),
+                stat('cpu_cores'.tr, '${info.cpuCores}'),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -168,64 +208,73 @@ class _ModelTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final m = fit.model;
-    final (fitLabel, fitColor) = switch (fit.fit) {
-      Fit.recommended => ('fit_recommended'.tr, theme.colorScheme.primary),
-      Fit.possible => ('fit_possible'.tr, theme.colorScheme.tertiary),
-      Fit.tooLarge => ('fit_too_large'.tr, theme.colorScheme.error),
-      Fit.unknown => ('fit_unknown'.tr, theme.colorScheme.outline),
+    final (fitLabel, fitTone) = switch (fit.fit) {
+      Fit.recommended => ('fit_recommended'.tr, PillTone.success),
+      Fit.possible => ('fit_possible'.tr, PillTone.warning),
+      Fit.tooLarge => ('fit_too_large'.tr, PillTone.error),
+      Fit.unknown => ('fit_unknown'.tr, PillTone.neutral),
     };
     final d = download;
     return Card(
-      clipBehavior: Clip.antiAlias,
+      shape: active
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
+            )
+          : null,
       child: InkWell(
         onTap: () => Get.toNamed(Routes.modelDetails, arguments: m.id),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.md + 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  IconBadge(
+                    installed ? Icons.check_rounded : Icons.download_rounded,
+                    background: installed
+                        ? theme.colorScheme.primaryContainer
+                        : theme.colorScheme.surfaceContainerHigh,
+                    color: installed
+                        ? theme.colorScheme.onPrimaryContainer
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: AppSpacing.ms),
                   Expanded(
-                    child: Text(m.name, style: theme.textTheme.titleMedium),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(m.name, style: theme.textTheme.titleMedium),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${m.parameters} · ${m.quantization} · ${formatBytes(m.sizeBytes)} · ${m.license}',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
                   ),
                   if (active)
-                    Chip(
-                      label: Text('active'.tr),
-                      visualDensity: VisualDensity.compact,
-                    )
+                    StatusPill('active'.tr, tone: PillTone.primary)
                   else if (installed)
-                    Chip(
-                      label: Text('installed'.tr),
-                      visualDensity: VisualDensity.compact,
-                    ),
+                    StatusPill('installed'.tr),
                 ],
               ),
-              Text(
-                '${m.parameters} · ${m.quantization} · ${formatBytes(m.sizeBytes)} · ${m.license}',
-                style: theme.textTheme.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: AppSpacing.ms),
               Wrap(
-                spacing: AppSpacing.md,
-                runSpacing: AppSpacing.xs,
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.circle, size: 10, color: fitColor),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(fitLabel, style: theme.textTheme.labelMedium),
-                    ],
-                  ),
-                  Text(
+                  StatusPill(fitLabel, tone: fitTone),
+                  StatusPill(
                     'bengali_${m.bengali.name}'.tr,
-                    style: theme.textTheme.labelMedium,
+                    icon: Icons.translate_rounded,
                   ),
                 ],
               ),
               if (d != null && d.status != DownloadStatus.idle) ...[
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.ms),
                 LinearProgressIndicator(
                   value: d.status == DownloadStatus.verifying
                       ? null
@@ -234,7 +283,7 @@ class _ModelTile extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   '${'download_${d.status.name}'.tr} · ${formatBytes(d.receivedBytes)} / ${formatBytes(d.totalBytes)}',
-                  style: theme.textTheme.labelSmall,
+                  style: theme.textTheme.bodySmall,
                 ),
               ],
             ],

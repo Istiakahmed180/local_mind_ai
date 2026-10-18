@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '../../app/routes.dart';
 import '../../app/theme.dart';
+import '../../core/format.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories/conversation_repository.dart';
@@ -46,14 +46,13 @@ class HistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.put(HistoryController());
-    final dateFmt = DateFormat.yMMMd(Get.locale?.toLanguageTag());
     return Scaffold(
       appBar: AppBar(
         title: Text('nav_chats'.tr),
         actions: [
           PopupMenuButton<String>(
             tooltip: 'chat_transfer_menu'.tr,
-            icon: const Icon(Icons.import_export),
+            icon: const Icon(Icons.more_vert_rounded),
             onSelected: (a) =>
                 a == 'export' ? exportChats(context) : importChats(context),
             itemBuilder: (_) => [
@@ -65,22 +64,22 @@ class HistoryView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Get.toNamed(Routes.chat),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text('new_chat'.tr),
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              0,
-              AppSpacing.md,
-              AppSpacing.sm,
+              AppSpacing.page,
+              AppSpacing.xs,
+              AppSpacing.page,
+              AppSpacing.ms,
             ),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'search_chats'.tr,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search_rounded),
               ),
               onChanged: (v) => c.query.value = v,
             ),
@@ -95,48 +94,74 @@ class HistoryView extends StatelessWidget {
                       : 'no_results'.tr,
                 );
               }
-              return ListView.builder(
-                padding: const EdgeInsets.only(bottom: 88),
+              final theme = Theme.of(context);
+              return ListView.separated(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.page,
+                  0,
+                  AppSpacing.page,
+                  96,
+                ),
                 itemCount: c.conversations.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, i) {
                   final conv = c.conversations[i];
-                  return ListTile(
-                    title: Text(
-                      conv.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Text(dateFmt.format(conv.updatedAt)),
-                    onTap: () => Get.toNamed(Routes.chat, arguments: conv.id),
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (action) => switch (action) {
-                        'rename' => _rename(context, c, conv),
-                        'json' => exportChats(context, conversationId: conv.id),
-                        'md' => exportChats(
-                          context,
-                          conversationId: conv.id,
-                          markdown: true,
-                        ),
-                        _ => _delete(context, c, conv),
-                      },
-                      itemBuilder: (_) => [
-                        PopupMenuItem(
-                          value: 'rename',
-                          child: Text('rename'.tr),
-                        ),
-                        PopupMenuItem(
-                          value: 'json',
-                          child: Text('chat_export_json'.tr),
-                        ),
-                        PopupMenuItem(
-                          value: 'md',
-                          child: Text('chat_export_md'.tr),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Text('delete'.tr),
-                        ),
-                      ],
+                  return Card(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.xs,
+                        AppSpacing.xs,
+                        AppSpacing.xs,
+                      ),
+                      leading: IconBadge(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 40,
+                        iconSize: 20,
+                        background: theme.colorScheme.surfaceContainerHigh,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      title: Text(
+                        conv.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(formatWhen(conv.updatedAt)),
+                      onTap: () => Get.toNamed(Routes.chat, arguments: conv.id),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (action) => switch (action) {
+                          'rename' => _rename(context, c, conv),
+                          'json' => exportChats(
+                            context,
+                            conversationId: conv.id,
+                          ),
+                          'md' => exportChats(
+                            context,
+                            conversationId: conv.id,
+                            markdown: true,
+                          ),
+                          _ => _delete(context, c, conv),
+                        },
+                        itemBuilder: (_) => [
+                          PopupMenuItem(
+                            value: 'rename',
+                            child: Text('rename'.tr),
+                          ),
+                          PopupMenuItem(
+                            value: 'json',
+                            child: Text('chat_export_json'.tr),
+                          ),
+                          PopupMenuItem(
+                            value: 'md',
+                            child: Text('chat_export_md'.tr),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Text('delete'.tr),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -191,6 +216,7 @@ class HistoryView extends StatelessWidget {
             child: Text('cancel'.tr),
           ),
           FilledButton(
+            style: dangerButtonStyle(context),
             onPressed: () => Navigator.pop(context, true),
             child: Text('delete'.tr),
           ),

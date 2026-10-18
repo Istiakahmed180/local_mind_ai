@@ -266,3 +266,12 @@ Tests: `flutter test` → 222 passed; `flutter analyze` → no issues. Not commi
 - **Tests:** `test/services/gpu_check_test.dart` (answer comparison incl. garbage and later divergence, verdict order, CPU by default, reload when the choice changes, fallback to CPU with the reason, strict check never falls back, mismatch/unsupported keep the GPU off, clear-all forgets).
 
 Tests: `flutter test` → 232 passed; `flutter analyze` → no issues. Not committed.
+
+### Professional UI design, app icon and splash — 2026-10-18
+
+New design system ("calm and premium", chosen by the owner) with a hand-picked teal/indigo palette, tuned type scale, hairline cards instead of shadows, and shared components; main screens redesigned; launcher icon (adaptive + themed monochrome) and splash (Android 12+ and older) generated from the same code as the in-app logo. Details, tokens and what was and was not checked: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). Edge-to-edge status bar is now transparent.
+
+- **Bugs found while checking on the emulator:** model-library licence pill wrapped onto its own line (moved into the subtitle); settings sliders wasted space (compact slider rows); model details list had no bottom padding; feature tiles had unequal heights in Bengali; bright teal surfaces were too loud in dark mode (gradient tile, softer FAB).
+- Release AAB 119.3 → 119.8 MB (icon/splash PNGs).
+
+Tests: `flutter test` → 235 passed; `flutter analyze` → no issues. Not committed.

@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 String formatBytes(int bytes) {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   var value = bytes.toDouble();
@@ -13,4 +15,14 @@ String formatBytes(int bytes) {
 String formatDuration(Duration d) {
   if (d.inMilliseconds < 1000) return '${d.inMilliseconds} ms';
   return '${(d.inMilliseconds / 1000).toStringAsFixed(1)} s';
+}
+
+/// "14:05" today, "12 Mar" this year, "12 Mar 2025" otherwise.
+String formatWhen(DateTime t, {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  if (t.year == n.year && t.month == n.month && t.day == n.day) {
+    return DateFormat.Hm().format(t);
+  }
+  if (t.year == n.year) return DateFormat.MMMd().format(t);
+  return DateFormat.yMMMd().format(t);
 }
