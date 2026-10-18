@@ -42,7 +42,10 @@ class _ApprovalDialog extends StatelessWidget {
             Text(explain),
             if (content is String) ...[
               const SizedBox(height: AppSpacing.md),
-              Text('agent_content_preview'.tr, style: theme.textTheme.labelLarge),
+              Text(
+                'agent_content_preview'.tr,
+                style: theme.textTheme.labelLarge,
+              ),
               const SizedBox(height: AppSpacing.xs),
               Container(
                 width: double.infinity,

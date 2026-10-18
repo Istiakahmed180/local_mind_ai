@@ -12,7 +12,8 @@ import 'package:path/path.dart' as p;
 import '../fakes.dart';
 
 const _calc = '{"tool": "calculator", "args": {"expression": "23 * 47 + 12"}}';
-const _final = '{"tool": "final_answer", "args": {"answer": "The result is 1093."}}';
+const _final =
+    '{"tool": "final_answer", "args": {"answer": "The result is 1093."}}';
 
 class _Harness {
   _Harness(
@@ -68,45 +69,55 @@ void main() {
     expect(h.runtime.schemas, everyElement(isNotNull));
     // The turn list is shared and also holds the final reply.
     final turns = h.runtime.lastTurns!;
-    expect(turns[turns.length - 2].text, contains('Result of calculator: 1093'));
+    expect(
+      turns[turns.length - 2].text,
+      contains('Result of calculator: 1093'),
+    );
   });
 
-  test('tolerates prose, fences and other call shapes when unconstrained', () async {
-    final h = _Harness([
-      'Sure! ```json\n{"name": "calculator", "arguments": {"expression": "2+2"}}\n```',
-      '<tool_call>{"answer": "4"}</tool_call>',
-    ]);
-    await h.orchestrator.run('2+2?');
-    expect(h.orchestrator.state, AgentState.completed);
-    expect(h.orchestrator.answer, '4');
-    expect(h.orchestrator.steps[1].text, '4');
-  });
+  test(
+    'tolerates prose, fences and other call shapes when unconstrained',
+    () async {
+      final h = _Harness([
+        'Sure! ```json\n{"name": "calculator", "arguments": {"expression": "2+2"}}\n```',
+        '<tool_call>{"answer": "4"}</tool_call>',
+      ]);
+      await h.orchestrator.run('2+2?');
+      expect(h.orchestrator.state, AgentState.completed);
+      expect(h.orchestrator.answer, '4');
+      expect(h.orchestrator.steps[1].text, '4');
+    },
+  );
 
-  test('falls back to unconstrained decoding when the backend rejects the schema', () async {
-    final rt = FakeRuntime(responses: [_calc, _final]);
-    Stream<GenerationEvent> generate(
-      List<ChatTurn> t,
-      GenerationSettings s, {
-      Map<String, Object?>? jsonSchema,
-    }) {
-      if (jsonSchema != null) {
-        return Stream.error(const InferenceException('grammar unsupported'));
+  test(
+    'falls back to unconstrained decoding when the backend rejects the schema',
+    () async {
+      final rt = FakeRuntime(responses: [_calc, _final]);
+      Stream<GenerationEvent> generate(
+        List<ChatTurn> t,
+        GenerationSettings s, {
+        Map<String, Object?>? jsonSchema,
+      }) {
+        if (jsonSchema != null) {
+          return Stream.error(const InferenceException('grammar unsupported'));
+        }
+        return rt.generate(t, s);
       }
-      return rt.generate(t, s);
-    }
 
-    final h = _Harness(const [], generate: generate);
-    await h.orchestrator.run('task');
-    expect(h.orchestrator.state, AgentState.completed);
-    expect(h.orchestrator.useGrammar, isFalse);
-    expect(h.kinds.first, AgentStepKind.note);
-  });
+      final h = _Harness(const [], generate: generate);
+      await h.orchestrator.run('task');
+      expect(h.orchestrator.state, AgentState.completed);
+      expect(h.orchestrator.useGrammar, isFalse);
+      expect(h.kinds.first, AgentStepKind.note);
+    },
+  );
 
   test('invalid replies are retried, then the run fails honestly', () async {
-    final h = _Harness(
-      ['I think the answer is 1093', '{"tool": "shell", "args": {"cmd": "rm"}}', 'still no json'],
-      limits: const AgentLimits(maxInvalidOutputs: 2),
-    );
+    final h = _Harness([
+      'I think the answer is 1093',
+      '{"tool": "shell", "args": {"cmd": "rm"}}',
+      'still no json',
+    ], limits: const AgentLimits(maxInvalidOutputs: 2));
     await h.orchestrator.run('task');
     expect(h.orchestrator.state, AgentState.failed);
     expect(h.orchestrator.failure, AgentFailure.invalidModelOutput);
@@ -119,11 +130,14 @@ void main() {
 
   test('invalid arguments never reach the tool', () async {
     final tool = _CountingTool();
-    final h = _Harness([
-      '{"tool": "counter", "args": {"n": "not a number"}}',
-      '{"tool": "counter", "args": {"n": 1, "extra": true}}',
-      _final,
-    ], tools: [tool]);
+    final h = _Harness(
+      [
+        '{"tool": "counter", "args": {"n": "not a number"}}',
+        '{"tool": "counter", "args": {"n": 1, "extra": true}}',
+        _final,
+      ],
+      tools: [tool],
+    );
     await h.orchestrator.run('task');
     expect(tool.runs, 0);
     expect(h.orchestrator.state, AgentState.completed);
@@ -149,7 +163,10 @@ void main() {
         '{"tool": "final_answer", "args": {"answer": "ok"}}',
       ],
       tools: [_BigOutputTool()],
-      limits: const AgentLimits(maxModelOutputBytes: 100, maxToolOutputBytes: 64),
+      limits: const AgentLimits(
+        maxModelOutputBytes: 100,
+        maxToolOutputBytes: 64,
+      ),
     );
     await h.orchestrator.run('task');
     expect(h.kinds.first, AgentStepKind.invalidOutput);
@@ -166,7 +183,8 @@ void main() {
     setUp(() async => dir = await Directory.systemTemp.createTemp('agent_ws'));
     tearDown(() => dir.delete(recursive: true));
 
-    const write = '{"tool": "write_file", "args": {"filename": "a.md", "content": "hi"}}';
+    const write =
+        '{"tool": "write_file", "args": {"filename": "a.md", "content": "hi"}}';
 
     test('approved write runs after awaitingApproval', () async {
       final asked = <String>[];
@@ -240,7 +258,10 @@ void main() {
 
     test('while a tool is running: run ends at once', () async {
       final tool = _SlowTool();
-      final h = _Harness(['{"tool": "slow", "args": {}}', _final], tools: [tool]);
+      final h = _Harness(
+        ['{"tool": "slow", "args": {}}', _final],
+        tools: [tool],
+      );
       final run = h.orchestrator.run('task');
       while (h.orchestrator.state != AgentState.runningTool) {
         await Future<void>.delayed(Duration.zero);
@@ -290,25 +311,31 @@ void main() {
     expect(h.orchestrator.failure, AgentFailure.outOfMemory);
   });
 
-  test('transition table: terminal states are final, idle cannot skip ahead', () {
-    for (final s in AgentState.values.where((s) => s.isTerminal)) {
-      expect(agentTransitions[s], isEmpty);
-    }
-    expect(agentTransitions[AgentState.idle], isNot(contains(AgentState.runningTool)));
-    expect(
-      agentTransitions[AgentState.planning],
-      isNot(contains(AgentState.idle)),
-    );
-    // A tool can only run after planning or approval.
-    for (final e in agentTransitions.entries) {
-      if (e.value.contains(AgentState.runningTool)) {
-        expect(
-          e.key,
-          anyOf(AgentState.planning, AgentState.awaitingApproval),
-        );
+  test(
+    'transition table: terminal states are final, idle cannot skip ahead',
+    () {
+      for (final s in AgentState.values.where((s) => s.isTerminal)) {
+        expect(agentTransitions[s], isEmpty);
       }
-    }
-  });
+      expect(
+        agentTransitions[AgentState.idle],
+        isNot(contains(AgentState.runningTool)),
+      );
+      expect(
+        agentTransitions[AgentState.planning],
+        isNot(contains(AgentState.idle)),
+      );
+      // A tool can only run after planning or approval.
+      for (final e in agentTransitions.entries) {
+        if (e.value.contains(AgentState.runningTool)) {
+          expect(
+            e.key,
+            anyOf(AgentState.planning, AgentState.awaitingApproval),
+          );
+        }
+      }
+    },
+  );
 
   test('an orchestrator runs only once', () async {
     final h = _Harness([_final]);

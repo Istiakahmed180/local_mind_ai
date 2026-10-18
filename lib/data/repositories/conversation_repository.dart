@@ -107,14 +107,14 @@ class ConversationRepository {
   Future<void> deleteMessage(String id) =>
       (_db.delete(_db.messages)..where((m) => m.id.equals(id))).go();
 
-  Future<void> report({
+  Future<ContentReport> report({
     required String messageId,
     required String? modelId,
     required String reason,
     required String excerpt,
   }) => _db
       .into(_db.contentReports)
-      .insert(
+      .insertReturning(
         ContentReportsCompanion.insert(
           id: _uuid.v4(),
           messageId: messageId,

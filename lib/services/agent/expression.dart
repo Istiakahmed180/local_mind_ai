@@ -14,11 +14,15 @@ class ExpressionException implements Exception {
 /// constants pi and e, so model output can never reach `eval` or code.
 double evaluateExpression(String source, {int maxLength = 200}) {
   if (source.length > maxLength) {
-    throw ExpressionException('Expression is longer than $maxLength characters');
+    throw ExpressionException(
+      'Expression is longer than $maxLength characters',
+    );
   }
   final p = _Parser(source.replaceAll('×', '*').replaceAll('÷', '/'));
   final value = p.parse();
-  if (!value.isFinite) throw const ExpressionException('Result is not a finite number');
+  if (!value.isFinite) {
+    throw const ExpressionException('Result is not a finite number');
+  }
   return value;
 }
 
@@ -61,11 +65,15 @@ class _Parser {
 
   double parse() {
     _skipSpace();
-    if (pos >= src.length) throw const ExpressionException('Expression is empty');
+    if (pos >= src.length) {
+      throw const ExpressionException('Expression is empty');
+    }
     final v = _expr();
     _skipSpace();
     if (pos < src.length) {
-      throw ExpressionException('Unexpected "${src[pos]}" at position ${pos + 1}');
+      throw ExpressionException(
+        'Unexpected "${src[pos]}" at position ${pos + 1}',
+      );
     }
     return v;
   }
@@ -120,7 +128,9 @@ class _Parser {
 
   double _primary() {
     _skipSpace();
-    if (pos >= src.length) throw const ExpressionException('Expression ended early');
+    if (pos >= src.length) {
+      throw const ExpressionException('Expression ended early');
+    }
     final c = src[pos];
     if (c == '(') {
       pos++;

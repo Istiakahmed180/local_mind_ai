@@ -1,6 +1,9 @@
 package co.tdevs.localmind_ai
 
 import android.app.ActivityManager
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -25,6 +28,13 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "info" -> result.success(deviceInfo())
                 "isOnline" -> result.success(isOnline())
+                "composeEmail" -> result.success(
+                    composeEmail(
+                        call.argument<String>("to") ?: "",
+                        call.argument<String>("subject") ?: "",
+                        call.argument<String>("body") ?: "",
+                    )
+                )
                 else -> result.notImplemented()
             }
         }
@@ -69,6 +79,21 @@ class MainActivity : FlutterActivity() {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         runCatching { cm.unregisterNetworkCallback(callback) }
         networkCallback = null
+    }
+
+    /** Opens the user's email app with a prefilled draft; nothing is sent automatically. */
+    private fun composeEmail(to: String, subject: String, body: String): Boolean {
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, body)
+        }
+        return try {
+            startActivity(intent)
+            true
+        } catch (e: ActivityNotFoundException) {
+            false
+        }
     }
 
     private fun isOnline(): Boolean {

@@ -25,28 +25,53 @@ void main() {
     ]);
 
     test('accepts valid calls', () {
-      expect(registry.validate(const ToolCall('calculator', {'expression': '1+1'})), isEmpty);
-      expect(registry.validate(const ToolCall('current_datetime', {})), isEmpty);
       expect(
-        registry.validate(const ToolCall('write_file', {'filename': 'notes.md', 'content': 'hi'})),
+        registry.validate(const ToolCall('calculator', {'expression': '1+1'})),
+        isEmpty,
+      );
+      expect(
+        registry.validate(const ToolCall('current_datetime', {})),
+        isEmpty,
+      );
+      expect(
+        registry.validate(
+          const ToolCall('write_file', {
+            'filename': 'notes.md',
+            'content': 'hi',
+          }),
+        ),
         isEmpty,
       );
     });
 
     test('rejects unknown tools, missing, extra and mistyped args', () {
-      expect(registry.validate(const ToolCall('shell', {'cmd': 'ls'})), isNotEmpty);
-      expect(registry.validate(const ToolCall('calculator', {})), isNotEmpty);
-      expect(registry.validate(const ToolCall('calculator', {'expression': 5})), isNotEmpty);
       expect(
-        registry.validate(const ToolCall('calculator', {'expression': '1', 'x': 1})),
+        registry.validate(const ToolCall('shell', {'cmd': 'ls'})),
         isNotEmpty,
       );
-      expect(registry.validate(const ToolCall('calculator', {'expression': ''})), isNotEmpty);
+      expect(registry.validate(const ToolCall('calculator', {})), isNotEmpty);
+      expect(
+        registry.validate(const ToolCall('calculator', {'expression': 5})),
+        isNotEmpty,
+      );
+      expect(
+        registry.validate(
+          const ToolCall('calculator', {'expression': '1', 'x': 1}),
+        ),
+        isNotEmpty,
+      );
+      expect(
+        registry.validate(const ToolCall('calculator', {'expression': ''})),
+        isNotEmpty,
+      );
       expect(
         registry.validate(ToolCall('calculator', {'expression': '1' * 201})),
         isNotEmpty,
       );
-      expect(registry.validate(const ToolCall('current_datetime', {'tz': 'UTC'})), isNotEmpty);
+      expect(
+        registry.validate(const ToolCall('current_datetime', {'tz': 'UTC'})),
+        isNotEmpty,
+      );
     });
 
     test('rejects unsafe file names', () {
@@ -61,7 +86,9 @@ void main() {
         r'a\b.md',
       ]) {
         expect(
-          registry.validate(ToolCall('write_file', {'filename': name, 'content': ''})),
+          registry.validate(
+            ToolCall('write_file', {'filename': name, 'content': ''}),
+          ),
           isNotEmpty,
           reason: name,
         );
@@ -76,7 +103,10 @@ void main() {
   test('calculator returns exact results and tool errors', () async {
     final c = CalculatorTool();
     expect(await c.run({'expression': '23 * 47 + 12'}, ctx), '1093');
-    expect(() => c.run({'expression': '1/0'}, ctx), throwsA(isA<ToolException>()));
+    expect(
+      () => c.run({'expression': '1/0'}, ctx),
+      throwsA(isA<ToolException>()),
+    );
   });
 
   test('datetime reports the injected clock', () async {
@@ -90,12 +120,18 @@ void main() {
       final tool = WriteFileTool(() async => workspace);
       expect(tool.requiresApproval, isTrue);
       await tool.run({'filename': 'list.md', 'content': '# Hi'}, ctx);
-      expect(File(p.join(workspace.path, 'list.md')).readAsStringSync(), '# Hi');
+      expect(
+        File(p.join(workspace.path, 'list.md')).readAsStringSync(),
+        '# Hi',
+      );
       expect(
         () => tool.run({'filename': 'list.md', 'content': 'other'}, ctx),
         throwsA(isA<ToolException>()),
       );
-      expect(File(p.join(workspace.path, 'list.md')).readAsStringSync(), '# Hi');
+      expect(
+        File(p.join(workspace.path, 'list.md')).readAsStringSync(),
+        '# Hi',
+      );
     });
 
     test('re-checks names even without registry validation', () async {
@@ -127,7 +163,9 @@ void main() {
     );
 
     test('requires approval and returns text', () async {
-      final tool = ReadFileTool(() async => picked('a.txt', utf8.encode('hello')));
+      final tool = ReadFileTool(
+        () async => picked('a.txt', utf8.encode('hello')),
+      );
       expect(tool.requiresApproval, isTrue);
       expect(await tool.run({}, ctx), contains('hello'));
     });
@@ -137,8 +175,12 @@ void main() {
           expectLater(t.run({}, ctx), throwsA(isA<ToolException>()));
       await fails(ReadFileTool(() async => null));
       await fails(ReadFileTool(() async => picked('a.pdf', [1])));
-      await fails(ReadFileTool(() async => picked('a.txt', [1], size: 300 * 1024)));
-      await fails(ReadFileTool(() async => picked('a.txt', [0xff, 0xfe, 0x00])));
+      await fails(
+        ReadFileTool(() async => picked('a.txt', [1], size: 300 * 1024)),
+      );
+      await fails(
+        ReadFileTool(() async => picked('a.txt', [0xff, 0xfe, 0x00])),
+      );
       var read = false;
       await fails(
         ReadFileTool(
@@ -163,7 +205,10 @@ void main() {
       searched++;
       return const [HistoryHit(title: 'T', snippet: 'match')];
     }, isEnabled: () => enabled);
-    await expectLater(tool.run({'query': 'match'}, ctx), throwsA(isA<ToolException>()));
+    await expectLater(
+      tool.run({'query': 'match'}, ctx),
+      throwsA(isA<ToolException>()),
+    );
     expect(searched, 0);
     enabled = true;
     expect(await tool.run({'query': 'match'}, ctx), contains('[T] match'));

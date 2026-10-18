@@ -123,7 +123,9 @@ class ReadFileTool extends AgentTool {
   @override
   Future<String> run(Map<String, Object?> args, ToolContext context) async {
     final file = await _pick();
-    if (file == null) throw const ToolException('The user did not pick a file.');
+    if (file == null) {
+      throw const ToolException('The user did not pick a file.');
+    }
     final ext = p.extension(file.name).replaceFirst('.', '').toLowerCase();
     if (!extensions.contains(ext)) {
       throw ToolException('Only ${extensions.join(', ')} files can be read.');
@@ -237,7 +239,9 @@ class SummarizeTool extends AgentTool {
   @override
   Future<String> run(Map<String, Object?> args, ToolContext context) async {
     final summary = (await _summarize(args['text']! as String)).trim();
-    if (summary.isEmpty) throw const ToolException('The model returned no summary.');
+    if (summary.isEmpty) {
+      throw const ToolException('The model returned no summary.');
+    }
     return summary;
   }
 }
@@ -249,7 +253,10 @@ class HistoryHit {
   final String snippet;
 }
 
-typedef HistorySearch = Future<List<HistoryHit>> Function(String query, int limit);
+typedef HistorySearch = Future<List<HistoryHit>> Function(
+  String query,
+  int limit,
+);
 
 /// Only registered when the user has turned on history search; [isEnabled]
 /// is checked again on every call in case the setting changed mid-run.

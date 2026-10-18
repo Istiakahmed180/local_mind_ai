@@ -8,9 +8,10 @@ import '../../app/theme.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../../data/repositories/conversation_repository.dart';
+import '../../services/report_mailer.dart';
 
-/// Reports are stored only on this device. The user can copy one to send it
-/// to the developer themselves; nothing is uploaded automatically.
+/// Reports are stored on this device. Sending one opens the user's email app
+/// with a draft they review and send themselves; nothing is uploaded silently.
 class ReportsView extends StatelessWidget {
   const ReportsView({super.key});
 
@@ -27,23 +28,20 @@ class ReportsView extends StatelessWidget {
           if (snap.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           }
+          final explainer = 'reports_explainer'.trParams({
+            'email': AppConfig.privacyContact,
+          });
           if (items.isEmpty) {
             return MessageState(
               icon: Icons.flag_outlined,
               title: 'no_reports'.tr,
-              body: 'reports_explainer'.trParams({
-                'email': AppConfig.privacyContact,
-              }),
+              body: explainer,
             );
           }
           return ListView(
             padding: const EdgeInsets.all(AppSpacing.md),
             children: [
-              Text(
-                'reports_explainer'.trParams({
-                  'email': AppConfig.privacyContact,
-                }),
-              ),
+              Text(explainer),
               const SizedBox(height: AppSpacing.md),
               for (final r in items)
                 Card(
@@ -56,15 +54,9 @@ class ReportsView extends StatelessWidget {
                     ),
                     isThreeLine: true,
                     trailing: IconButton(
-                      tooltip: 'copy'.tr,
-                      icon: const Icon(Icons.copy),
-                      onPressed: () => Clipboard.setData(
-                        ClipboardData(
-                          text:
-                              'Report: ${r.reason}\nModel: ${r.modelId ?? '-'}\n'
-                              'Date: ${r.createdAt.toIso8601String()}\n\n${r.excerpt}',
-                        ),
-                      ),
+                      tooltip: 'report_send'.tr,
+                      icon: const Icon(Icons.outgoing_mail),
+                      onPressed: () => showReportSendDialog(context, r),
                     ),
                   ),
                 ),
@@ -73,5 +65,65 @@ class ReportsView extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+/// Shows the exact email text, then opens the email app if the user agrees.
+Future<void> showReportSendDialog(BuildContext context, ContentReport r) async {
+  final body = formatReportEmail(r);
+  final choice = await showDialog<String>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text('report_send'.tr),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'report_send_preview'.trParams({
+                'email': AppConfig.privacyContact,
+              }),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: SelectableText(
+                body,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'copy'),
+          child: Text('copy'.tr),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('cancel'.tr),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, 'email'),
+          child: Text('report_open_email'.tr),
+        ),
+      ],
+    ),
+  );
+  if (choice == 'copy') {
+    await Clipboard.setData(ClipboardData(text: body));
+  } else if (choice == 'email') {
+    final opened = await ReportMailer().compose(r);
+    if (!opened) {
+      await Clipboard.setData(ClipboardData(text: body));
+      Get.snackbar(
+        'report_send'.tr,
+        'report_no_email_app'.trParams({'email': AppConfig.privacyContact}),
+      );
+    }
   }
 }

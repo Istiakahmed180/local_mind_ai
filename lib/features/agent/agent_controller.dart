@@ -140,7 +140,11 @@ class AgentController extends GetxController {
       workspaceFiles.clear();
       return;
     }
-    final files = await dir.list().where((e) => e is File).cast<File>().toList();
+    final files = await dir
+        .list()
+        .where((e) => e is File)
+        .cast<File>()
+        .toList();
     files.sort((a, b) => a.path.compareTo(b.path));
     workspaceFiles.assignAll(files);
   }
@@ -174,17 +178,14 @@ class AgentController extends GetxController {
 
   Future<String> _summarize(String text) async {
     final b = StringBuffer();
-    await for (final e in runtime.generate(
-      [
-        const ChatTurn(
-          ChatRole.system,
-          'Summarize the text in at most three sentences. Use only facts '
-          'from the text. Reply in the language of the text.',
-        ),
-        ChatTurn(ChatRole.user, text),
-      ],
-      settings: const GenerationSettings(temperature: 0.2, maxTokens: 200),
-    )) {
+    await for (final e in runtime.generate([
+      const ChatTurn(
+        ChatRole.system,
+        'Summarize the text in at most three sentences. Use only facts '
+        'from the text. Reply in the language of the text.',
+      ),
+      ChatTurn(ChatRole.user, text),
+    ], settings: const GenerationSettings(temperature: 0.2, maxTokens: 200))) {
       if (e is TokenEvent) b.write(e.text);
     }
     return b.toString();

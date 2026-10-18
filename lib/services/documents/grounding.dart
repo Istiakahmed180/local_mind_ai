@@ -192,7 +192,10 @@ List<RetrievedPassage> matchAnswerToPassages(
   scored.sort((a, b) => b.$2.compareTo(a.$2));
   if (scored.isEmpty) return const [];
   final best = scored.first.$2;
-  return [for (final s in scored) if (s.$2 == best) s.$1];
+  return [
+    for (final s in scored)
+      if (s.$2 == best) s.$1,
+  ];
 }
 
 /// Keeps the highest-ranked passages whose prompt fits in [budgetTokens].

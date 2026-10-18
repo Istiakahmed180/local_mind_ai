@@ -15,7 +15,8 @@ enum AgentState {
   failed,
   cancelled;
 
-  bool get isTerminal => this == completed || this == failed || this == cancelled;
+  bool get isTerminal =>
+      this == completed || this == failed || this == cancelled;
 }
 
 const agentTransitions = <AgentState, Set<AgentState>>{
@@ -61,7 +62,13 @@ enum AgentStepKind {
 }
 
 class AgentStep {
-  const AgentStep(this.kind, {this.tool, this.args, this.text = '', this.elapsed});
+  const AgentStep(
+    this.kind, {
+    this.tool,
+    this.args,
+    this.text = '',
+    this.elapsed,
+  });
 
   final AgentStepKind kind;
   final String? tool;
@@ -93,12 +100,11 @@ class AgentLimits {
   final int maxTokensPerStep;
 }
 
-typedef GenerateFn =
-    Stream<GenerationEvent> Function(
-      List<ChatTurn> turns,
-      GenerationSettings settings, {
-      Map<String, Object?>? jsonSchema,
-    });
+typedef GenerateFn = Stream<GenerationEvent> Function(
+  List<ChatTurn> turns,
+  GenerationSettings settings, {
+  Map<String, Object?>? jsonSchema,
+});
 
 typedef Approver = Future<bool> Function(AgentTool tool, ToolCall call);
 
@@ -172,9 +178,14 @@ class AgentOrchestrator {
   }
 
   Future<void> run(String task) async {
-    if (_state != AgentState.idle) throw StateError('An orchestrator runs once');
+    if (_state != AgentState.idle) {
+      throw StateError('An orchestrator runs once');
+    }
     final turns = [
-      ChatTurn(ChatRole.system, systemPrompt(registry, maxSteps: limits.maxSteps)),
+      ChatTurn(
+        ChatRole.system,
+        systemPrompt(registry, maxSteps: limits.maxSteps),
+      ),
       ChatTurn(ChatRole.user, task),
     ];
     _to(AgentState.planning);
@@ -294,7 +305,11 @@ class AgentOrchestrator {
       return 'Result of ${tool.name}: $text\n'
           'If this completes the task, reply with $finalAnswerTool.';
     } on TimeoutException {
-      return _toolError(tool, 'Timed out after ${tool.timeout.inSeconds} s.', watch);
+      return _toolError(
+        tool,
+        'Timed out after ${tool.timeout.inSeconds} s.',
+        watch,
+      );
     } on ToolException catch (e) {
       return _toolError(tool, e.message, watch);
     } on InferenceException catch (e) {
@@ -328,7 +343,12 @@ class AgentOrchestrator {
       } on InferenceException catch (e) {
         if (e.outOfMemory || isCancelled) rethrow;
         useGrammar = false;
-        _add(AgentStep(AgentStepKind.note, text: 'grammar_unavailable: ${e.message}'));
+        _add(
+          AgentStep(
+            AgentStepKind.note,
+            text: 'grammar_unavailable: ${e.message}',
+          ),
+        );
       }
     }
     return _collect(turns, settings, null);

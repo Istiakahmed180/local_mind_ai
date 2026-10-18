@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../core/widgets/state_views.dart';
 import '../../data/local/database.dart';
 import '../shell/shell_view.dart';
+import '../settings/reports_view.dart';
 import 'chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
@@ -216,9 +217,20 @@ class _MessageList extends StatelessWidget {
             SimpleDialogOption(
               child: Text(r.tr),
               onPressed: () async {
-                await c.report(m, r);
+                final saved = await c.report(m, r);
                 Get.back<void>();
-                Get.snackbar('report_saved_title'.tr, 'report_saved_body'.tr);
+                Get.snackbar(
+                  'report_saved_title'.tr,
+                  'report_saved_body'.tr,
+                  duration: const Duration(seconds: 6),
+                  mainButton: TextButton(
+                    onPressed: () {
+                      Get.closeCurrentSnackbar();
+                      showReportSendDialog(context, saved);
+                    },
+                    child: Text('report_send'.tr),
+                  ),
+                );
               },
             ),
         ],

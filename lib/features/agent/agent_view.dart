@@ -100,7 +100,9 @@ class _Intro extends StatelessWidget {
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(
-                    t.requiresApproval ? Icons.lock_outline : Icons.build_outlined,
+                    t.requiresApproval
+                        ? Icons.lock_outline
+                        : Icons.build_outlined,
                   ),
                   title: Text(t.labelKey.tr),
                   subtitle: t.requiresApproval
@@ -125,14 +127,24 @@ class _Intro extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        Text('agent_examples'.tr, style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          'agent_examples'.tr,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         const SizedBox(height: AppSpacing.xs),
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.xs,
           children: [
-            for (final k in ['agent_example_calc', 'agent_example_date', 'agent_example_write'])
-              ActionChip(label: Text(k.tr), onPressed: () => c.input.text = k.tr),
+            for (final k in [
+              'agent_example_calc',
+              'agent_example_date',
+              'agent_example_write',
+            ])
+              ActionChip(
+                label: Text(k.tr),
+                onPressed: () => c.input.text = k.tr,
+              ),
           ],
         ),
       ],
@@ -167,7 +179,8 @@ class _StatusBar extends StatelessWidget {
           ),
           Text(
             'agent_steps_used'.trParams({
-              'n': '${c.steps.where((x) => x.kind != AgentStepKind.note).length}',
+              'n':
+                  '${c.steps.where((x) => x.kind != AgentStepKind.note).length}',
             }),
             style: Theme.of(context).textTheme.bodySmall,
           ),
@@ -187,17 +200,48 @@ class _StepTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final tool = step.tool == null ? '' : _toolLabel(step.tool!);
     final (icon, color, title) = switch (step.kind) {
-      AgentStepKind.toolCall => (Icons.play_arrow, scheme.primary, 'agent_step_call'.trParams({'tool': tool})),
-      AgentStepKind.toolResult => (Icons.check_circle_outline, scheme.primary, 'agent_step_result'.trParams({'tool': tool})),
-      AgentStepKind.toolError => (Icons.error_outline, scheme.error, 'agent_step_tool_error'.trParams({'tool': tool})),
-      AgentStepKind.approvalDenied => (Icons.block, scheme.error, 'agent_step_denied'.trParams({'tool': tool})),
-      AgentStepKind.invalidOutput => (Icons.warning_amber, scheme.tertiary, 'agent_step_invalid'.tr),
-      AgentStepKind.note => (Icons.info_outline, scheme.onSurfaceVariant, 'agent_step_grammar_fallback'.tr),
-      AgentStepKind.finalAnswer => (Icons.flag_outlined, scheme.primary, 'agent_step_final'.tr),
+      AgentStepKind.toolCall => (
+        Icons.play_arrow,
+        scheme.primary,
+        'agent_step_call'.trParams({'tool': tool}),
+      ),
+      AgentStepKind.toolResult => (
+        Icons.check_circle_outline,
+        scheme.primary,
+        'agent_step_result'.trParams({'tool': tool}),
+      ),
+      AgentStepKind.toolError => (
+        Icons.error_outline,
+        scheme.error,
+        'agent_step_tool_error'.trParams({'tool': tool}),
+      ),
+      AgentStepKind.approvalDenied => (
+        Icons.block,
+        scheme.error,
+        'agent_step_denied'.trParams({'tool': tool}),
+      ),
+      AgentStepKind.invalidOutput => (
+        Icons.warning_amber,
+        scheme.tertiary,
+        'agent_step_invalid'.tr,
+      ),
+      AgentStepKind.note => (
+        Icons.info_outline,
+        scheme.onSurfaceVariant,
+        'agent_step_grammar_fallback'.tr,
+      ),
+      AgentStepKind.finalAnswer => (
+        Icons.flag_outlined,
+        scheme.primary,
+        'agent_step_final'.tr,
+      ),
     };
     final args = step.args;
     final body = switch (step.kind) {
-      AgentStepKind.toolCall => args == null || args.isEmpty ? '' : const JsonEncoder.withIndent('  ').convert(args),
+      AgentStepKind.toolCall =>
+        args == null || args.isEmpty
+            ? ''
+            : const JsonEncoder.withIndent('  ').convert(args),
       AgentStepKind.note || AgentStepKind.finalAnswer => '',
       _ => step.text,
     };
@@ -212,14 +256,25 @@ class _StepTile extends StatelessWidget {
               children: [
                 Icon(icon, size: 18, color: color),
                 const SizedBox(width: AppSpacing.sm),
-                Expanded(child: Text(title, style: Theme.of(context).textTheme.labelLarge)),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ),
                 if (step.elapsed != null)
-                  Text('${step.elapsed!.inMilliseconds} ms', style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    '${step.elapsed!.inMilliseconds} ms',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
               ],
             ),
             if (body.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.xs),
-              SelectableText(body, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+              SelectableText(
+                body,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+              ),
             ],
           ],
         ),
@@ -258,11 +313,17 @@ class _Outcome extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('agent_answer'.tr, style: theme.textTheme.titleSmall)),
+                  Expanded(
+                    child: Text(
+                      'agent_answer'.tr,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
                   IconButton(
                     tooltip: 'copy'.tr,
                     icon: const Icon(Icons.copy, size: 18),
-                    onPressed: () => Clipboard.setData(ClipboardData(text: answer)),
+                    onPressed: () =>
+                        Clipboard.setData(ClipboardData(text: answer)),
                   ),
                 ],
               ),
@@ -286,20 +347,21 @@ class _Outcome extends StatelessWidget {
             children: [
               Text('agent_failed'.tr, style: theme.textTheme.titleSmall),
               const SizedBox(height: AppSpacing.xs),
-              Text(
-                switch (f) {
-                  AgentFailure.stepLimit => 'agent_fail_step_limit'.trParams({
-                    'steps': '${AgentController.limits.maxSteps}',
-                  }),
-                  AgentFailure.invalidModelOutput => 'agent_fail_invalid'.tr,
-                  AgentFailure.outOfMemory => 'error_out_of_memory'.tr,
-                  _ => 'agent_fail_model'.tr,
-                },
-              ),
+              Text(switch (f) {
+                AgentFailure.stepLimit => 'agent_fail_step_limit'.trParams({
+                  'steps': '${AgentController.limits.maxSteps}',
+                }),
+                AgentFailure.invalidModelOutput => 'agent_fail_invalid'.tr,
+                AgentFailure.outOfMemory => 'error_out_of_memory'.tr,
+                _ => 'agent_fail_model'.tr,
+              }),
               if (f == AgentFailure.invalidModelOutput && detail != null) ...[
                 const SizedBox(height: AppSpacing.sm),
                 Text('agent_raw_output'.tr, style: theme.textTheme.labelLarge),
-                SelectableText(detail, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                SelectableText(
+                  detail,
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                ),
               ],
             ],
           ),
@@ -366,7 +428,9 @@ class _Workspace extends StatelessWidget {
       AlertDialog(
         title: Text(p.basename(f.path)),
         content: SingleChildScrollView(child: SelectableText(text)),
-        actions: [TextButton(onPressed: Get.back<void>, child: Text('agent_close'.tr))],
+        actions: [
+          TextButton(onPressed: Get.back<void>, child: Text('agent_close'.tr)),
+        ],
       ),
     );
   }
@@ -394,7 +458,9 @@ class _Composer extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                   child: Text(
                     c.error.value!.tr,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
               if (c.loadingModel.value)

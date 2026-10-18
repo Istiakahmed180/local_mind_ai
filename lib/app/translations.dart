@@ -76,8 +76,12 @@ class AppTranslations extends Translations {
     'report_saved_title': 'Report saved',
     'report_saved_body': 'Thanks. You can find it in Settings → My reports.',
     'my_reports': 'My reports',
+    'report_send': 'Send to developer',
+    'report_send_preview': 'Your email app will open with this draft to @email. You can edit it or decide not to send it. Nothing else from your conversations is included.',
+    'report_open_email': 'Open email app',
+    'report_no_email_app': 'No email app found. The report was copied; paste it into an email to @email.',
     'no_reports': 'No reports yet',
-    'reports_explainer': 'Reports stay on this device. To share one with the developer, copy it and email @email.',
+    'reports_explainer': 'Reports stay on this device until you choose to send one. Sending opens your email app with a draft to @email that you review first.',
 
     // Errors
     'error_no_model_selected': 'Choose and download a model first.',
@@ -217,7 +221,8 @@ class AppTranslations extends Translations {
     'privacy_section': 'Privacy',
     'privacy_and_permissions': 'Privacy & permissions',
     'clear_all_data': 'Clear all data',
-    'clear_all_data_hint': 'Deletes chats, models, documents, reports and settings.',
+    'clear_all_data_hint':
+        'Deletes chats, models, documents, reports and settings.',
     'clear_all_data_confirm': 'All conversations, downloaded models, imported documents, reports and settings will be permanently deleted from this device.',
     'delete_everything': 'Delete everything',
     'about': 'About',
@@ -281,7 +286,8 @@ class AppTranslations extends Translations {
     'agent_step_tool_error': '@tool failed',
     'agent_step_denied': 'You denied @tool',
     'agent_step_invalid': 'Invalid model reply (retrying)',
-    'agent_step_grammar_fallback': 'Constrained output unavailable; using tolerant parsing',
+    'agent_step_grammar_fallback':
+        'Constrained output unavailable; using tolerant parsing',
     'agent_step_final': 'Final answer',
     'agent_answer': 'Answer',
     'agent_answer_caveat': 'Written by a small on-device model. Tool results above are exact; the wording around them may not be.',
@@ -316,7 +322,8 @@ class AppTranslations extends Translations {
     'doc_pages': '@n pages',
     'doc_passages': '@n passages',
     'doc_remove': 'Remove document',
-    'doc_remove_confirm': '"@name" and its index will be deleted from this device.',
+    'doc_remove_confirm':
+        '"@name" and its index will be deleted from this device.',
     'doc_rebuild_index': 'Rebuild index',
     'doc_rebuild_done': 'Index rebuilt.',
     'doc_rebuild_failed': 'Index rebuilt. @n documents could not be read.',
@@ -327,7 +334,8 @@ class AppTranslations extends Translations {
     'doc_not_enough_evidence': 'Not enough evidence: your documents do not contain enough matching text to answer this. Try other words, or check that the right document is imported.',
     'doc_sources': 'Sources',
     'doc_sources_matched': 'Sources (matched by the app: the model gave no citation, these excerpts contain its answer)',
-    'doc_uncited': 'The model did not cite an excerpt. These excerpts were given to it:',
+    'doc_uncited':
+        'The model did not cite an excerpt. These excerpts were given to it:',
     'doc_invalid_citations': 'Ignored citations that match no excerpt: @list',
     'doc_check_answer': 'Answers come from a small on-device model and can be wrong. Tap a source to read the passage.',
     'doc_page_abbr': 'p.',
@@ -408,8 +416,12 @@ class AppTranslations extends Translations {
     'report_saved_title': 'রিপোর্ট সংরক্ষিত',
     'report_saved_body': 'ধন্যবাদ। সেটিংস → আমার রিপোর্ট-এ পাবেন।',
     'my_reports': 'আমার রিপোর্ট',
+    'report_send': 'ডেভেলপারকে পাঠান',
+    'report_send_preview': 'আপনার ইমেইল অ্যাপ @email-এর জন্য এই খসড়াসহ খুলবে। আপনি এটি সম্পাদনা করতে বা না পাঠাতে পারেন। আপনার কথোপকথনের আর কিছু যুক্ত হয় না।',
+    'report_open_email': 'ইমেইল অ্যাপ খুলুন',
+    'report_no_email_app': 'কোনো ইমেইল অ্যাপ পাওয়া যায়নি। রিপোর্টটি কপি করা হয়েছে; @email-এ ইমেইলে পেস্ট করুন।',
     'no_reports': 'এখনো কোনো রিপোর্ট নেই',
-    'reports_explainer': 'রিপোর্ট এই ডিভাইসেই থাকে। ডেভেলপারকে জানাতে কপি করে @email-এ ইমেইল করুন।',
+    'reports_explainer': 'আপনি না পাঠানো পর্যন্ত রিপোর্ট এই ডিভাইসেই থাকে। পাঠালে আপনার ইমেইল অ্যাপে @email-এর জন্য একটি খসড়া খুলবে, যা আপনি আগে দেখে নেবেন।',
 
     'error_no_model_selected': 'আগে একটি মডেল বেছে নিয়ে ডাউনলোড করুন।',
     'error_model_not_installed': 'এই মডেলটি ইনস্টল করা নেই।',
@@ -604,7 +616,8 @@ class AppTranslations extends Translations {
     'agent_step_tool_error': '@tool ব্যর্থ হয়েছে',
     'agent_step_denied': 'আপনি @tool-এর অনুমতি দেননি',
     'agent_step_invalid': 'মডেলের উত্তর সঠিক নয় (আবার চেষ্টা)',
-    'agent_step_grammar_fallback': 'নিয়ন্ত্রিত আউটপুট পাওয়া যায়নি; সহনশীল পার্সিং ব্যবহার হচ্ছে',
+    'agent_step_grammar_fallback':
+        'নিয়ন্ত্রিত আউটপুট পাওয়া যায়নি; সহনশীল পার্সিং ব্যবহার হচ্ছে',
     'agent_step_final': 'চূড়ান্ত উত্তর',
     'agent_answer': 'উত্তর',
     'agent_answer_caveat': 'একটি ছোট অন-ডিভাইস মডেল লিখেছে। ওপরের টুলের ফলাফল নির্ভুল; এর চারপাশের লেখা ভুল হতে পারে।',
@@ -642,7 +655,8 @@ class AppTranslations extends Translations {
     'doc_remove_confirm': '"@name" ও এর ইনডেক্স এই ডিভাইস থেকে মুছে যাবে।',
     'doc_rebuild_index': 'ইনডেক্স পুনর্গঠন',
     'doc_rebuild_done': 'ইনডেক্স পুনর্গঠিত হয়েছে।',
-    'doc_rebuild_failed': 'ইনডেক্স পুনর্গঠিত হয়েছে। @nটি ডকুমেন্ট পড়া যায়নি।',
+    'doc_rebuild_failed':
+        'ইনডেক্স পুনর্গঠিত হয়েছে। @nটি ডকুমেন্ট পড়া যায়নি।',
     'doc_status_error': 'ইনডেক্স হয়নি',
     'doc_ask_hint': 'আপনার ডকুমেন্ট সম্পর্কে প্রশ্ন করুন',
     'doc_ask': 'জিজ্ঞাসা',
@@ -650,8 +664,10 @@ class AppTranslations extends Translations {
     'doc_not_enough_evidence': 'যথেষ্ট প্রমাণ নেই: এই প্রশ্নের উত্তর দেওয়ার মতো মিলে যাওয়া টেক্সট আপনার ডকুমেন্টে নেই। অন্য শব্দ ব্যবহার করুন, অথবা সঠিক ডকুমেন্ট ইমপোর্ট হয়েছে কি না দেখুন।',
     'doc_sources': 'উৎস',
     'doc_sources_matched': 'উৎস (অ্যাপ মিলিয়েছে: মডেল কোনো উদ্ধৃতি দেয়নি, এই অংশগুলোতে তার উত্তর আছে)',
-    'doc_uncited': 'মডেল কোনো অংশ উদ্ধৃত করেনি। এই অংশগুলো তাকে দেওয়া হয়েছিল:',
-    'doc_invalid_citations': 'যে উদ্ধৃতির সাথে কোনো অংশ মেলে না সেগুলো বাদ দেওয়া হয়েছে: @list',
+    'doc_uncited':
+        'মডেল কোনো অংশ উদ্ধৃত করেনি। এই অংশগুলো তাকে দেওয়া হয়েছিল:',
+    'doc_invalid_citations':
+        'যে উদ্ধৃতির সাথে কোনো অংশ মেলে না সেগুলো বাদ দেওয়া হয়েছে: @list',
     'doc_check_answer': 'উত্তর ডিভাইসের ছোট মডেল থেকে আসে এবং ভুল হতে পারে। অংশটি পড়তে উৎসে চাপুন।',
     'doc_page_abbr': 'পৃ.',
     'doc_lines': 'লাইন',
@@ -663,6 +679,7 @@ class AppTranslations extends Translations {
     'doc_error_pdf_password': 'পাসওয়ার্ড-সুরক্ষিত PDF সমর্থিত নয়।',
     'doc_error_pdf_unreadable': 'এই PDF পড়া যায়নি।',
     'doc_error_import': 'ডকুমেন্টটি ইমপোর্ট করা যায়নি।',
-    'doc_error_empty_reply': 'মডেল খালি উত্তর দিয়েছে। আবার চেষ্টা করুন বা বড় মডেল বেছে নিন।',
+    'doc_error_empty_reply':
+        'মডেল খালি উত্তর দিয়েছে। আবার চেষ্টা করুন বা বড় মডেল বেছে নিন।',
   };
 }

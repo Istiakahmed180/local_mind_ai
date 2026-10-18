@@ -5,14 +5,18 @@
 /// Grammar-constrained decoding does not enforce lengths or patterns, and the
 /// fallback parser accepts unconstrained text, so every tool call is checked
 /// here before it can run.
-List<String> validateJson(Object? value, Map<String, Object?> schema,
-    [String path = r'$']) {
+List<String> validateJson(
+  Object? value,
+  Map<String, Object?> schema, [
+  String path = r'$',
+]) {
   final errors = <String>[];
   final type = schema['type'];
   switch (type) {
     case 'object':
       if (value is! Map) return ['$path must be an object'];
-      final props = (schema['properties'] as Map?)?.cast<String, Object?>() ??
+      final props =
+          (schema['properties'] as Map?)?.cast<String, Object?>() ??
           const <String, Object?>{};
       for (final r in (schema['required'] as List?) ?? const []) {
         if (!value.containsKey(r)) errors.add('$path.$r is required');

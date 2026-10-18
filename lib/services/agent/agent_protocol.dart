@@ -76,9 +76,13 @@ String systemPrompt(ToolRegistry registry, {required int maxSteps}) {
   }
   b
     ..writeln('Rules:')
-    ..writeln('- Use the calculator for every arithmetic step; do not compute in your head.')
+    ..writeln(
+      '- Use the calculator for every arithmetic step; do not compute in your head.',
+    )
     ..writeln('- Never invent tool results. Use only results you were given.')
-    ..writeln('- At most $maxSteps replies. Answer in the language of the task.');
+    ..writeln(
+      '- At most $maxSteps replies. Answer in the language of the task.',
+    );
   return b.toString().trim();
 }
 

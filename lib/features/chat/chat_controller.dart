@@ -186,7 +186,7 @@ class ChatController extends GetxController {
     ];
   }
 
-  Future<void> report(Message m, String reason) => _repo.report(
+  Future<ContentReport> report(Message m, String reason) => _repo.report(
     messageId: m.id,
     modelId: m.modelId,
     reason: reason,

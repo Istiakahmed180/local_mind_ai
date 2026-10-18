@@ -45,7 +45,10 @@ void main() {
 
   test('limits length, nesting and non-finite results', () {
     expect(() => ev('1+' * 150 + '1'), throwsA(isA<ExpressionException>()));
-    expect(() => ev('${'(' * 40}1${')' * 40}'), throwsA(isA<ExpressionException>()));
+    expect(
+      () => ev('${'(' * 40}1${')' * 40}'),
+      throwsA(isA<ExpressionException>()),
+    );
     expect(() => ev('10 ^ 400'), throwsA(isA<ExpressionException>()));
     expect(() => ev('sqrt(-1)'), throwsA(isA<ExpressionException>()));
   });
