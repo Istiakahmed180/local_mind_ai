@@ -127,7 +127,7 @@ class DocumentRepository {
     Set<String>? ids,
   ) async {
     final vars = <Variable>[
-      for (final t in terms) Variable.withString('%${_escapeLike(t)}%'),
+      for (final t in terms) Variable.withString('%${_escapeLike(searchPrefix(t))}%'),
     ];
     final like = terms.map((_) => r"c.body LIKE ? ESCAPE '\'").join(' OR ');
     final filter = _docFilter(ids, vars);

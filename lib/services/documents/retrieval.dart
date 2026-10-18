@@ -77,17 +77,22 @@ const _stopwords = {
   'their', 'there', 'this', 'to', 'was', 'were', 'what', 'when', 'where',
   'which', 'who', 'whom', 'why', 'will', 'with', 'you', 'your', 'about',
   'according', 'document', 'documents', 'file', 'say', 'says',
+  // Question and helper words that rarely appear in the answer text.
+  'many', 'much', 'long', 'often', 'would', 'could', 'should', 'may',
+  'might', 'must', 'am', 'been', 'being', 'if', 'any', 'we', 'they',
+  'need', 'want', 'know',
   // Bengali
   'কি', 'কী', 'কে', 'কোন', 'কোথায়', 'কখন', 'কেন', 'কিভাবে', 'কীভাবে',
   'এবং', 'ও', 'আর', 'এই', 'সেই', 'যে', 'তা', 'হয়', 'হবে', 'ছিল', 'আমার',
   'আমাকে', 'বলুন', 'বলো', 'জন্য', 'থেকে', 'মধ্যে', 'একটি', 'এর', 'কত',
+  'কয়', 'কয়টি', 'কিসের', 'যায়', 'আছে', 'পারি', 'পারে', 'করতে', 'হলে',
 };
 
 final _word = RegExp(r'[\p{L}\p{M}\p{N}]+', unicode: true);
 
-/// Lower-cased content words of [query], in order, without duplicates.
-/// English plurals are reduced (`refunds` → `refund`) because search matches
-/// terms as prefixes.
+/// Lower-cased, stemmed content words of [query], in order, without
+/// duplicates. Search matches a passage token when its stem starts with a
+/// term, so `return` finds `returned` and `day` finds `days`.
 List<String> queryTerms(String query, {int max = 12}) {
   final terms = <String>[];
   for (final m in _word.allMatches(query.toLowerCase())) {
@@ -103,25 +108,83 @@ List<String> queryTerms(String query, {int max = 12}) {
 
 bool _isNumber(String t) => RegExp(r'^\d+$').hasMatch(t);
 
-String _stem(String t) {
-  if (!RegExp(r'^[a-z]+$').hasMatch(t) || t.length <= 4) return t;
-  if (t.endsWith('ies')) return '${t.substring(0, t.length - 3)}y';
-  if (t.endsWith('ss')) return t;
-  if (t.endsWith('es') && RegExp(r'(sh|ch|x|z)es$').hasMatch(t)) {
-    return t.substring(0, t.length - 2);
+final _latin = RegExp(r'^[a-z]+$');
+
+String _stem(String t) =>
+    _latin.hasMatch(t) ? _stemEnglish(t) : _stemBengali(t);
+
+/// Light English suffix stripping (plurals, -ed, -ing, final e). Stems only
+/// need to be prefixes of the other forms, since matching is by prefix.
+String _stemEnglish(String t) {
+  if (t.length <= 3) return t;
+  if (t.length > 4 && (t.endsWith('ies') || t.endsWith('ied'))) {
+    return '${t.substring(0, t.length - 3)}y';
   }
-  if (t.endsWith('s')) return t.substring(0, t.length - 1);
+  if (t.endsWith('sses')) {
+    t = t.substring(0, t.length - 2);
+  } else if (RegExp(r'(sh|ch|x|z)es$').hasMatch(t)) {
+    t = t.substring(0, t.length - 2);
+  } else if (t.endsWith('s') &&
+      !t.endsWith('ss') &&
+      !t.endsWith('us') &&
+      !t.endsWith('is')) {
+    t = t.substring(0, t.length - 1);
+  } else if (t.endsWith('ed') && !t.endsWith('eed') && t.length >= 5) {
+    t = _undouble(t.substring(0, t.length - 2));
+  } else if (t.endsWith('ing') && t.length >= 6) {
+    t = _undouble(t.substring(0, t.length - 3));
+  }
+  if (t.length > 3 && t.endsWith('e') && !t.endsWith('ee')) {
+    t = t.substring(0, t.length - 1);
+  }
   return t;
 }
 
-/// FTS5 MATCH expression: each term as a quoted prefix phrase, OR-ed.
-/// Terms contain only letters, marks and digits, so no FTS syntax leaks in.
-String ftsMatchExpression(List<String> terms) =>
-    terms.map((t) => '"$t"*').join(' OR ');
+String _undouble(String t) {
+  final n = t.length;
+  if (n >= 4 && t[n - 1] == t[n - 2] && !'aeioulsz'.contains(t[n - 1])) {
+    return t.substring(0, n - 1);
+  }
+  return t;
+}
 
-/// Tokens of a passage, matched the same way as [queryTerms] (lower case).
-List<String> passageTokens(String text) =>
-    _word.allMatches(text.toLowerCase()).map((m) => m.group(0)!).toList();
+/// Common Bengali case and plural endings, longest first. A word keeps at
+/// least two letters so short words are left alone.
+const _bengaliSuffixes = [
+  'গুলোর', 'গুলির', 'গুলো', 'গুলি', 'দের', 'টির', 'টার',
+  'ের', 'টি', 'টা', 'কে', 'তে', 'ার', 'ির',
+];
+
+String _stemBengali(String t) {
+  for (final s in _bengaliSuffixes) {
+    if (t.endsWith(s) && t.length - s.length >= 2) {
+      final base = t.substring(0, t.length - s.length);
+      // -ার/-ির: keep the vowel sign, drop only the case ending র.
+      return s == 'ার' || s == 'ির' ? '$base${s[0]}' : base;
+    }
+  }
+  return t;
+}
+
+/// The prefix the database searches for [term]: a stem ending in `y` may
+/// appear as `ies`/`ied` (battery → batteries), so that `y` is left off.
+String searchPrefix(String term) =>
+    term.length > 4 && term.endsWith('y') && _latin.hasMatch(term)
+    ? term.substring(0, term.length - 1)
+    : term;
+
+/// FTS5 MATCH expression: each term's [searchPrefix] as a quoted prefix
+/// phrase, OR-ed. Terms contain only letters, marks and digits, so no FTS
+/// syntax leaks in.
+String ftsMatchExpression(List<String> terms) =>
+    terms.map((t) => '"${searchPrefix(t)}"*').join(' OR ');
+
+/// Stemmed tokens of a passage, matched the same way as [queryTerms]: a token
+/// matches a term when it starts with it.
+List<String> passageTokens(String text) => _word
+    .allMatches(text.toLowerCase())
+    .map((m) => _stem(m.group(0)!))
+    .toList();
 
 /// Ranks candidates with BM25 (k1 1.2, b 0.75), counting a token as a hit when
 /// it starts with a query term, then multiplies by the share of distinct query

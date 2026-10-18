@@ -277,3 +277,11 @@ New design system ("calm and premium", chosen by the owner) with a hand-picked t
 Tests: `flutter test` → 235 passed; `flutter analyze` → no issues. Not committed.
 - **Second pass (same day):** Documents, meaning-search/OCR sheets, Memory, Benchmark, About, Privacy, Reports, agent run view, approval dialog and chat sheets restyled; shared composer; red destructive buttons; `MessageState` made safe inside scrolling lists. Checked on the emulator in Bengali (see DESIGN_SYSTEM.md). `flutter test` → 235 passed, analyze clean.
 - **Found while testing (not fixed, not design):** document Q&A answered "not enough evidence" for "How many days to return a product?" although the file says "returned within 30 days" — the keyword evidence rule does not match word forms (return/returned, product/products). Needs a stemming or prefix-match fix plus a test.
+
+### Keyword search: word forms and question words — 2026-10-18
+
+Follow-up to the "How many days to return a product?" report above. `queryTerms` now drops more question/helper words (`many`, `much`, `long`, `would`, …; Bengali `কয়`, `যায়`, `আছে`, …) and stems lightly on both sides: English plurals, `-ed`, `-ing`, `-ies/-ied` and a final `e` (`returned/returning → return`, `days → day`, `charging → charg`); Bengali case/plural endings (`ফেরতের → ফেরত`, `বইগুলোর → বই`, `বাড়ির → বাড়ি`). Passage tokens are stemmed the same way and still matched by prefix; FTS5/LIKE search a stem ending in `y` without it (`batter*` finds `batteries`). Files: `lib/services/documents/retrieval.dart`, `lib/data/repositories/document_repository.dart`; tests in `test/documents/retrieval_test.dart` (the exact English case and a Bengali case, FTS5 and LIKE).
+
+- **Note:** in a unit test the old code already passed this exact one-sentence case at the retrieval gate (`return*`, `product*`, `days*` matched 3 of 4 terms), so the emulator result may instead have come from the model replying `NOT_ENOUGH_EVIDENCE`, which the UI shows with the same message. Not re-checked on the emulator.
+
+Tests: `flutter test` → 243 passed; `flutter analyze` → no issues. Not committed.

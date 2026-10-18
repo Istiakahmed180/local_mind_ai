@@ -23,8 +23,23 @@ void main() {
       ]);
     });
 
-    test('keeps Bengali words with their vowel signs', () {
-      expect(queryTerms('ফেরতের সময়সীমা কত?'), ['ফেরতের', 'সময়সীমা']);
+    test('keeps Bengali words with their vowel signs, minus case endings', () {
+      expect(queryTerms('ফেরতের সময়সীমা কত?'), ['ফেরত', 'সময়সীমা']);
+      expect(queryTerms('বইগুলো বাড়ির'), ['বই', 'বাড়ি']);
+    });
+
+    test('drops question words and reduces English inflections', () {
+      expect(queryTerms('How many days to return a product?'), [
+        'day',
+        'return',
+        'product',
+      ]);
+      expect(queryTerms('returned returning returns'), ['return']);
+      expect(queryTerms('stopped charging batteries'), [
+        'stop',
+        'charg',
+        'battery',
+      ]);
     });
 
     test('keeps numbers and deduplicates', () {
@@ -36,6 +51,7 @@ void main() {
         ftsMatchExpression(['refund', 'period']),
         '"refund"* OR "period"*',
       );
+      expect(ftsMatchExpression(['battery']), '"batter"*');
     });
   });
 
@@ -63,7 +79,7 @@ void main() {
           passage(3, 'warranty'),
           passage(4, 'firmware'),
         ],
-        ['warranty', 'firmware'],
+        queryTerms('warranty firmware'),
         totalChunks: 4,
       );
       expect(ranked.first.chunkId, 4);
@@ -77,6 +93,23 @@ void main() {
         limit: 2,
       );
       expect(ranked.map((p) => p.chunkId), [2, 5]);
+    });
+
+    test('inflected words in the passage match the question', () {
+      const q = 'How many days to return a product?';
+      final terms = queryTerms(q);
+      final ranked = rankPassages(
+        [
+          passage(
+            1,
+            'Unused products can be returned within 30 days of delivery.',
+          ),
+        ],
+        terms,
+        totalChunks: 1,
+      );
+      expect(ranked.single.matchedTerms, {'day', 'return', 'product'});
+      expect(hasEnoughEvidence(ranked, terms), isTrue);
     });
 
     test('evidence needs at least half of the terms', () {
@@ -141,6 +174,20 @@ void main() {
         ),
         TextChunk(ordinal: 1, text: 'ফেরতের সময়সীমা ৭ দিন।', page: 5),
       ]);
+      await add('c', 'shop.txt', const [
+        TextChunk(
+          ordinal: 0,
+          text: 'Unused products can be returned within 30 days of delivery.',
+          lineStart: 1,
+          lineEnd: 1,
+        ),
+        TextChunk(
+          ordinal: 1,
+          text: 'বইগুলো কেনার পর দশ দিনের মধ্যে ফেরত দেওয়া যায়।',
+          lineStart: 2,
+          lineEnd: 2,
+        ),
+      ]);
     });
 
     tearDown(() => db.close());
@@ -161,7 +208,28 @@ void main() {
 
       test('$mode: finds Bengali text', () async {
         final r = await repo.search('ফেরতের সময়সীমা', forceLike: like);
-        expect(r.single.page, 5);
+        expect(r.first.page, 5);
+      });
+
+      test('$mode: question words and word forms still match', () async {
+        const q = 'How many days to return a product?';
+        final r = await repo.search(q, forceLike: like);
+        expect(r.first.documentName, 'shop.txt');
+        expect(r.first.lineStart, 1);
+        expect(hasEnoughEvidence(r, queryTerms(q)), isTrue);
+      });
+
+      test('$mode: Bengali case endings still match', () async {
+        const q = 'বইগুলোর ফেরতের জন্য কত দিন পাওয়া যায়?';
+        final r = await repo.search(q, forceLike: like);
+        expect(r.first.documentName, 'shop.txt');
+        expect(r.first.lineStart, 2);
+        expect(hasEnoughEvidence(r, queryTerms(q)), isTrue);
+      });
+
+      test('$mode: finds plural forms of a -y word', () async {
+        final r = await repo.search('batteries', forceLike: like);
+        expect(r.single.page, 4);
       });
 
       test('$mode: filters by document and handles no match', () async {
@@ -190,7 +258,7 @@ void main() {
           )
           .getSingle();
       expect(fts.read<int>('n'), 0);
-      expect(await repo.chunkCount(), 2);
+      expect(await repo.chunkCount(), 4);
     });
 
     test('rebuilding the keyword index keeps results', () async {
