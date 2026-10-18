@@ -44,8 +44,9 @@ class LlamadartRuntime implements InferenceRuntime {
   @override
   Stream<GenerationEvent> generate(
     List<ChatTurn> turns,
-    GenerationSettings settings,
-  ) async* {
+    GenerationSettings settings, {
+    Map<String, Object?>? jsonSchema,
+  }) async* {
     final engine = _engine;
     if (engine == null || !engine.isReady) {
       throw const InferenceException('No model is loaded.');
@@ -65,6 +66,12 @@ class LlamadartRuntime implements InferenceRuntime {
           topP: settings.topP,
         ),
         enableThinking: false,
+        responseFormat: jsonSchema == null
+            ? null
+            : {
+                'type': 'json_schema',
+                'json_schema': {'schema': jsonSchema},
+              },
       )) {
         final text = chunk.text;
         if (text.isNotEmpty) yield TokenEvent(text);

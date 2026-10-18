@@ -105,11 +105,19 @@ class ModelRuntimeService extends GetxService {
     if (status.value != RuntimeStatus.error) status.value = RuntimeStatus.idle;
   }
 
-  Stream<GenerationEvent> generate(List<ChatTurn> turns) async* {
+  Stream<GenerationEvent> generate(
+    List<ChatTurn> turns, {
+    GenerationSettings? settings,
+    Map<String, Object?>? jsonSchema,
+  }) async* {
     if (!_runtime.isLoaded) throw const LoadFailure('error_no_model_loaded');
     status.value = RuntimeStatus.generating;
     try {
-      yield* _runtime.generate(turns, _settings.generation);
+      yield* _runtime.generate(
+        turns,
+        settings ?? _settings.generation,
+        jsonSchema: jsonSchema,
+      );
     } finally {
       if (status.value == RuntimeStatus.generating) {
         status.value = _runtime.isLoaded

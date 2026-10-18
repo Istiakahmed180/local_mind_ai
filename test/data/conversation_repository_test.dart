@@ -50,6 +50,16 @@ void main() {
     );
   });
 
+  test('searchMessages binds the query and escapes wildcards', () async {
+    final c = await repo.create(title: 'Trip');
+    await repo.addMessage(conversationId: c.id, role: 'user', content: 'Train at 9');
+    await repo.addMessage(conversationId: c.id, role: 'user', content: '100% sure');
+    expect(await repo.searchMessages('train'), [('Trip', 'Train at 9')]);
+    expect(await repo.searchMessages('%'), [('Trip', '100% sure')]);
+    expect(await repo.searchMessages("'; DROP TABLE messages; --"), isEmpty);
+    expect(await repo.messages(c.id), hasLength(2));
+  });
+
   test('deleting a conversation cascades to messages', () async {
     final c = await repo.create(title: 'x');
     await repo.addMessage(conversationId: c.id, role: 'user', content: 'hi');

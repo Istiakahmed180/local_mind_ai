@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../features/about/about_view.dart';
+import '../features/agent/agent_controller.dart';
 import '../features/agent/agent_view.dart';
 import '../features/chat/chat_controller.dart';
 import '../features/chat/chat_view.dart';
@@ -36,7 +37,13 @@ final appPages = [
   GetPage(name: Routes.modelDetails, page: () => const ModelDetailsView()),
   GetPage(name: Routes.privacy, page: () => const PrivacyView()),
   GetPage(name: Routes.about, page: () => const AboutView()),
-  GetPage(name: Routes.agent, page: () => const AgentView()),
+  GetPage(
+    name: Routes.agent,
+    page: () => const AgentView(),
+    binding: BindingsBuilder(() {
+      Get.put(AgentController());
+    }),
+  ),
   GetPage(name: Routes.documents, page: () => const DocumentsView()),
   GetPage(name: Routes.reports, page: () => const ReportsView()),
 ];

@@ -129,6 +129,35 @@ class ConversationRepository {
     _db.contentReports,
   )..orderBy([(r) => OrderingTerm.desc(r.createdAt)])).get();
 
+  /// Plain-text substring search over message content, newest first.
+  /// [query] is bound as a parameter, never spliced into SQL.
+  Future<List<(String title, String content)>> searchMessages(
+    String query, {
+    int limit = 5,
+  }) async {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return const [];
+    final pattern = '%${_escapeLike(trimmed)}%';
+    final q =
+        _db.select(_db.messages).join([
+            innerJoin(
+              _db.conversations,
+              _db.conversations.id.equalsExp(_db.messages.conversationId),
+            ),
+          ])
+          ..where(_db.messages.content.like(pattern, escapeChar: r'\'))
+          ..orderBy([OrderingTerm.desc(_db.messages.createdAt)])
+          ..limit(limit);
+    final rows = await q.get();
+    return [
+      for (final r in rows)
+        (
+          r.readTable(_db.conversations).title,
+          r.readTable(_db.messages).content,
+        ),
+    ];
+  }
+
   static String _escapeLike(String s) =>
       s.replaceAll(r'\', r'\\').replaceAll('%', r'\%').replaceAll('_', r'\_');
 }

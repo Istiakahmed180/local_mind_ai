@@ -6,9 +6,19 @@ import 'package:localmind_ai/services/inference/inference_runtime.dart';
 
 /// Test double for unit tests only. The app always uses LlamadartRuntime.
 class FakeRuntime implements InferenceRuntime {
-  FakeRuntime({this.tokens = const ['Hello', ' world'], this.loadError});
+  FakeRuntime({
+    this.tokens = const ['Hello', ' world'],
+    this.loadError,
+    List<String>? responses,
+  }) : responses = responses ?? [];
 
   final List<String> tokens;
+
+  /// Scripted outputs, one per generate() call, consumed in order. When empty,
+  /// [tokens] is streamed instead.
+  final List<String> responses;
+  final schemas = <Map<String, Object?>?>[];
+  int generateCalls = 0;
   final InferenceException? loadError;
   final loads = <String>[];
   int unloads = 0;
@@ -35,12 +45,16 @@ class FakeRuntime implements InferenceRuntime {
   @override
   Stream<GenerationEvent> generate(
     List<ChatTurn> turns,
-    GenerationSettings settings,
-  ) async* {
+    GenerationSettings settings, {
+    Map<String, Object?>? jsonSchema,
+  }) async* {
     lastTurns = turns;
+    schemas.add(jsonSchema);
+    generateCalls++;
     _cancel = false;
     var n = 0;
-    for (final t in tokens) {
+    final out = responses.isNotEmpty ? [responses.removeAt(0)] : tokens;
+    for (final t in out) {
       await Future<void>.delayed(Duration.zero);
       if (_cancel) break;
       n++;

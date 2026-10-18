@@ -86,10 +86,13 @@ abstract interface class InferenceRuntime {
 
   Future<void> unload();
 
+  /// With [jsonSchema], decoding is grammar-constrained so the output can
+  /// only be JSON matching that schema (a subset of JSON Schema).
   Stream<GenerationEvent> generate(
     List<ChatTurn> turns,
-    GenerationSettings settings,
-  );
+    GenerationSettings settings, {
+    Map<String, Object?>? jsonSchema,
+  });
 
   void cancel();
 

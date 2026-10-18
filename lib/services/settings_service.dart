@@ -19,6 +19,7 @@ class SettingsService extends GetxService {
   static const _kContext = 'contextSize';
   static const _kSystemPrompt = 'systemPrompt';
   static const _kLowResource = 'lowResource';
+  static const _kAgentHistorySearch = 'agentHistorySearch';
 
   static const defaultSystemPromptEn =
       'You are a helpful assistant running entirely on the user\'s phone. '
@@ -37,6 +38,10 @@ class SettingsService extends GetxService {
   late final systemPrompt =
       (_prefs.getString(_kSystemPrompt) ?? defaultSystemPromptEn).obs;
   late final lowResource = (_prefs.getBool(_kLowResource) ?? false).obs;
+
+  /// Off by default: the agent may only search chat history after opt-in.
+  late final agentHistorySearch =
+      (_prefs.getBool(_kAgentHistorySearch) ?? false).obs;
 
   Locale get locale => localeCode.value == 'bn'
       ? const Locale('bn', 'BD')
@@ -108,9 +113,15 @@ class SettingsService extends GetxService {
     await _prefs.setBool(_kLowResource, v);
   }
 
+  Future<void> setAgentHistorySearch(bool v) async {
+    agentHistorySearch.value = v;
+    await _prefs.setBool(_kAgentHistorySearch, v);
+  }
+
   Future<void> clear() async {
     await _prefs.clear();
     onboarded.value = false;
     activeModelId.value = null;
+    agentHistorySearch.value = false;
   }
 }
